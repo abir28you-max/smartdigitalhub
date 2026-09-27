@@ -1,0 +1,2 @@
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS telegram_message_id BIGINT;
+CREATE UNIQUE INDEX IF NOT EXISTS orders_telegram_message_id_key ON public.orders (telegram_message_id) WHERE telegram_message_id IS NOT NULL;

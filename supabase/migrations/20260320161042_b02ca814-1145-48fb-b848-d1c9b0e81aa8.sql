@@ -1,0 +1,1 @@
+ALTER TABLE public.salami_submissions ADD COLUMN is_completed boolean NOT NULL DEFAULT false;

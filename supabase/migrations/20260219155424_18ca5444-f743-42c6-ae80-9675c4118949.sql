@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN coupon_option text NULL;

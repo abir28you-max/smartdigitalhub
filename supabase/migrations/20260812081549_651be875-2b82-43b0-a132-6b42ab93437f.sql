@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.get_product_coupons_by_code(text) TO anon;

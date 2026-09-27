@@ -1,0 +1,1 @@
+ALTER TABLE public.payment_methods ADD COLUMN logo_url text DEFAULT NULL;
