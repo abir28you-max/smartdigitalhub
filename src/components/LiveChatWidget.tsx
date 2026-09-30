@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, PhoneOff, MessageCircleMore, MessageCircle, Phone, Mail, Bot, Sparkles } from "lucide-react";
+import { X, PhoneOff, MessageCircleMore, MessageCircle, Phone, Mail, Bot, Sparkles, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
@@ -32,17 +32,30 @@ const getSessionId = () => {
 };
 
 const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
+  const { user } = useAuth();
+
+  const [savedName, setSavedName] = useState(() => localStorage.getItem("chat_name") || user?.user_metadata?.name || "");
+  const [savedPhone, setSavedPhone] = useState(() => localStorage.getItem("chat_phone") || user?.user_metadata?.phone || "");
+  
+  const [isFormSubmitted, setIsFormSubmitted] = useState(() => {
+    return Boolean(localStorage.getItem("chat_name") && localStorage.getItem("chat_phone"));
+  });
+
+  const [nameInput, setNameInput] = useState(savedName);
+  const [phoneInput, setPhoneInput] = useState(savedPhone);
+  const [formError, setFormError] = useState("");
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatEnded, setChatEnded] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const sessionId = getSessionId();
-  const { user } = useAuth();
 
-  const customerName = localStorage.getItem("chat_name") || user?.user_metadata?.name || user?.email?.split("@")[0] || "Customer";
-  const customerPhone = localStorage.getItem("chat_phone") || user?.user_metadata?.phone || "N/A";
+  const customerName = savedName || "Customer";
+  const customerPhone = savedPhone || "N/A";
 
   const fetchMessages = async () => {
+    if (!isFormSubmitted) return;
     try {
       const { data, error } = await supabase.rpc("get_chat_messages", {
         p_session_id: sessionId,
@@ -59,17 +72,39 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   };
 
   useEffect(() => {
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 3000);
-    return () => clearInterval(interval);
-  }, [sessionId]);
+    if (isFormSubmitted) {
+      fetchMessages();
+      const interval = setInterval(fetchMessages, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [sessionId, isFormSubmitted]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isBotTyping]);
+    if (isFormSubmitted) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isBotTyping, isFormSubmitted]);
+
+  const handleStartChat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameInput.trim()) {
+      setFormError("অনুগ্রহ করে আপনার নাম লিখুন");
+      return;
+    }
+    if (!phoneInput.trim() || phoneInput.trim().length < 6) {
+      setFormError("অনুগ্রহ করে একটি সঠিক ফোন নম্বর লিখুন");
+      return;
+    }
+
+    setFormError("");
+    localStorage.setItem("chat_name", nameInput.trim());
+    localStorage.setItem("chat_phone", phoneInput.trim());
+    setSavedName(nameInput.trim());
+    setSavedPhone(phoneInput.trim());
+    setIsFormSubmitted(true);
+  };
 
   const triggerBotReply = async (userMsg: string) => {
-    // Check if voice or image
     if (userMsg.startsWith("[voice]") || userMsg.startsWith("[img]")) {
       return;
     }
@@ -127,10 +162,8 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
       console.error("Send message error:", error);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } else {
-      // Trigger AI sales assistant reply
       triggerBotReply(msg);
 
-      // Notify Telegram channel for human admin backup
       supabase.functions
         .invoke("telegram-notify", {
           body: { type: "support", data: { name: customerName, phone: customerPhone, message: msg } },
@@ -168,28 +201,20 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
         aria-hidden="true"
       />
 
-      <div className="fixed bottom-16 sm:bottom-6 right-2 sm:right-6 left-2 sm:left-auto z-[100] sm:w-[390px] h-[540px] max-h-[calc(100vh-5.5rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-in">
-        {/* Header */}
-        <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between flex-shrink-0 shadow-sm">
+      <div className="fixed bottom-16 sm:bottom-6 right-2 sm:right-6 left-2 sm:left-auto z-[100] sm:w-[390px] h-[550px] max-h-[calc(100vh-5.5rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-in">
+        {/* Top Header */}
+        <div className="bg-primary text-primary-foreground px-4 py-3.5 flex items-center justify-between flex-shrink-0 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative">
-              <div className="h-9 w-9 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0 font-bold text-xs">
-                SDH
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-400 border-2 border-primary" />
+            <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 text-primary-foreground">
+              <MessageCircleMore className="h-6 w-6" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="font-bold text-sm leading-tight truncate">Smart Digital Hub</p>
-                <span className="bg-primary-foreground/20 text-[10px] px-1.5 py-0.5 rounded-full font-medium flex items-center gap-0.5">
-                  <Sparkles className="h-2.5 w-2.5" /> AI
-                </span>
-              </div>
-              <p className="text-[11px] text-primary-foreground/85 mt-0.5">ইনস্ট্যান্ট AI সেলস ও লাইভ সাপোর্ট</p>
+              <p className="font-bold text-base leading-tight truncate">Live Support</p>
+              <p className="text-[12px] text-primary-foreground/90 mt-0.5">সাধারণত কয়েক মিনিটে রিপ্লাই</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {!chatEnded && messages.length > 0 && (
+            {isFormSubmitted && !chatEnded && messages.length > 0 && (
               <button
                 type="button"
                 onClick={handleEndChat}
@@ -211,106 +236,176 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
           </div>
         </div>
 
-        {/* Quick Contact Bar */}
-        <div className="bg-muted/80 border-b border-border px-3 py-1.5 flex items-center justify-between gap-2 text-xs">
-          <a
-            href="https://wa.me/8801516524644?text=Hello%20Smart%20Digital%20Hub"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-green-600 dark:text-green-400 font-semibold hover:underline"
-          >
-            <MessageCircle className="h-3.5 w-3.5" />
-            WhatsApp
-          </a>
-          <span className="text-muted-foreground">•</span>
-          <a
-            href="tel:01516524644"
-            className="flex items-center gap-1.5 text-primary font-semibold hover:underline"
-          >
-            <Phone className="h-3.5 w-3.5" />
-            01516524644
-          </a>
-          <span className="text-muted-foreground">•</span>
-          <a
-            href="mailto:abir28you@gmail.com"
-            className="flex items-center gap-1.5 text-muted-foreground font-semibold hover:underline"
-          >
-            <Mail className="h-3.5 w-3.5" />
-            Email
-          </a>
-        </div>
-
-        {/* Messages area */}
-        <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-background/50">
-          {/* Welcome message */}
-          <div className="flex gap-2 max-w-[90%]">
-            <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
-              AI
+        {/* Initial Form Screen if not submitted */}
+        {!isFormSubmitted ? (
+          <div className="flex-1 flex flex-col justify-center px-6 py-6 bg-background overflow-y-auto">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-foreground flex items-center justify-center gap-2">
+                আমাদের সাথে চ্যাট করুন <span className="text-2xl">💬</span>
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                আপনার তথ্য দিন, আমরা সাহায্য করতে প্রস্তুত!
+              </p>
             </div>
-            <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none text-xs text-foreground leading-relaxed shadow-xs">
-              স্বাগতম! <strong>Smart Digital Hub</strong> এআই সেলস ও সাপোর্টে আপনাকে স্বাগতম। ✨<br />
-              যেকোনো সাবস্ক্রিপশন, অফার, পেমেন্ট বা অর্ডার সংক্রান্ত বিষয়ে জিজ্ঞাসা করতে নিচে লিখুন বা বাটন চাপুন।
-            </div>
-          </div>
 
-          {/* Quick Suggestions Chips (only if low message count or starting) */}
-          {messages.length < 3 && (
-            <div className="pt-1 pb-1">
-              <p className="text-[11px] text-muted-foreground mb-1.5 font-medium px-1">দ্রুত জানতে ট্যাপ করুন:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {QUICK_SUGGESTIONS.map((chip, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => sendMessage(chip.text)}
-                    className="text-xs bg-muted/80 hover:bg-primary/10 hover:text-primary hover:border-primary/40 text-foreground border border-border px-2.5 py-1 rounded-full transition-all text-left cursor-pointer"
-                  >
-                    {chip.label}
-                  </button>
-                ))}
+            <form onSubmit={handleStartChat} className="space-y-4 max-w-sm mx-auto w-full">
+              {formError && (
+                <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs text-center font-medium animate-shake">
+                  {formError}
+                </div>
+              )}
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="আপনার নাম"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all"
+                  required
+                />
               </div>
-            </div>
-          )}
 
-          {messages.map((m) => (
-            <ChatMessage key={m.id} senderType={m.sender_type} message={m.message} />
-          ))}
-
-          {/* Typing Indicator */}
-          {isBotTyping && (
-            <div className="flex gap-2 items-center max-w-[80%] animate-fade-in">
-              <div className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-[10px]">
-                <Bot className="h-3.5 w-3.5 animate-bounce" />
+              <div>
+                <input
+                  type="tel"
+                  placeholder="ফোন নম্বর"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all"
+                  required
+                />
               </div>
-              <div className="bg-muted px-3 py-2 rounded-2xl rounded-tl-none text-xs text-muted-foreground flex items-center gap-1">
-                <span>Smart AI টাইপ করছে</span>
-                <span className="inline-flex gap-1 items-center ml-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
-                </span>
-              </div>
+
+              <button
+                type="submit"
+                className="w-full h-12 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-xl text-base shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>চ্যাট শুরু করুন</span>
+              </button>
+            </form>
+
+            <div className="mt-8 pt-4 border-t border-border flex items-center justify-center gap-6 text-xs text-muted-foreground">
+              <a
+                href="https://wa.me/8801516524644"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-green-600 transition-colors font-medium"
+              >
+                <MessageCircle className="h-4 w-4 text-green-500" />
+                WhatsApp
+              </a>
+              <span>•</span>
+              <a
+                href="tel:01516524644"
+                className="flex items-center gap-1.5 hover:text-primary transition-colors font-medium"
+              >
+                <Phone className="h-4 w-4 text-primary" />
+                01516524644
+              </a>
             </div>
-          )}
-
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Footer / Input */}
-        {chatEnded ? (
-          <div className="p-3 border-t border-border flex flex-col items-center gap-2 flex-shrink-0 bg-muted/40">
-            <p className="text-xs text-muted-foreground">এই চ্যাট সেশনটি শেষ হয়েছে</p>
-            <Button size="sm" variant="default" onClick={handleNewChat} className="rounded-xl">
-              নতুন চ্যাট শুরু করুন
-            </Button>
           </div>
         ) : (
-          <ChatInput
-            onSendText={(text) => sendMessage(text)}
-            onSendImage={(base64) => sendMessage(`[img]${base64}`)}
-            onSendVoice={(base64) => sendMessage(`[voice]${base64}`)}
-            disabled={chatEnded}
-          />
+          /* Active Chat Screen */
+          <>
+            {/* Quick Contact Sub-bar */}
+            <div className="bg-muted/80 border-b border-border px-3 py-1.5 flex items-center justify-between gap-2 text-xs flex-shrink-0">
+              <a
+                href="https://wa.me/8801516524644?text=Hello%20Smart%20Digital%20Hub"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-green-600 dark:text-green-400 font-semibold hover:underline"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                WhatsApp
+              </a>
+              <span className="text-muted-foreground">•</span>
+              <a
+                href="tel:01516524644"
+                className="flex items-center gap-1.5 text-primary font-semibold hover:underline"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                01516524644
+              </a>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-[11px] text-muted-foreground font-medium truncate">
+                👤 {customerName}
+              </span>
+            </div>
+
+            {/* Messages area */}
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-background/50">
+              {/* Welcome message */}
+              <div className="flex gap-2 max-w-[90%]">
+                <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
+                  AI
+                </div>
+                <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none text-xs text-foreground leading-relaxed shadow-xs">
+                  স্বাগতম {customerName}! <strong>Smart Digital Hub</strong> এআই সেলস ও সাপোর্টে আপনাকে স্বাগতম। ✨<br />
+                  যেকোনো সাবস্ক্রিপশন, অফার, পেমেন্ট বা অর্ডার সংক্রান্ত বিষয়ে জিজ্ঞাসা করতে নিচে লিখুন বা বাটন চাপুন।
+                </div>
+              </div>
+
+              {/* Quick Suggestions Chips */}
+              {messages.length < 3 && (
+                <div className="pt-1 pb-1">
+                  <p className="text-[11px] text-muted-foreground mb-1.5 font-medium px-1">দ্রুত জানতে ট্যাপ করুন:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK_SUGGESTIONS.map((chip, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => sendMessage(chip.text)}
+                        className="text-xs bg-muted/80 hover:bg-primary/10 hover:text-primary hover:border-primary/40 text-foreground border border-border px-2.5 py-1 rounded-full transition-all text-left cursor-pointer"
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {messages.map((m) => (
+                <ChatMessage key={m.id} senderType={m.sender_type} message={m.message} />
+              ))}
+
+              {/* Typing Indicator */}
+              {isBotTyping && (
+                <div className="flex gap-2 items-center max-w-[80%] animate-fade-in">
+                  <div className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-[10px]">
+                    <Bot className="h-3.5 w-3.5 animate-bounce" />
+                  </div>
+                  <div className="bg-muted px-3 py-2 rounded-2xl rounded-tl-none text-xs text-muted-foreground flex items-center gap-1">
+                    <span>Smart AI টাইপ করছে</span>
+                    <span className="inline-flex gap-1 items-center ml-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div ref={bottomRef} />
+            </div>
+
+            {/* Footer / Input */}
+            {chatEnded ? (
+              <div className="p-3 border-t border-border flex flex-col items-center gap-2 flex-shrink-0 bg-muted/40">
+                <p className="text-xs text-muted-foreground">এই চ্যাট সেশনটি শেষ হয়েছে</p>
+                <Button size="sm" variant="default" onClick={handleNewChat} className="rounded-xl">
+                  নতুন চ্যাট শুরু করুন
+                </Button>
+              </div>
+            ) : (
+              <ChatInput
+                onSendText={(text) => sendMessage(text)}
+                onSendImage={(base64) => sendMessage(`[img]${base64}`)}
+                onSendVoice={(base64) => sendMessage(`[voice]${base64}`)}
+                disabled={chatEnded}
+              />
+            )}
+          </>
         )}
       </div>
     </>
