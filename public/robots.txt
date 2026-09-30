@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://myproduct.tech/sitemap.xml
+Sitemap: https://smartdigitalhub.site/sitemap.xml

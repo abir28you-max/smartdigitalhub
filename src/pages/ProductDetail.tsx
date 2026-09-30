@@ -596,7 +596,7 @@ const ProductDetail = () => {
           size="sm"
           className="mt-3 w-full"
           onClick={async () => {
-            const productUrl = `https://www.myproduct.tech/product/${product.slug || product.id}`;
+            const productUrl = `${window.location.origin}/product/${product.slug || product.id}`;
             if (navigator.share) {
               try {
                 await navigator.share({ title: product.name, text: product.name, url: productUrl });
