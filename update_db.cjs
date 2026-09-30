@@ -11,7 +11,7 @@ async function run() {
   
   for (const col of columns) {
     const query = `UPDATE public.products 
-      SET ${col} = REPLACE(REPLACE(REPLACE(REPLACE(${col}, 'TechSubxBD', 'Smart Digital Hub'), 'TechsubxBD', 'Smart Digital Hub'), 'TechSubx', 'Smart Digital Hub'), 'techsubxbd', 'Smart Digital Hub') 
+      SET ${col} = REPLACE(REPLACE(REPLACE(REPLACE(${col}, 'Smart Digital Hub', 'Smart Digital Hub'), 'Smart Digital Hub', 'Smart Digital Hub'), 'Smart Digital Hub', 'Smart Digital Hub'), 'smartdigitalhub', 'Smart Digital Hub') 
       WHERE ${col} ILIKE '%techsub%'`;
     const res = await client.query(query);
     console.log(`Updated ${col}: ${res.rowCount} rows`);
@@ -19,7 +19,7 @@ async function run() {
 
   // Update banners
   const bRes = await client.query(`UPDATE public.banners 
-    SET title = REPLACE(REPLACE(title, 'TechSubx', 'Smart Digital Hub'), 'TechsubxBD', 'Smart Digital Hub') 
+    SET title = REPLACE(REPLACE(title, 'Smart Digital Hub', 'Smart Digital Hub'), 'Smart Digital Hub', 'Smart Digital Hub') 
     WHERE title ILIKE '%techsub%'`);
   console.log(`Updated banners: ${bRes.rowCount} rows`);
 

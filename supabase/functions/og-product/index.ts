@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     return new Response("Product not found", { status: 404 });
   }
 
-  const siteUrl = "https://techsubxbd.lovable.app";
+  const siteUrl = "https://smartdigitalhub.site";
   const productUrl = `${siteUrl}/product/${product.slug || slug}`;
   const title = product.seo_title || product.name || "Smart Digital Hub";
   const description = product.meta_description || product.short_description || 
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
   <meta property="og:description" content="${escHtml(description)}" />
   <meta property="og:image" content="${escHtml(image)}" />
   <meta property="og:url" content="${escHtml(productUrl)}" />
-  <meta property="og:site_name" content="TechSubxBD" />
+  <meta property="og:site_name" content="Smart Digital Hub" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />

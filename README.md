@@ -4,7 +4,7 @@ https://submonth.com/  এই website এর মতো আমি একটা we
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://techsubxbd.lovable.app
+**Live app**: https://smartdigitalhub.lovable.app
 
 ## Build with Lovable
 
