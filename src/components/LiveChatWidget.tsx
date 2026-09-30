@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, PhoneOff, MessageCircleMore, MessageCircle, Phone, Mail, Bot, Sparkles, MessageSquare } from "lucide-react";
+import { X, PhoneOff, MessageCircleMore, MessageCircle, Phone, Mail, Bot, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSalesBotResponse } from "@/lib/salesChatBot";
+import { getSalesBotResponse, ChatBotProduct } from "@/lib/salesChatBot";
+import { safeUUID } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -23,22 +24,43 @@ const QUICK_SUGGESTIONS = [
 ];
 
 const getSessionId = () => {
-  let id = localStorage.getItem("chat_session_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("chat_session_id", id);
+  try {
+    let id = localStorage.getItem("chat_session_id");
+    if (!id) {
+      id = safeUUID();
+      localStorage.setItem("chat_session_id", id);
+    }
+    return id;
+  } catch {
+    return safeUUID();
   }
-  return id;
 };
 
 const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
 
-  const [savedName, setSavedName] = useState(() => localStorage.getItem("chat_name") || user?.user_metadata?.name || "");
-  const [savedPhone, setSavedPhone] = useState(() => localStorage.getItem("chat_phone") || user?.user_metadata?.phone || "");
+  const [savedName, setSavedName] = useState(() => {
+    try {
+      return localStorage.getItem("chat_name") || user?.user_metadata?.name || "";
+    } catch {
+      return "";
+    }
+  });
+
+  const [savedPhone, setSavedPhone] = useState(() => {
+    try {
+      return localStorage.getItem("chat_phone") || user?.user_metadata?.phone || "";
+    } catch {
+      return "";
+    }
+  });
   
   const [isFormSubmitted, setIsFormSubmitted] = useState(() => {
-    return Boolean(localStorage.getItem("chat_name") && localStorage.getItem("chat_phone"));
+    try {
+      return Boolean(localStorage.getItem("chat_name") && localStorage.getItem("chat_phone"));
+    } catch {
+      return false;
+    }
   });
 
   const [nameInput, setNameInput] = useState(savedName);
@@ -48,11 +70,29 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatEnded, setChatEnded] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [liveProducts, setLiveProducts] = useState<ChatBotProduct[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const sessionId = getSessionId();
 
   const customerName = savedName || "Customer";
   const customerPhone = savedPhone || "N/A";
+
+  // Load live products for chatbot awareness
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const { data } = await supabase
+          .from("products")
+          .select("id, name, price, stock_status, short_description, slug");
+        if (data) {
+          setLiveProducts(data as ChatBotProduct[]);
+        }
+      } catch (err) {
+        console.error("Chatbot product fetch error:", err);
+      }
+    };
+    loadProducts();
+  }, []);
 
   const fetchMessages = async () => {
     if (!isFormSubmitted) return;
@@ -97,8 +137,10 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
     }
 
     setFormError("");
-    localStorage.setItem("chat_name", nameInput.trim());
-    localStorage.setItem("chat_phone", phoneInput.trim());
+    try {
+      localStorage.setItem("chat_name", nameInput.trim());
+      localStorage.setItem("chat_phone", phoneInput.trim());
+    } catch {}
     setSavedName(nameInput.trim());
     setSavedPhone(phoneInput.trim());
     setIsFormSubmitted(true);
@@ -112,8 +154,8 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
     setIsBotTyping(true);
     setTimeout(async () => {
       try {
-        const replyText = getSalesBotResponse(userMsg);
-        const botTempId = crypto.randomUUID();
+        const replyText = getSalesBotResponse(userMsg, liveProducts);
+        const botTempId = safeUUID();
         const botMsg: Message = {
           id: botTempId,
           sender_type: "agent",
@@ -124,7 +166,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
         setMessages((prev) => [...prev, botMsg]);
         setIsBotTyping(false);
 
-        // Save AI Bot reply to DB
+        // Save AI Bot reply to Supabase
         await supabase.from("chat_messages").insert({
           session_id: sessionId,
           sender_type: "agent",
@@ -136,12 +178,12 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
         console.error("Bot reply error:", err);
         setIsBotTyping(false);
       }
-    }, 750);
+    }, 700);
   };
 
   const sendMessage = async (msg: string) => {
     if (chatEnded || !msg.trim()) return;
-    const tempId = crypto.randomUUID();
+    const tempId = safeUUID();
     const newMsg: Message = {
       id: tempId,
       sender_type: "customer",
@@ -184,7 +226,9 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   };
 
   const handleNewChat = () => {
-    localStorage.removeItem("chat_session_id");
+    try {
+      localStorage.removeItem("chat_session_id");
+    } catch {}
     setChatEnded(false);
     setMessages([]);
     setTimeout(() => {
@@ -196,7 +240,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
     <>
       {/* Mobile Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/40 z-[95] sm:hidden backdrop-blur-xs animate-fade-in"
+        className="fixed inset-0 bg-black/50 z-[95] sm:hidden backdrop-blur-sm animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -250,7 +294,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
 
             <form onSubmit={handleStartChat} className="space-y-4 max-w-sm mx-auto w-full">
               {formError && (
-                <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs text-center font-medium animate-shake">
+                <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs text-center font-medium">
                   {formError}
                 </div>
               )}
@@ -342,7 +386,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
                 </div>
                 <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none text-xs text-foreground leading-relaxed shadow-xs">
                   স্বাগতম {customerName}! <strong>Smart Digital Hub</strong> এআই সেলস ও সাপোর্টে আপনাকে স্বাগতম। ✨<br />
-                  যেকোনো সাবস্ক্রিপশন, অফার, পেমেন্ট বা অর্ডার সংক্রান্ত বিষয়ে জিজ্ঞাসা করতে নিচে লিখুন বা বাটন চাপুন।
+                  যেকোনো সাবস্ক্রিপশনের দাম, স্টক স্ট্যাটাস বা অর্ডার সংক্রান্ত যেকোনো তথ্য জানতে নিচে লিখুন বা বাটন চাপুন।
                 </div>
               </div>
 

@@ -58,7 +58,9 @@ const Products = () => {
         .order("created_at", { ascending: false });
 
       if (resolvedCategoryId) query = query.eq("category_id", resolvedCategoryId);
-      if (search) query = query.ilike("name", `%${search}%`);
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,short_description.ilike.%${search}%`);
+      }
 
       const { data, error } = await query;
 
