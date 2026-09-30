@@ -61,20 +61,20 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
 
   return (
     <section className="container mt-2 md:mt-3">
-      <div className="relative rounded-xl md:rounded-2xl overflow-hidden bg-muted md:max-h-[420px] md:shadow-lg">
+      <div className="relative rounded-xl md:rounded-2xl overflow-hidden bg-muted md:shadow-lg">
         <Wrapper>
-          <div className="relative w-full aspect-[16/7] md:aspect-[24/7]">
+          <div className="relative w-full aspect-[16/7]">
             {banners.map((b, i) => (
               <img
                 key={b.id}
-                src={getOptimizedImageUrl(b.image_url, { width: 1280, quality: 68 })}
+                src={getOptimizedImageUrl(b.image_url, { width: 1400, quality: 75 })}
                 alt={b.title || "Promotional banner"}
                 loading={i === 0 ? "eager" : "lazy"}
                 fetchPriority={i === 0 ? "high" : undefined}
-                width="800"
-                height="350"
+                width="1280"
+                height="560"
                 decoding="async"
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out"
+                className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-in-out"
                 style={{ opacity: i === current ? 1 : 0 }}
               />
             ))}

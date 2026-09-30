@@ -179,7 +179,10 @@ const AdminBanners = () => {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div><Label>Title (optional)</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
             <div><Label>Link (optional)</Label><Input placeholder="/products or https://..." value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></div>
-            <div><Label>Banner Image</Label><Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} required={!editing} /></div>
+            <div>
+              <Label>Banner Image <span className="text-xs text-muted-foreground">(Recommended: 1600×700 px / 16:7)</span></Label>
+              <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} required={!editing} />
+            </div>
             {editing && !imageFile && <img src={editing.image_url} alt="" className="w-full h-32 object-cover rounded bg-muted" />}
             <div className="flex items-center gap-2">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
