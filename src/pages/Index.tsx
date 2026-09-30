@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchHomeShell, fetchHomeRest } from "@/lib/homePrefetch";
+import { sortProductsByStock } from "@/lib/productSort";
 import { useSEO } from "@/hooks/useSEO";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -83,10 +84,10 @@ const Index = () => {
         const { products: rawProducts, hotDeals: rawDeals } = await fetchHomeRest();
         if (cancelled) return;
 
-        const normalizedProducts = rawProducts.map((p: any) => ({
+        const normalizedProducts = sortProductsByStock(rawProducts.map((p: any) => ({
           ...p,
           description: p.short_description ?? null,
-        }));
+        })));
 
         setProducts(normalizedProducts);
         normalizedProducts.forEach((p: any) => {
@@ -112,7 +113,7 @@ const Index = () => {
   }, [queryClient]);
 
   const getProductsByCategory = (catId: string) =>
-    products.filter((p) => p.category_id === catId).slice(0, 4);
+    sortProductsByStock(products.filter((p) => p.category_id === catId)).slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">

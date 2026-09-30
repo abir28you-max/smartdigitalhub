@@ -25,6 +25,7 @@ import ProductCard from "@/components/ProductCard";
 import { ShoppingCart, Star, CheckCircle, User, Share2, Tag, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { getOptimizedImageUrl } from "@/lib/image";
+import { sortProductsByStock } from "@/lib/productSort";
 
 const FIXED_DESCRIPTION = `At Smart Digital Hub, we offer 100% Verified and Genuine premium digital product access with fast and secure delivery. Once your payment is successfully completed, you will receive your access details directly via your registered email instantly or within 2–30 minutes.
 
@@ -346,8 +347,8 @@ const ProductDetail = () => {
         .select("id, name, short_description, price, image_url, stock_status, category_id, slug, options, created_at")
         .eq("category_id", product!.category_id!)
         .neq("id", product!.id)
-        .limit(4);
-      return (data ?? []) as unknown as Product[];
+        .limit(8);
+      return sortProductsByStock((data ?? []) as unknown as Product[]).slice(0, 4);
     },
     enabled: !!product?.category_id,
     staleTime: 60_000,

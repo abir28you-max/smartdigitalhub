@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
+import { sortProductsByStock } from "@/lib/productSort";
 
 import ProductCard from "@/components/ProductCard";
 
@@ -68,10 +69,10 @@ const Products = () => {
         return;
       }
 
-      const normalizedProducts = (data ?? []).map((p: any) => ({
+      const normalizedProducts = sortProductsByStock((data ?? []).map((p: any) => ({
         ...p,
         description: p.short_description ?? null,
-      }));
+      })));
 
       setProducts(normalizedProducts);
       normalizedProducts.forEach((p) => {
