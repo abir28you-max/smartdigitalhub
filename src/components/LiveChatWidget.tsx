@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSalesBotResponse, ChatBotProduct } from "@/lib/salesChatBot";
+import { getSalesBotResponse, ChatBotProduct, DEFAULT_CATALOG } from "@/lib/salesChatBot";
 import { safeUUID } from "@/lib/utils";
 
 interface Message {
@@ -70,7 +70,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatEnded, setChatEnded] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const [liveProducts, setLiveProducts] = useState<ChatBotProduct[]>([]);
+  const [liveProducts, setLiveProducts] = useState<ChatBotProduct[]>(DEFAULT_CATALOG);
   const bottomRef = useRef<HTMLDivElement>(null);
   const sessionId = getSessionId();
 
