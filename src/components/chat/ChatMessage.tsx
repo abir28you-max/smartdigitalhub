@@ -112,7 +112,7 @@ const ChatMessage = ({ senderType, message }: ChatMessageProps) => {
 
   return (
     <div className={`flex ${isCustomer ? "justify-end" : "justify-start"}`}>
-      <div className={`${bubbleClass} px-3.5 py-2 max-w-[75%] text-[13px] leading-relaxed`}>
+      <div className={`${bubbleClass} px-3.5 py-2.5 max-w-[85%] text-[13px] leading-relaxed whitespace-pre-line shadow-xs`}>
         {message}
       </div>
     </div>

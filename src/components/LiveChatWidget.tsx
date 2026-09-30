@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, PhoneOff, MessageCircleMore, MessageCircle, Phone, Mail } from "lucide-react";
+import { X, PhoneOff, MessageCircleMore, MessageCircle, Phone, Mail, Bot, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSalesBotResponse } from "@/lib/salesChatBot";
 
 interface Message {
   id: string;
@@ -12,6 +13,14 @@ interface Message {
   message: string;
   created_at: string;
 }
+
+const QUICK_SUGGESTIONS = [
+  { label: "🛍️ কীভাবে কিনব?", text: "কীভাবে অর্ডার করব এবং কিনব?" },
+  { label: "💳 পেমেন্ট নিয়ম", text: "পেমেন্ট কিভাবে করতে হয়?" },
+  { label: "⚡ ডেলিভারি সময়", text: "অর্ডার করার পর ডেলিভারি কতক্ষণ লাগবে?" },
+  { label: "🛡️ ওয়ারেন্টি পলিসি", text: "সাবস্ক্রিপশনের ওয়ারেন্টি সুবিধা কি?" },
+  { label: "💬 WhatsApp সাপোর্ট", text: "এডমিনের সাথে হোয়াটসঅ্যাপে কথা বলতে চাই" },
+];
 
 const getSessionId = () => {
   let id = localStorage.getItem("chat_session_id");
@@ -25,6 +34,7 @@ const getSessionId = () => {
 const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatEnded, setChatEnded] = useState(false);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const sessionId = getSessionId();
   const { user } = useAuth();
@@ -56,7 +66,43 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isBotTyping]);
+
+  const triggerBotReply = async (userMsg: string) => {
+    // Check if voice or image
+    if (userMsg.startsWith("[voice]") || userMsg.startsWith("[img]")) {
+      return;
+    }
+
+    setIsBotTyping(true);
+    setTimeout(async () => {
+      try {
+        const replyText = getSalesBotResponse(userMsg);
+        const botTempId = crypto.randomUUID();
+        const botMsg: Message = {
+          id: botTempId,
+          sender_type: "agent",
+          message: replyText,
+          created_at: new Date().toISOString(),
+        };
+
+        setMessages((prev) => [...prev, botMsg]);
+        setIsBotTyping(false);
+
+        // Save AI Bot reply to DB
+        await supabase.from("chat_messages").insert({
+          session_id: sessionId,
+          sender_type: "agent",
+          message: replyText,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+        });
+      } catch (err) {
+        console.error("Bot reply error:", err);
+        setIsBotTyping(false);
+      }
+    }, 750);
+  };
 
   const sendMessage = async (msg: string) => {
     if (chatEnded || !msg.trim()) return;
@@ -81,6 +127,10 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
       console.error("Send message error:", error);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } else {
+      // Trigger AI sales assistant reply
+      triggerBotReply(msg);
+
+      // Notify Telegram channel for human admin backup
       supabase.functions
         .invoke("telegram-notify", {
           body: { type: "support", data: { name: customerName, phone: customerPhone, message: msg } },
@@ -118,19 +168,24 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
         aria-hidden="true"
       />
 
-      <div className="fixed bottom-16 sm:bottom-6 right-2 sm:right-6 left-2 sm:left-auto z-[100] sm:w-[380px] h-[520px] max-h-[calc(100vh-5.5rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-in">
+      <div className="fixed bottom-16 sm:bottom-6 right-2 sm:right-6 left-2 sm:left-auto z-[100] sm:w-[390px] h-[540px] max-h-[calc(100vh-5.5rem)] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-in">
         {/* Header */}
         <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between flex-shrink-0 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
-              <MessageCircleMore className="h-5 w-5" />
+            <div className="relative">
+              <div className="h-9 w-9 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                SDH
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-400 border-2 border-primary" />
             </div>
             <div className="min-w-0">
-              <p className="font-bold text-sm leading-tight truncate">Smart Digital Hub Support</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                <p className="text-[11px] text-primary-foreground/85">Active • ২-৫ মিনিটে রিপ্লাই</p>
+              <div className="flex items-center gap-1.5">
+                <p className="font-bold text-sm leading-tight truncate">Smart Digital Hub</p>
+                <span className="bg-primary-foreground/20 text-[10px] px-1.5 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                  <Sparkles className="h-2.5 w-2.5" /> AI
+                </span>
               </div>
+              <p className="text-[11px] text-primary-foreground/85 mt-0.5">ইনস্ট্যান্ট AI সেলস ও লাইভ সাপোর্ট</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -188,18 +243,56 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-background/50">
           {/* Welcome message */}
-          <div className="flex gap-2 max-w-[88%]">
-            <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-xs font-bold">
-              SDH
+          <div className="flex gap-2 max-w-[90%]">
+            <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
+              AI
             </div>
-            <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none text-xs text-foreground leading-relaxed shadow-sm">
-              স্বাগতম! <strong>Smart Digital Hub</strong> লাইভ সাপোর্টে আপনাকে স্বাগতম। আপনি যেকোনো সাবস্ক্রিপশন, পেমেন্ট বা অর্ডার সম্পর্কে জানতে মেসেজ পাঠান। আমরা দ্রুত উত্তর দেব। 😊
+            <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none text-xs text-foreground leading-relaxed shadow-xs">
+              স্বাগতম! <strong>Smart Digital Hub</strong> এআই সেলস ও সাপোর্টে আপনাকে স্বাগতম। ✨<br />
+              যেকোনো সাবস্ক্রিপশন, অফার, পেমেন্ট বা অর্ডার সংক্রান্ত বিষয়ে জিজ্ঞাসা করতে নিচে লিখুন বা বাটন চাপুন।
             </div>
           </div>
+
+          {/* Quick Suggestions Chips (only if low message count or starting) */}
+          {messages.length < 3 && (
+            <div className="pt-1 pb-1">
+              <p className="text-[11px] text-muted-foreground mb-1.5 font-medium px-1">দ্রুত জানতে ট্যাপ করুন:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_SUGGESTIONS.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => sendMessage(chip.text)}
+                    className="text-xs bg-muted/80 hover:bg-primary/10 hover:text-primary hover:border-primary/40 text-foreground border border-border px-2.5 py-1 rounded-full transition-all text-left cursor-pointer"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {messages.map((m) => (
             <ChatMessage key={m.id} senderType={m.sender_type} message={m.message} />
           ))}
+
+          {/* Typing Indicator */}
+          {isBotTyping && (
+            <div className="flex gap-2 items-center max-w-[80%] animate-fade-in">
+              <div className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-[10px]">
+                <Bot className="h-3.5 w-3.5 animate-bounce" />
+              </div>
+              <div className="bg-muted px-3 py-2 rounded-2xl rounded-tl-none text-xs text-muted-foreground flex items-center gap-1">
+                <span>Smart AI টাইপ করছে</span>
+                <span className="inline-flex gap-1 items-center ml-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
+                </span>
+              </div>
+            </div>
+          )}
+
           <div ref={bottomRef} />
         </div>
 
