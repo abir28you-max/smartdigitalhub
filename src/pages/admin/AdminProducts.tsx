@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Sparkles, Loader2, Search, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import { generateLocalSeo } from "@/lib/seoGenerator";
 
 interface OptionItem {
   name: string;
@@ -193,6 +194,7 @@ const AdminProducts = () => {
       return;
     }
     setSeoLoading(true);
+    let seoResult: any = null;
     try {
       const { data, error } = await supabase.functions.invoke("generate-seo", {
         body: {
@@ -204,21 +206,34 @@ const AdminProducts = () => {
           price: form.price,
         },
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      setForm(prev => ({
-        ...prev,
-        seo_title: data.seo_title || prev.seo_title,
-        meta_description: data.meta_description || prev.meta_description,
-        focus_keywords: data.focus_keywords || prev.focus_keywords,
-        long_description: data.long_description || prev.long_description,
-        short_description: data.short_description || prev.short_description,
-        slug: generateSlug(data.slug || prev.slug || prev.name),
-      }));
-      toast({ title: "SEO content generated! ✨" });
-    } catch (e: any) {
-      toast({ title: "SEO generation failed", description: e.message, variant: "destructive" });
+      if (!error && data && !data.error) {
+        seoResult = data;
+      }
+    } catch {
+      // Fallback
     }
+
+    if (!seoResult || !seoResult.seo_title) {
+      seoResult = generateLocalSeo({
+        product_name: form.name,
+        category: getCategoryName(form.category_id),
+        brand: form.brand || "Smart Digital Hub",
+        options: optionsList,
+        delivery_time: form.delivery_time,
+        price: form.price,
+      });
+    }
+
+    setForm(prev => ({
+      ...prev,
+      seo_title: seoResult.seo_title || prev.seo_title,
+      meta_description: seoResult.meta_description || prev.meta_description,
+      focus_keywords: seoResult.focus_keywords || prev.focus_keywords,
+      long_description: seoResult.long_description || prev.long_description,
+      short_description: seoResult.short_description || prev.short_description,
+      slug: generateSlug(seoResult.slug || prev.slug || prev.name),
+    }));
+    toast({ title: "SEO content generated! ✨" });
     setSeoLoading(false);
   };
 
@@ -249,8 +264,9 @@ const AdminProducts = () => {
     };
 
     if (!seoData.seo_title && !seoData.meta_description && form.name.trim()) {
+      let data: any = null;
       try {
-        const { data } = await supabase.functions.invoke("generate-seo", {
+        const res = await supabase.functions.invoke("generate-seo", {
           body: {
             product_name: form.name,
             category: getCategoryName(form.category_id),
@@ -260,17 +276,32 @@ const AdminProducts = () => {
             price: form.price,
           },
         });
-        if (data && !data.error) {
-          seoData = {
-            seo_title: data.seo_title || null,
-            meta_description: data.meta_description || null,
-            focus_keywords: data.focus_keywords || null,
-            long_description: data.long_description || null,
-            slug: generateSlug(data.slug || form.name) || null,
-            short_description: data.short_description || null,
-          };
+        if (!res.error && res.data && !res.data.error) {
+          data = res.data;
         }
-      } catch { /* proceed without SEO */ }
+      } catch { /* proceed with local fallback */ }
+
+      if (!data || !data.seo_title) {
+        data = generateLocalSeo({
+          product_name: form.name,
+          category: getCategoryName(form.category_id),
+          brand: form.brand || "Smart Digital Hub",
+          options: validOptions,
+          delivery_time: form.delivery_time,
+          price: form.price,
+        });
+      }
+
+      if (data) {
+        seoData = {
+          seo_title: data.seo_title || null,
+          meta_description: data.meta_description || null,
+          focus_keywords: data.focus_keywords || null,
+          long_description: data.long_description || null,
+          slug: generateSlug(data.slug || form.name) || null,
+          short_description: data.short_description || null,
+        };
+      }
     }
 
     const payload: any = {
@@ -326,30 +357,52 @@ const AdminProducts = () => {
 
     for (const p of needsSeo) {
       try {
-        const { data } = await supabase.functions.invoke("generate-seo", {
-          body: {
+        let data: any = null;
+        try {
+          const res = await supabase.functions.invoke("generate-seo", {
+            body: {
+              product_name: p.name,
+              category: getCategoryName(p.category_id),
+              brand: p.brand || "Smart Digital Hub",
+              options: parseOptions(p.options),
+              delivery_time: p.delivery_time,
+              price: String(p.price),
+            },
+          });
+          if (!res.error && res.data && !res.data.error) {
+            data = res.data;
+          }
+        } catch {}
+
+        if (!data || !data.seo_title) {
+          data = generateLocalSeo({
             product_name: p.name,
             category: getCategoryName(p.category_id),
             brand: p.brand || "Smart Digital Hub",
             options: parseOptions(p.options),
             delivery_time: p.delivery_time,
             price: String(p.price),
-          },
-        });
-        if (data && !data.error) {
+          });
+        }
+
+        if (data && data.seo_title) {
           await supabase.from("products").update({
             seo_title: data.seo_title,
             meta_description: data.meta_description,
             focus_keywords: data.focus_keywords,
             long_description: data.long_description,
             short_description: data.short_description,
-            slug: data.slug || undefined,
+            slug: data.slug || generateSlug(p.name),
           } as any).eq("id", p.id);
           success++;
-        } else { failed++; }
-      } catch { failed++; }
-      // Small delay to avoid rate limiting
-      await new Promise(r => setTimeout(r, 2000));
+        } else {
+          failed++;
+        }
+      } catch {
+        failed++;
+      }
+      // Small delay
+      await new Promise(r => setTimeout(r, 400));
     }
 
     toast({ title: `Bulk SEO done! ✨ ${success} generated, ${failed} failed.` });

@@ -32,7 +32,7 @@ Rules:
   3. Key Features
   4. Why Choose Smart Digital Hub
   5. Important Instructions
-  6. Customer Support (Email: hello@sagor.pro.bd, WhatsApp: https://wa.me/+8801322230857)
+  6. Customer Support (WhatsApp: https://wa.me/+8801516524644)
   7. Call To Action
 - Use HTML tags (h2, h3, p, ul, li, strong) for the long description.
 - Make the SEO title under 60 characters.
