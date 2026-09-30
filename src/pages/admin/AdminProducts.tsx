@@ -226,14 +226,16 @@ const AdminProducts = () => {
 
     setForm(prev => ({
       ...prev,
+      description: prev.description || seoResult.short_description || `100% genuine ${form.name.trim()} subscription with instant delivery and full warranty support.`,
+      short_description: seoResult.short_description || prev.short_description,
       seo_title: seoResult.seo_title || prev.seo_title,
       meta_description: seoResult.meta_description || prev.meta_description,
       focus_keywords: seoResult.focus_keywords || prev.focus_keywords,
       long_description: seoResult.long_description || prev.long_description,
-      short_description: seoResult.short_description || prev.short_description,
       slug: generateSlug(seoResult.slug || prev.slug || prev.name),
+      delivery_time: prev.delivery_time || "Instant (2-30 min)",
     }));
-    toast({ title: "SEO content generated! ✨" });
+    toast({ title: `✨ AI has generated Description & SEO for "${form.name.trim()}"!` });
     setSeoLoading(false);
   };
 
@@ -597,9 +599,36 @@ const AdminProducts = () => {
               </TabsList>
 
               <TabsContent value="basic" className="space-y-3 mt-3">
-                <div><Label>Name</Label><Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                <div><Label>Short Description</Label><Input value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} placeholder="One-line summary" /></div>
-                <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="font-semibold">Product Name</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateSeo}
+                      disabled={seoLoading || !form.name.trim()}
+                      className="h-7 text-xs bg-primary/10 text-primary border-primary/30 hover:bg-primary hover:text-white"
+                    >
+                      {seoLoading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+                      {seoLoading ? "Generating..." : "✨ AI Auto-Fill All Details"}
+                    </Button>
+                  </div>
+                  <Input 
+                    required 
+                    value={form.name} 
+                    onChange={(e) => setForm({ ...form, name: e.target.value })} 
+                    placeholder="e.g. Duolingo Super, Netflix Premium, ChatGPT Plus" 
+                  />
+                </div>
+                <div>
+                  <Label>Short Description</Label>
+                  <Input value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} placeholder="One-line product summary" />
+                </div>
+                <div>
+                  <Label>Description / Summary</Label>
+                  <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Product overview..." rows={3} />
+                </div>
                 <div><Label>Base Price (BDT)</Label><Input type="number" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
