@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSalesBotResponse, ChatBotProduct, DEFAULT_CATALOG } from "@/lib/salesChatBot";
+import { getSalesBotResponse, ChatBotProduct, ChatBotCategory, DEFAULT_CATALOG } from "@/lib/salesChatBot";
 import { safeUUID } from "@/lib/utils";
 
 interface Message {
@@ -17,9 +17,10 @@ interface Message {
 
 const QUICK_SUGGESTIONS = [
   { label: "🛍️ কীভাবে কিনব?", text: "কীভাবে অর্ডার করব এবং কিনব?" },
-  { label: "💳 পেমেন্ট নিয়ম", text: "পেমেন্ট কিভাবে করতে হয়?" },
+  { label: "🛡️ আফটার সেলস কেমন?", text: "আপনাদের আফটার সেলস সার্ভিস কেমন এবং কেন সেরা?" },
+  { label: "🤖 AI টুলস কি কি আছে?", text: "এআই টুলস কি কি আছে আপনাদের কাছে?" },
+  { label: "🔒 VPN কালেকশন", text: "ভিপিএনের ভিতরে কি কি এভেলেবল আছে?" },
   { label: "⚡ ডেলিভারি সময়", text: "অর্ডার করার পর ডেলিভারি কতক্ষণ লাগবে?" },
-  { label: "🛡️ ওয়ারেন্টি পলিসি", text: "সাবস্ক্রিপশনের ওয়ারেন্টি সুবিধা কি?" },
   { label: "💬 WhatsApp সাপোর্ট", text: "এডমিনের সাথে হোয়াটসঅ্যাপে কথা বলতে চাই" },
 ];
 
@@ -71,27 +72,32 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   const [chatEnded, setChatEnded] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [liveProducts, setLiveProducts] = useState<ChatBotProduct[]>(DEFAULT_CATALOG);
+  const [liveCategories, setLiveCategories] = useState<ChatBotCategory[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const sessionId = getSessionId();
 
   const customerName = savedName || "Customer";
   const customerPhone = savedPhone || "N/A";
 
-  // Load live products for chatbot awareness
+  // Load live products and categories for chatbot awareness
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadData = async () => {
       try {
-        const { data } = await supabase
-          .from("products")
-          .select("id, name, price, stock_status, short_description, slug");
-        if (data) {
-          setLiveProducts(data as ChatBotProduct[]);
+        const [prodRes, catRes] = await Promise.all([
+          supabase.from("products").select("id, name, price, stock_status, short_description, slug, category_id"),
+          supabase.from("categories").select("id, name, slug"),
+        ]);
+        if (prodRes.data) {
+          setLiveProducts(prodRes.data as ChatBotProduct[]);
+        }
+        if (catRes.data) {
+          setLiveCategories(catRes.data as ChatBotCategory[]);
         }
       } catch (err) {
-        console.error("Chatbot product fetch error:", err);
+        console.error("Chatbot data fetch error:", err);
       }
     };
-    loadProducts();
+    loadData();
   }, []);
 
   const fetchMessages = async () => {
@@ -154,7 +160,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
     setIsBotTyping(true);
     setTimeout(async () => {
       try {
-        const replyText = getSalesBotResponse(userMsg, liveProducts);
+        const replyText = getSalesBotResponse(userMsg, liveProducts, liveCategories);
         const botTempId = safeUUID();
         const botMsg: Message = {
           id: botTempId,
