@@ -77,8 +77,22 @@ const AdminUsers = () => {
         const pendingAmount = mine
           .filter((o) => o.status === "pending")
           .reduce((s, o) => s + Number(o.total_price), 0);
+
+        // Resolve phone number if profile doesn't have it but an order does
+        const resolvedPhone = p.phone || mine.find((o) => o.customer_phone)?.customer_phone || null;
+        const resolvedName = p.full_name || mine.find((o) => o.customer_name)?.customer_name || null;
+        const resolvedEmail = p.email || mine.find((o) => o.customer_email)?.customer_email || null;
+
+        // Auto-backfill to DB if phone was missing on profile but found in order
+        if (!p.phone && resolvedPhone && p.id) {
+          supabase.from("profiles").update({ phone: resolvedPhone }).eq("id", p.id).then(() => {});
+        }
+
         return {
           ...p,
+          phone: resolvedPhone,
+          full_name: resolvedName,
+          email: resolvedEmail,
           orders: mine,
           totalOrders: mine.length,
           approvedSpent,
@@ -86,6 +100,48 @@ const AdminUsers = () => {
           lastOrder: mine[0]?.created_at ?? null,
         };
       });
+
+      // Also include customers who placed orders but don't have a profile
+      const knownProfileIds = new Set((profiles || []).map((p) => p.id));
+      const knownEmails = new Set((profiles || []).map((p) => p.email?.toLowerCase()).filter(Boolean));
+      const knownPhones = new Set((profiles || []).map((p) => p.phone?.replace(/\D/g, "")).filter(Boolean));
+
+      const guestOrders = allOrders.filter((o) => {
+        if (o.user_id && knownProfileIds.has(o.user_id)) return false;
+        if (o.customer_email && knownEmails.has(o.customer_email.toLowerCase())) return false;
+        if (o.customer_phone && knownPhones.has(o.customer_phone.replace(/\D/g, ""))) return false;
+        return true;
+      });
+
+      const guestMap = new Map<string, Order[]>();
+      for (const o of guestOrders) {
+        const key = o.customer_phone || o.customer_email || o.id;
+        if (!guestMap.has(key)) guestMap.set(key, []);
+        guestMap.get(key)!.push(o);
+      }
+
+      for (const [key, gOrders] of guestMap.entries()) {
+        const first = gOrders[0];
+        const approvedSpent = gOrders
+          .filter((o) => o.status === "verified" || o.status === "delivered")
+          .reduce((s, o) => s + Number(o.total_price), 0);
+        const pendingAmount = gOrders
+          .filter((o) => o.status === "pending")
+          .reduce((s, o) => s + Number(o.total_price), 0);
+
+        list.push({
+          id: `guest_${key}`,
+          full_name: first.customer_name || "Guest Customer",
+          phone: first.customer_phone || null,
+          email: first.customer_email || null,
+          created_at: first.created_at,
+          orders: gOrders,
+          totalOrders: gOrders.length,
+          approvedSpent,
+          pendingAmount,
+          lastOrder: gOrders[0]?.created_at ?? null,
+        });
+      }
 
       setRows(list);
       setLoading(false);

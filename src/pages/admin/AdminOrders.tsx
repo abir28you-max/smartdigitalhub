@@ -70,6 +70,17 @@ const AdminOrders = () => {
     else { toast({ title: `Order ${status}` }); fetchData(); }
   };
 
+  const handleDeleteOrder = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this order? / আপনি কি এই অর্ডারটি স্থায়ীভাবে ডিলিট করতে চান?")) return;
+    const { error } = await supabase.from("orders").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error deleting order", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "🗑️ Order deleted successfully!" });
+      fetchData();
+    }
+  };
+
   const openDeliverDialog = (order: Order) => {
     setSelectedOrder(order);
     const existing = order.delivery_notes;
@@ -242,27 +253,48 @@ const AdminOrders = () => {
               </div>
 
               {o.status === "pending" && (
-                <div className="flex gap-2 mt-3">
+                <div className="flex flex-wrap gap-2 mt-3">
                   <Button size="sm" onClick={() => updateStatus(o.id, "verified")} className="bg-accent text-accent-foreground hover:bg-accent/90">Verify Payment</Button>
                   <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, "rejected")}>Reject</Button>
+                  <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteOrder(o.id)}>
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+                  </Button>
+                </div>
+              )}
+
+              {o.status === "rejected" && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Button size="sm" variant="destructive" onClick={() => handleDeleteOrder(o.id)}>
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete Order (ডিলিট)
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => updateStatus(o.id, "pending")}>
+                    Move to Pending
+                  </Button>
                 </div>
               )}
 
               {o.status === "verified" && (
-                <div className="flex gap-2 mt-3">
+                <div className="flex flex-wrap gap-2 mt-3">
                   <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => openDeliverDialog(o)}>
                     <Send className="h-3.5 w-3.5 mr-1" /> Deliver & Send Email
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, "rejected")}>Reject</Button>
+                  <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteOrder(o.id)}>
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
                   </Button>
                 </div>
               )}
 
               {o.status === "delivered" && (
-                <div className="flex gap-2 mt-3">
+                <div className="flex flex-wrap gap-2 mt-3 items-center">
                   <Button size="sm" variant="outline" onClick={() => openDeliverDialog(o)}>
                     Edit Delivery Info
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => handleResendEmail(o)}>
                     <Mail className="h-3.5 w-3.5 mr-1" /> Resend Email
+                  </Button>
+                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 ml-auto" onClick={() => handleDeleteOrder(o.id)}>
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
                   </Button>
                 </div>
               )}

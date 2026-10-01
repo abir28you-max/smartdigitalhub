@@ -44,12 +44,24 @@ const Auth = () => {
         });
         if (signUpError) throw signUpError;
 
+        let userId = signUpData.user?.id;
+
         if (!signUpData.session) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
             email: form.email.trim(),
             password: form.password,
           });
           if (signInError) throw signInError;
+          userId = signInData.user?.id || userId;
+        }
+
+        if (userId) {
+          await supabase.from("profiles").upsert({
+            id: userId,
+            full_name: form.name.trim(),
+            phone: form.phone.trim(),
+            email: form.email.trim(),
+          });
         }
 
         toast({ title: "Welcome!", description: "Account created and logged in successfully!" });

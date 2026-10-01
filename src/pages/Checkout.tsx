@@ -358,6 +358,16 @@ const Checkout = () => {
     if (error) {
       toast({ title: "Order failed", description: error.message, variant: "destructive" });
     } else {
+      // Sync customer phone and name to user profile
+      if (user?.id && form.phone.trim()) {
+        supabase.from("profiles").upsert({
+          id: user.id,
+          full_name: form.name.trim(),
+          phone: form.phone.trim(),
+          email: form.email?.trim() || user.email,
+        }).then(() => {});
+      }
+
       // Fire-and-forget Telegram notification (never blocks or breaks checkout)
       supabase.functions
         .invoke("telegram-notify", {
