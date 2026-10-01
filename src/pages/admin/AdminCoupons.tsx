@@ -91,9 +91,11 @@ const AdminCoupons = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm">{c.code}</p>
-              <p className="text-xs text-muted-foreground">Discount: ৳{c.discount_amount}</p>
+              <p className="text-xs text-muted-foreground">
+                Discount: <span className="font-semibold text-primary">{c.discount_amount <= 100 ? `${c.discount_amount}%` : `৳${c.discount_amount}`}</span>
+              </p>
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${c.is_active ? "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"}`}>
               {c.is_active ? "Active" : "Inactive"}
             </span>
             <div className="flex gap-1">
@@ -116,13 +118,23 @@ const AdminCoupons = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label>Coupon Code</Label>
-              <Input placeholder="e.g. SAVE50" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
+              <Input placeholder="e.g. SAVE10" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
             </div>
             <div>
-              <Label>Discount Amount (BDT)</Label>
-              <Input type="number" step="0.01" placeholder="e.g. 50" value={form.discount_amount} onChange={(e) => setForm({ ...form, discount_amount: e.target.value })} required />
+              <Label>Discount Percentage (%)</Label>
+              <Input
+                type="number"
+                step="0.1"
+                min="1"
+                max="100"
+                placeholder="e.g. 10 (for 10% off)"
+                value={form.discount_amount}
+                onChange={(e) => setForm({ ...form, discount_amount: e.target.value })}
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">প্রোডাক্টের মূল্যের ওপর কত শতাংশ (%) ছাড় দিতে চান তা লিখুন (যেমন: 10, 15, 20)</p>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
+            <Button type="submit" className="w-full" disabled={loading}>{loading ? "Saving..." : "Save Coupon"}</Button>
           </form>
         </DialogContent>
       </Dialog>

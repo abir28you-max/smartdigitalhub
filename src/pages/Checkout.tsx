@@ -166,11 +166,18 @@ const Checkout = () => {
         setDiscount(0);
         setCouponApplied(false);
       } else {
-        const totalSuperDiscount = eligibleProducts.reduce((sum, p) => sum + ((p as any).coupon_discount || 0), 0);
+        const totalSuperDiscount = eligibleProducts.reduce((sum, p) => {
+          const cartItem = items.find(i => i.id === p.id);
+          const itemPrice = (cartItem?.price || 0) * (cartItem?.quantity || 1);
+          const val = Number((p as any).coupon_discount) || 0;
+          const disc = val <= 100 ? Math.round((itemPrice * val) / 100) : val;
+          return sum + Math.min(itemPrice, disc);
+        }, 0);
+
         if (totalSuperDiscount > 0) {
           setDiscount(totalSuperDiscount);
           setCouponApplied(true);
-          toast({ title: `Super Coupon applied! ৳${totalSuperDiscount} discount on eligible product` });
+          toast({ title: `🎉 Super Coupon applied! ৳${totalSuperDiscount} discount on eligible product` });
         } else {
           toast({ title: "Coupon has no discount set", variant: "destructive" });
           setDiscount(0);
@@ -196,9 +203,13 @@ const Checkout = () => {
         setDiscount(0);
         setCouponApplied(false);
       } else {
-        setDiscount(globalCoupon.discount_amount);
+        const val = Number(globalCoupon.discount_amount);
+        const cartTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+        const calculatedDiscount = val <= 100 ? Math.min(cartTotal, Math.round((cartTotal * val) / 100)) : Math.min(cartTotal, val);
+        setDiscount(calculatedDiscount);
         setCouponApplied(true);
-        toast({ title: `Coupon applied! ৳${globalCoupon.discount_amount} discount` });
+        const label = val <= 100 ? `${val}% (৳${calculatedDiscount})` : `৳${calculatedDiscount}`;
+        toast({ title: `🎉 Coupon applied! ${label} discount` });
       }
     }
     setApplyingCoupon(false);

@@ -786,11 +786,13 @@ const AdminProducts = () => {
                       />
                       <Input
                         type="number"
-                        step="0.01"
-                        placeholder="Discount ৳"
+                        step="0.1"
+                        min="1"
+                        max="100"
+                        placeholder="Discount %"
                         value={c.discount_amount || ""}
                         onChange={(e) => updateCoupon(idx, "discount_amount", parseFloat(e.target.value) || 0)}
-                        className="w-28"
+                        className="w-32"
                       />
                       <Button type="button" size="icon" variant="ghost" className="h-9 w-9" onClick={() => removeCoupon(idx)}>
                         <Trash2 className="h-3.5 w-3.5 text-destructive" />

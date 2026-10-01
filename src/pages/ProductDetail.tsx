@@ -395,8 +395,11 @@ const ProductDetail = () => {
       }) as any;
 
       if (match && Number(match.discount_amount) > 0) {
-        setAppliedCoupon({ code: code.toUpperCase(), discount: Number(match.discount_amount) });
-        toast({ title: `Coupon applied! ৳${Number(match.discount_amount)} off` });
+        const val = Number(match.discount_amount);
+        const discountBDT = val <= 100 ? Math.min(activePrice, Math.round((activePrice * val) / 100)) : Math.min(activePrice, val);
+        setAppliedCoupon({ code: code.toUpperCase(), discount: discountBDT });
+        const discountLabel = val <= 100 ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
+        toast({ title: `🎉 Coupon applied! ${discountLabel} discount` });
         return;
       }
 
@@ -416,8 +419,11 @@ const ProductDetail = () => {
         .maybeSingle();
 
       if (globalCoupon && Number(globalCoupon.discount_amount) > 0) {
-        setAppliedCoupon({ code: code.toUpperCase(), discount: Number(globalCoupon.discount_amount) });
-        toast({ title: `Coupon applied! ৳${Number(globalCoupon.discount_amount)} off` });
+        const val = Number(globalCoupon.discount_amount);
+        const discountBDT = val <= 100 ? Math.min(activePrice, Math.round((activePrice * val) / 100)) : Math.min(activePrice, val);
+        setAppliedCoupon({ code: code.toUpperCase(), discount: discountBDT });
+        const discountLabel = val <= 100 ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
+        toast({ title: `🎉 Coupon applied! ${discountLabel} discount` });
       } else {
         toast({ title: "Invalid or expired coupon code", variant: "destructive" });
         setAppliedCoupon(null);
