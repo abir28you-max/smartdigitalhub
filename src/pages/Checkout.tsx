@@ -169,14 +169,14 @@ const Checkout = () => {
       for (const c of pCoupons) {
         let optName = c.option_name || null;
         let discType: "percentage" | "fixed" = "fixed";
-        if (optName && optName.includes(":::percent")) {
+        if (optName && (optName.includes(":::percent") || optName === "__percent__")) {
           discType = "percentage";
-          optName = optName.replace(":::percent", "").trim() || null;
-        } else if (optName && optName.includes(":::fixed")) {
+          optName = optName.replace(":::percent", "").replace("__percent__", "").trim() || null;
+        } else if (optName && (optName.includes(":::fixed") || optName === "__fixed__")) {
           discType = "fixed";
-          optName = optName.replace(":::fixed", "").trim() || null;
-        } else if (Number(c.discount_amount) <= 100) {
-          discType = "percentage";
+          optName = optName.replace(":::fixed", "").replace("__fixed__", "").trim() || null;
+        } else {
+          discType = "fixed";
         }
         candidateProductCoupons.push({
           product_id: c.product_id,
@@ -192,14 +192,14 @@ const Checkout = () => {
         if (p.coupon_code && p.coupon_code.toUpperCase() === couponCode.toUpperCase() && Number(p.coupon_discount) > 0) {
           let optName = p.coupon_option || null;
           let discType: "percentage" | "fixed" = "fixed";
-          if (optName && optName.includes(":::percent")) {
+          if (optName && (optName.includes(":::percent") || optName === "__percent__")) {
             discType = "percentage";
-            optName = optName.replace(":::percent", "").trim() || null;
-          } else if (optName && optName.includes(":::fixed")) {
+            optName = optName.replace(":::percent", "").replace("__percent__", "").trim() || null;
+          } else if (optName && (optName.includes(":::fixed") || optName === "__fixed__")) {
             discType = "fixed";
-            optName = optName.replace(":::fixed", "").trim() || null;
-          } else if (Number(p.coupon_discount) <= 100) {
-            discType = "percentage";
+            optName = optName.replace(":::fixed", "").replace("__fixed__", "").trim() || null;
+          } else {
+            discType = "fixed";
           }
           candidateProductCoupons.push({
             product_id: p.id,
@@ -265,7 +265,7 @@ const Checkout = () => {
         setCouponApplied(false);
       } else {
         const val = Number(globalCoupon.discount_amount);
-        const isPercent = globalCoupon.discount_type === "percentage" || (!globalCoupon.discount_type && val <= 100);
+        const isPercent = globalCoupon.discount_type === "percentage";
         const cartTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
         if (globalCoupon.min_order_amount && cartTotal < Number(globalCoupon.min_order_amount)) {

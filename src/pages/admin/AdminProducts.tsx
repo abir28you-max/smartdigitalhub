@@ -153,33 +153,44 @@ const AdminProducts = () => {
     if (pc && pc.length > 0) {
       setCouponList(pc.map((c: any) => {
         let opt = c.option_name;
-        let isFixed = false;
-        if (opt && opt.includes(":::fixed")) { isFixed = true; opt = opt.replace(":::fixed", "").trim(); }
-        else if (opt === "__fixed__") { isFixed = true; opt = null; }
-        else if (opt && opt.includes(":::percent")) { isFixed = false; opt = opt.replace(":::percent", "").trim(); }
-        else if (opt === "__percent__") { isFixed = false; opt = null; }
-        else if (Number(c.discount_amount) > 100) { isFixed = true; }
+        let isPercent = false;
+        if (opt && (opt.includes(":::percent") || opt === "__percent__")) {
+          isPercent = true;
+          opt = opt.replace(":::percent", "").replace("__percent__", "").trim();
+        } else if (opt && (opt.includes(":::fixed") || opt === "__fixed__")) {
+          isPercent = false;
+          opt = opt.replace(":::fixed", "").replace("__fixed__", "").trim();
+        }
         return {
           id: c.id,
           code: c.code,
           discount_amount: Number(c.discount_amount),
-          discount_type: isFixed ? "fixed" : "percentage",
+          discount_type: isPercent ? "percentage" : "fixed",
           option_name: opt || null,
           is_active: c.is_active !== false,
         };
       }));
     } else if (p.coupon_code) {
+      let isPercent = false;
+      let opt = p.coupon_option;
+      if (opt && (opt.includes(":::percent") || opt === "__percent__")) {
+        isPercent = true;
+        opt = opt.replace(":::percent", "").replace("__percent__", "").trim();
+      } else if (opt && (opt.includes(":::fixed") || opt === "__fixed__")) {
+        isPercent = false;
+        opt = opt.replace(":::fixed", "").replace("__fixed__", "").trim();
+      }
       setCouponList([{
         code: p.coupon_code,
         discount_amount: Number(p.coupon_discount) || 0,
-        discount_type: Number(p.coupon_discount) > 100 ? "fixed" : "percentage",
-        option_name: p.coupon_option || null,
+        discount_type: isPercent ? "percentage" : "fixed",
+        option_name: opt || null,
         is_active: true,
       }]);
     }
   };
 
-  const addCoupon = () => setCouponList([...couponList, { code: "", discount_amount: 0, discount_type: "percentage", option_name: null, is_active: true }]);
+  const addCoupon = () => setCouponList([...couponList, { code: "", discount_amount: 0, discount_type: "fixed", option_name: null, is_active: true }]);
   const removeCoupon = (idx: number) => setCouponList(couponList.filter((_, i) => i !== idx));
   const updateCoupon = (idx: number, field: keyof ProductCoupon, value: any) => {
     setCouponList(couponList.map((c, i) => (i === idx ? { ...c, [field]: value } : c)));
