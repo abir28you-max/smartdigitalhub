@@ -68,15 +68,29 @@ const NeedHelpButton = () => {
           </>
         )}
 
-        <button
-          onClick={() => setOpen(!open)}
-          aria-label={open ? "Close help menu" : "Need help? Open support options"}
-          className="bg-primary text-primary-foreground rounded-full h-14 w-14 flex items-center justify-center shadow-lg hover:opacity-90 transition-all"
-        >
-          {open ? <X className="h-6 w-6 animate-scale-in" /> : <Headset className="h-6 w-6" />}
-        </button>
+        <div className="relative flex items-center justify-center">
+          {!open && (
+            <>
+              {/* Expanding Radar Ripple Rings */}
+              <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping opacity-60 pointer-events-none" />
+              <span className="absolute -inset-1.5 rounded-full bg-primary/20 animate-pulse opacity-80 pointer-events-none" />
+            </>
+          )}
+
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label={open ? "Close help menu" : "Need help? Open support options"}
+            className={`relative z-10 bg-primary text-primary-foreground rounded-full h-14 w-14 flex items-center justify-center shadow-xl transition-all duration-300 ${
+              open ? "rotate-90 bg-secondary text-foreground hover:bg-secondary/80" : "hover:scale-110 active:scale-95 hover:shadow-primary/40"
+            }`}
+          >
+            {open ? <X className="h-6 w-6 animate-scale-in" /> : <Headset className="h-6 w-6 animate-pulse" />}
+          </button>
+        </div>
         {!open && (
-          <span className="text-xs font-bold text-foreground -mt-2">Need Help?</span>
+          <span className="text-xs font-bold text-foreground -mt-2 bg-background/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-border/70 shadow-sm">
+            Need Help?
+          </span>
         )}
       </div>
     </>
