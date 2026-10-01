@@ -459,12 +459,24 @@ const AdminProducts = () => {
             </div>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleBulkSeo} size="sm" variant="outline" disabled={bulkLoading}>
-            {bulkLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-            {bulkLoading ? "Generating..." : "Generate SEO for All"}
+        <div className="flex items-center gap-2.5">
+          <Button
+            onClick={handleBulkSeo}
+            size="sm"
+            variant="outline"
+            disabled={bulkLoading}
+            className="h-10 px-4 rounded-xl border border-border bg-background hover:bg-muted/80 text-foreground font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+          >
+            {bulkLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            ) : (
+              <Sparkles className="h-4 w-4 text-foreground stroke-[2.2]" />
+            )}
+            <span className="text-sm font-medium tracking-tight">
+              {bulkLoading ? "Generating..." : "Generate SEO for All"}
+            </span>
           </Button>
-          <Button onClick={openCreate} size="sm"><Plus className="h-4 w-4 mr-1" /> Add Product</Button>
+          <Button onClick={openCreate} size="sm" className="h-10 px-4 rounded-xl shadow-xs"><Plus className="h-4 w-4 mr-1" /> Add Product</Button>
         </div>
       </div>
 
@@ -697,15 +709,35 @@ const AdminProducts = () => {
               </TabsContent>
 
               <TabsContent value="seo" className="space-y-3 mt-3">
-                <div className="bg-muted/50 border border-border rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h3 className="font-medium text-sm flex items-center gap-1"><Sparkles className="h-4 w-4 text-primary" /> AI SEO Generator</h3>
-                      <p className="text-xs text-muted-foreground">Auto-generate SEO content based on product info</p>
+                <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-transparent border border-primary/20 rounded-2xl p-4 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-2.5">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
+                        <Sparkles className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-foreground flex items-center gap-1.5">
+                          AI SEO Content Generator
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          প্রোডাক্ট ইনফো অনুযায়ী স্বয়ংক্রিয়ভাবে টাইটেল, মেটা ডেসক্রিপশন ও কি-ওয়ার্ড তৈরি করুন
+                        </p>
+                      </div>
                     </div>
-                    <Button type="button" size="sm" onClick={generateSeo} disabled={seoLoading}>
-                      {seoLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-                      {seoLoading ? "Generating..." : "Generate SEO Content"}
+                    <Button
+                      type="button"
+                      onClick={generateSeo}
+                      disabled={seoLoading}
+                      className="h-10 px-4 rounded-xl border border-border bg-background hover:bg-muted text-foreground font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 flex-shrink-0"
+                    >
+                      {seoLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      ) : (
+                        <Sparkles className="h-4 w-4 text-foreground stroke-[2.2]" />
+                      )}
+                      <span className="text-sm font-medium tracking-tight">
+                        {seoLoading ? "Generating..." : "Generate SEO Content"}
+                      </span>
                     </Button>
                   </div>
                 </div>
