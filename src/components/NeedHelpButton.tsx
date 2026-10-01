@@ -44,10 +44,10 @@ const NeedHelpButton = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp chat"
-              className="h-14 w-14 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-transform animate-fade-in"
+              className="h-14 w-14 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-transform animate-fade-in p-2.5 overflow-hidden"
               style={{ animationDelay: "0.08s", animationFillMode: "both" }}
             >
-              <MessageCircle className="h-6 w-6 text-green-500" />
+              <img src="/whatsapp-logo.png" alt="WhatsApp" className="h-full w-full object-contain" />
             </a>
             <a
               href="mailto:abir28you@gmail.com"
