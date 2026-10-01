@@ -240,9 +240,6 @@ const TrackOrder = () => {
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-2">
-                <Sparkles className="h-3.5 w-3.5" /> Realtime Order Dashboard
-              </div>
               <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                 My Orders & Subscriptions
               </h1>
