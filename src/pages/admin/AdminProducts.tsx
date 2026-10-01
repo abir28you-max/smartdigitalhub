@@ -23,6 +23,7 @@ interface ProductCoupon {
   id?: string;
   code: string;
   discount_amount: number;
+  discount_type?: "percentage" | "fixed";
   option_name: string | null;
   is_active: boolean;
 }
@@ -149,10 +150,36 @@ const AdminProducts = () => {
       .select("id, code, discount_amount, option_name, is_active")
       .eq("product_id", p.id)
       .order("created_at", { ascending: true });
-    if (pc) setCouponList(pc.map((c: any) => ({ ...c, discount_amount: Number(c.discount_amount) })));
+    if (pc && pc.length > 0) {
+      setCouponList(pc.map((c: any) => {
+        let opt = c.option_name;
+        let isFixed = false;
+        if (opt && opt.includes(":::fixed")) { isFixed = true; opt = opt.replace(":::fixed", "").trim(); }
+        else if (opt === "__fixed__") { isFixed = true; opt = null; }
+        else if (opt && opt.includes(":::percent")) { isFixed = false; opt = opt.replace(":::percent", "").trim(); }
+        else if (opt === "__percent__") { isFixed = false; opt = null; }
+        else if (Number(c.discount_amount) > 100) { isFixed = true; }
+        return {
+          id: c.id,
+          code: c.code,
+          discount_amount: Number(c.discount_amount),
+          discount_type: isFixed ? "fixed" : "percentage",
+          option_name: opt || null,
+          is_active: c.is_active !== false,
+        };
+      }));
+    } else if (p.coupon_code) {
+      setCouponList([{
+        code: p.coupon_code,
+        discount_amount: Number(p.coupon_discount) || 0,
+        discount_type: Number(p.coupon_discount) > 100 ? "fixed" : "percentage",
+        option_name: p.coupon_option || null,
+        is_active: true,
+      }]);
+    }
   };
 
-  const addCoupon = () => setCouponList([...couponList, { code: "", discount_amount: 0, option_name: null, is_active: true }]);
+  const addCoupon = () => setCouponList([...couponList, { code: "", discount_amount: 0, discount_type: "percentage", option_name: null, is_active: true }]);
   const removeCoupon = (idx: number) => setCouponList(couponList.filter((_, i) => i !== idx));
   const updateCoupon = (idx: number, field: keyof ProductCoupon, value: any) => {
     setCouponList(couponList.map((c, i) => (i === idx ? { ...c, [field]: value } : c)));
@@ -161,15 +188,25 @@ const AdminProducts = () => {
   const saveCoupons = async (productId: string) => {
     const valid = couponList
       .filter((c) => c.code.trim())
-      .map((c) => ({
-        product_id: productId,
-        code: c.code.trim().toUpperCase(),
-        discount_amount: Number(c.discount_amount) || 0,
-        option_name: c.option_name || null,
-        is_active: c.is_active,
-      }));
+      .map((c) => {
+        let optStr = c.option_name ? c.option_name.trim() : "";
+        if (c.discount_type === "fixed") {
+          optStr = optStr ? `${optStr}:::fixed` : "__fixed__";
+        } else {
+          optStr = optStr ? `${optStr}:::percent` : "__percent__";
+        }
+        return {
+          product_id: productId,
+          code: c.code.trim().toUpperCase(),
+          discount_amount: Number(c.discount_amount) || 0,
+          option_name: optStr,
+          is_active: c.is_active !== false,
+        };
+      });
     await supabase.from("product_coupons").delete().eq("product_id", productId);
-    if (valid.length > 0) await supabase.from("product_coupons").insert(valid);
+    if (valid.length > 0) {
+      await supabase.from("product_coupons").insert(valid);
+    }
   };
 
   const addOption = () => setOptionsList([...optionsList, { name: "", price: 0, in_stock: true, warranty: "hide" }]);
@@ -776,27 +813,67 @@ const AdminProducts = () => {
                 )}
 
                 {couponList.map((c, idx) => (
-                  <div key={idx} className="border border-border rounded-lg p-3 space-y-2">
+                  <div key={idx} className="border border-border rounded-lg p-3 space-y-2.5 bg-secondary/15">
+                    <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                      <div className="flex items-center gap-1.5 bg-background p-0.5 rounded-lg border border-border">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={c.discount_type === "percentage" ? "default" : "ghost"}
+                          className={`h-7 text-xs px-2.5 font-medium ${c.discount_type === "percentage" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
+                          onClick={() => updateCoupon(idx, "discount_type", "percentage")}
+                        >
+                          % পার্সেন্টেজ
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={c.discount_type === "fixed" ? "default" : "ghost"}
+                          className={`h-7 text-xs px-2.5 font-medium ${c.discount_type === "fixed" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
+                          onClick={() => updateCoupon(idx, "discount_type", "fixed")}
+                        >
+                          ৳ নির্দিষ্ট টাকা
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={c.is_active ? "secondary" : "outline"}
+                          className="h-7 text-xs px-2"
+                          onClick={() => updateCoupon(idx, "is_active", !c.is_active)}
+                        >
+                          {c.is_active ? "Active" : "Inactive"}
+                        </Button>
+                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:bg-destructive/10" onClick={() => removeCoupon(idx)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
-                      <Input
-                        placeholder="e.g. SUPER10"
-                        value={c.code}
-                        onChange={(e) => updateCoupon(idx, "code", e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        type="number"
-                        step="0.1"
-                        min="1"
-                        max="100"
-                        placeholder="Discount %"
-                        value={c.discount_amount || ""}
-                        onChange={(e) => updateCoupon(idx, "discount_amount", parseFloat(e.target.value) || 0)}
-                        className="w-32"
-                      />
-                      <Button type="button" size="icon" variant="ghost" className="h-9 w-9" onClick={() => removeCoupon(idx)}>
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                      <div className="flex-1">
+                        <Label className="text-[11px] text-muted-foreground mb-1 block">কুপন কোড (Coupon Code)</Label>
+                        <Input
+                          placeholder="e.g. SUPER10"
+                          value={c.code}
+                          onChange={(e) => updateCoupon(idx, "code", e.target.value.toUpperCase())}
+                        />
+                      </div>
+                      <div className="w-36">
+                        <Label className="text-[11px] text-muted-foreground mb-1 block">
+                          {c.discount_type === "percentage" ? "ছাড় (%)" : "ছাড় (৳ টাকা)"}
+                        </Label>
+                        <Input
+                          type="number"
+                          step={c.discount_type === "percentage" ? "0.1" : "1"}
+                          min="1"
+                          max={c.discount_type === "percentage" ? "100" : "100000"}
+                          placeholder={c.discount_type === "percentage" ? "যেমন: 10" : "যেমন: 50"}
+                          value={c.discount_amount || ""}
+                          onChange={(e) => updateCoupon(idx, "discount_amount", parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
                     </div>
 
                     {optionsList.filter(o => o.name.trim()).length > 1 && (
@@ -806,9 +883,9 @@ const AdminProducts = () => {
                           value={c.option_name || "__all__"}
                           onValueChange={(v) => updateCoupon(idx, "option_name", v === "__all__" ? null : v)}
                         >
-                          <SelectTrigger className="mt-1"><SelectValue placeholder="সব প্যাকেজ" /></SelectTrigger>
+                          <SelectTrigger className="mt-1"><SelectValue placeholder="সব প্যাকেজে প্রযোজ্য" /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="__all__">সব প্যাকেজে</SelectItem>
+                            <SelectItem value="__all__">সব প্যাকেজে প্রযোজ্য</SelectItem>
                             {optionsList.filter(o => o.name.trim()).map((opt, i) => (
                               <SelectItem key={i} value={opt.name}>{opt.name}{opt.price > 0 ? ` - ৳${opt.price}` : ""}</SelectItem>
                             ))}
@@ -816,18 +893,9 @@ const AdminProducts = () => {
                         </Select>
                       </div>
                     )}
-
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={c.is_active ? "secondary" : "outline"}
-                      onClick={() => updateCoupon(idx, "is_active", !c.is_active)}
-                    >
-                      {c.is_active ? "Active" : "Inactive"}
-                    </Button>
                   </div>
                 ))}
-                <p className="text-xs text-muted-foreground">কুপনগুলো শুধু এই প্রোডাক্টেই কাজ করবে।</p>
+                <p className="text-xs text-muted-foreground">কুপনগুলো শুধু এই নির্দিষ্ট প্রোডাক্টেই কাজ করবে।</p>
               </TabsContent>
             </Tabs>
             <Button type="submit" className="w-full" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>

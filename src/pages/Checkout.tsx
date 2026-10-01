@@ -138,46 +138,108 @@ const Checkout = () => {
     }
     setApplyingCoupon(true);
     const couponCode = form.coupon.trim();
+    if (!couponCode) {
+      toast({ title: "Please enter a coupon code", variant: "destructive" });
+      setApplyingCoupon(false);
+      return;
+    }
 
-    // First check if it's a product-specific (super) coupon
     const productIds = items.map(i => i.id);
-    const { data: allProductCoupons } = await supabase.rpc("get_product_coupons_by_code", { p_code: couponCode });
-    const matchingProducts = (allProductCoupons || [])
-      .filter((c: any) => productIds.includes(c.product_id))
-      .map((c: any) => ({
-        id: c.product_id,
-        coupon_discount: Number(c.discount_amount) || 0,
-        coupon_option: c.option_name,
-      }));
 
-    if (matchingProducts && matchingProducts.length > 0) {
-      // Check if coupon_option is set and if the selected option matches
+    // 1. First check if it's a product-specific coupon
+    const { data: pCoupons } = await supabase
+      .from("product_coupons")
+      .select("*")
+      .ilike("code", couponCode)
+      .eq("is_active", true);
+
+    const { data: prodsWithCoupons } = await supabase
+      .from("products")
+      .select("id, coupon_code, coupon_discount, coupon_option")
+      .in("id", productIds);
+
+    const candidateProductCoupons: Array<{
+      product_id: string;
+      discount_amount: number;
+      discount_type: "percentage" | "fixed";
+      option_name: string | null;
+    }> = [];
+
+    if (pCoupons && pCoupons.length > 0) {
+      for (const c of pCoupons) {
+        let optName = c.option_name || null;
+        let discType: "percentage" | "fixed" = "fixed";
+        if (optName && optName.includes(":::percent")) {
+          discType = "percentage";
+          optName = optName.replace(":::percent", "").trim() || null;
+        } else if (optName && optName.includes(":::fixed")) {
+          discType = "fixed";
+          optName = optName.replace(":::fixed", "").trim() || null;
+        } else if (Number(c.discount_amount) <= 100) {
+          discType = "percentage";
+        }
+        candidateProductCoupons.push({
+          product_id: c.product_id,
+          discount_amount: Number(c.discount_amount),
+          discount_type: discType,
+          option_name: optName,
+        });
+      }
+    }
+
+    if (prodsWithCoupons && prodsWithCoupons.length > 0) {
+      for (const p of prodsWithCoupons) {
+        if (p.coupon_code && p.coupon_code.toUpperCase() === couponCode.toUpperCase() && Number(p.coupon_discount) > 0) {
+          let optName = p.coupon_option || null;
+          let discType: "percentage" | "fixed" = "fixed";
+          if (optName && optName.includes(":::percent")) {
+            discType = "percentage";
+            optName = optName.replace(":::percent", "").trim() || null;
+          } else if (optName && optName.includes(":::fixed")) {
+            discType = "fixed";
+            optName = optName.replace(":::fixed", "").trim() || null;
+          } else if (Number(p.coupon_discount) <= 100) {
+            discType = "percentage";
+          }
+          candidateProductCoupons.push({
+            product_id: p.id,
+            discount_amount: Number(p.coupon_discount),
+            discount_type: discType,
+            option_name: optName,
+          });
+        }
+      }
+    }
+
+    const matchingProducts = candidateProductCoupons.filter(c => productIds.includes(c.product_id));
+
+    if (matchingProducts.length > 0) {
       const eligibleProducts = matchingProducts.filter(p => {
-        const couponOption = (p as any).coupon_option;
-        if (!couponOption) return true; // No specific option set, applies to all
-        // Find the matching cart item and check its selectedOption
-        const cartItem = items.find(i => i.id === p.id);
-        return cartItem?.selectedOption === couponOption;
+        if (!p.option_name) return true;
+        const cartItem = items.find(i => i.id === p.product_id);
+        return cartItem?.selectedOption === p.option_name;
       });
 
       if (eligibleProducts.length === 0) {
-        const requiredOption = (matchingProducts[0] as any).coupon_option;
-        toast({ title: `এই কুপনটি শুধুমাত্র "${requiredOption}" প্যাকেজে কাজ করবে`, variant: "destructive" });
+        const requiredOption = matchingProducts[0].option_name;
+        toast({ title: `এই কুপনটি শুধুমাত্র "${requiredOption}" প্যাকেজে প্রযোজ্য`, variant: "destructive" });
         setDiscount(0);
         setCouponApplied(false);
       } else {
         const totalSuperDiscount = eligibleProducts.reduce((sum, p) => {
-          const cartItem = items.find(i => i.id === p.id);
+          const cartItem = items.find(i => i.id === p.product_id);
           const itemPrice = (cartItem?.price || 0) * (cartItem?.quantity || 1);
-          const val = Number((p as any).coupon_discount) || 0;
-          const disc = val <= 100 ? Math.round((itemPrice * val) / 100) : val;
+          const val = p.discount_amount;
+          const disc = p.discount_type === "percentage"
+            ? Math.round((itemPrice * val) / 100)
+            : val;
           return sum + Math.min(itemPrice, disc);
         }, 0);
 
         if (totalSuperDiscount > 0) {
           setDiscount(totalSuperDiscount);
           setCouponApplied(true);
-          toast({ title: `🎉 Super Coupon applied! ৳${totalSuperDiscount} discount on eligible product` });
+          toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ৳${totalSuperDiscount} ছাড়` });
         } else {
           toast({ title: "Coupon has no discount set", variant: "destructive" });
           setDiscount(0);
@@ -185,7 +247,7 @@ const Checkout = () => {
         }
       }
     } else {
-      // Check if it's a global coupon (not assigned to any specific product)
+      // Check global coupons
       const { data: globalCoupon } = await supabase
         .from("coupons")
         .select("*")
@@ -194,22 +256,38 @@ const Checkout = () => {
         .maybeSingle();
 
       if (!globalCoupon) {
-        // Coupon may exist but belong to a product that's not in the cart
-        if (allProductCoupons && allProductCoupons.length > 0) {
+        if (candidateProductCoupons.length > 0) {
           toast({ title: "এই কুপনটি আপনার কার্টের প্রোডাক্টে প্রযোজ্য নয়", variant: "destructive" });
         } else {
-          toast({ title: "Invalid or expired coupon code", variant: "destructive" });
+          toast({ title: "কুপন কোডটি সঠিক নয় অথবা মেয়াদ উত্তীর্ণ", variant: "destructive" });
         }
         setDiscount(0);
         setCouponApplied(false);
       } else {
         const val = Number(globalCoupon.discount_amount);
+        const isPercent = globalCoupon.discount_type === "percentage" || (!globalCoupon.discount_type && val <= 100);
         const cartTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-        const calculatedDiscount = val <= 100 ? Math.min(cartTotal, Math.round((cartTotal * val) / 100)) : Math.min(cartTotal, val);
+
+        if (globalCoupon.min_order_amount && cartTotal < Number(globalCoupon.min_order_amount)) {
+          toast({ title: `এই কুপনের জন্য সর্বনিম্ন ৳${globalCoupon.min_order_amount} টাকার অর্ডার প্রয়োজন`, variant: "destructive" });
+          setDiscount(0);
+          setCouponApplied(false);
+          setApplyingCoupon(false);
+          return;
+        }
+
+        let calculatedDiscount = isPercent
+          ? Math.min(cartTotal, Math.round((cartTotal * val) / 100))
+          : Math.min(cartTotal, val);
+
+        if (globalCoupon.max_discount && calculatedDiscount > Number(globalCoupon.max_discount)) {
+          calculatedDiscount = Number(globalCoupon.max_discount);
+        }
+
         setDiscount(calculatedDiscount);
         setCouponApplied(true);
-        const label = val <= 100 ? `${val}% (৳${calculatedDiscount})` : `৳${calculatedDiscount}`;
-        toast({ title: `🎉 Coupon applied! ${label} discount` });
+        const label = isPercent ? `${val}% (৳${calculatedDiscount})` : `৳${calculatedDiscount}`;
+        toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ${label} ছাড়` });
       }
     }
     setApplyingCoupon(false);

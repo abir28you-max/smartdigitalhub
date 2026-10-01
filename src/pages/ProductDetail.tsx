@@ -386,46 +386,129 @@ const ProductDetail = () => {
     }
     setApplyingCoupon(true);
     try {
-      // Product-specific coupons (requires a signed-in customer)
-      const { data: productCoupons } = await supabase.rpc("get_product_coupons_by_code", { p_code: code });
-      const match = (productCoupons || []).find((c: any) => {
+      // 1. Check Product-specific coupons from product_coupons table
+      const { data: pCoupons } = await supabase
+        .from("product_coupons")
+        .select("*")
+        .ilike("code", code)
+        .eq("is_active", true);
+
+      // Also check if product has direct coupon columns
+      const { data: prodData } = await supabase
+        .from("products")
+        .select("id, coupon_code, coupon_discount, coupon_option")
+        .eq("id", product.id)
+        .maybeSingle();
+
+      const candidateCoupons: Array<{
+        product_id: string;
+        discount_amount: number;
+        discount_type: "percentage" | "fixed";
+        option_name: string | null;
+      }> = [];
+
+      if (pCoupons && pCoupons.length > 0) {
+        for (const c of pCoupons) {
+          let optName = c.option_name || null;
+          let discType: "percentage" | "fixed" = "fixed";
+          if (optName && optName.includes(":::percent")) {
+            discType = "percentage";
+            optName = optName.replace(":::percent", "").trim() || null;
+          } else if (optName && optName.includes(":::fixed")) {
+            discType = "fixed";
+            optName = optName.replace(":::fixed", "").trim() || null;
+          } else if (Number(c.discount_amount) <= 100) {
+            discType = "percentage";
+          }
+          candidateCoupons.push({
+            product_id: c.product_id,
+            discount_amount: Number(c.discount_amount),
+            discount_type: discType,
+            option_name: optName,
+          });
+        }
+      }
+
+      if (prodData && prodData.coupon_code && prodData.coupon_code.toUpperCase() === code.toUpperCase() && Number(prodData.coupon_discount) > 0) {
+        let optName = prodData.coupon_option || null;
+        let discType: "percentage" | "fixed" = "fixed";
+        if (optName && optName.includes(":::percent")) {
+          discType = "percentage";
+          optName = optName.replace(":::percent", "").trim() || null;
+        } else if (optName && optName.includes(":::fixed")) {
+          discType = "fixed";
+          optName = optName.replace(":::fixed", "").trim() || null;
+        } else if (Number(prodData.coupon_discount) <= 100) {
+          discType = "percentage";
+        }
+        candidateCoupons.push({
+          product_id: prodData.id,
+          discount_amount: Number(prodData.coupon_discount),
+          discount_type: discType,
+          option_name: optName,
+        });
+      }
+
+      const match = candidateCoupons.find((c) => {
         if (c.product_id !== product.id) return false;
         if (!c.option_name) return true;
         return c.option_name === selectedOption;
-      }) as any;
+      });
 
-      if (match && Number(match.discount_amount) > 0) {
-        const val = Number(match.discount_amount);
-        const discountBDT = val <= 100 ? Math.min(activePrice, Math.round((activePrice * val) / 100)) : Math.min(activePrice, val);
+      if (match && match.discount_amount > 0) {
+        const val = match.discount_amount;
+        const discountBDT = match.discount_type === "percentage"
+          ? Math.min(activePrice, Math.round((activePrice * val) / 100))
+          : Math.min(activePrice, val);
+
         setAppliedCoupon({ code: code.toUpperCase(), discount: discountBDT });
-        const discountLabel = val <= 100 ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
-        toast({ title: `🎉 Coupon applied! ${discountLabel} discount` });
+        const discountLabel = match.discount_type === "percentage" ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
+        toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ${discountLabel} ছাড়` });
         return;
       }
 
-      const wrongOption = (productCoupons || []).find((c: any) => c.product_id === product.id);
-      if (wrongOption) {
-        toast({ title: `This coupon only works on "${wrongOption.option_name}" package`, variant: "destructive" });
+      const wrongOption = candidateCoupons.find((c) => c.product_id === product.id);
+      if (wrongOption && wrongOption.option_name) {
+        toast({ title: `এই কুপনটি শুধুমাত্র "${wrongOption.option_name}" প্যাকেজে প্রযোজ্য`, variant: "destructive" });
         setAppliedCoupon(null);
         return;
       }
 
-      // Global coupon
+      // 2. Global coupon
       const { data: globalCoupon } = await supabase
         .from("coupons")
-        .select("code, discount_amount")
+        .select("*")
         .ilike("code", code)
         .eq("is_active", true)
         .maybeSingle();
 
       if (globalCoupon && Number(globalCoupon.discount_amount) > 0) {
         const val = Number(globalCoupon.discount_amount);
-        const discountBDT = val <= 100 ? Math.min(activePrice, Math.round((activePrice * val) / 100)) : Math.min(activePrice, val);
+        const isPercent = globalCoupon.discount_type === "percentage" || (!globalCoupon.discount_type && val <= 100);
+
+        if (globalCoupon.min_order_amount && activePrice < Number(globalCoupon.min_order_amount)) {
+          toast({ title: `এই কুপনের জন্য সর্বনিম্ন ৳${globalCoupon.min_order_amount} টাকার অর্ডার প্রয়োজন`, variant: "destructive" });
+          setAppliedCoupon(null);
+          return;
+        }
+
+        let discountBDT = isPercent
+          ? Math.min(activePrice, Math.round((activePrice * val) / 100))
+          : Math.min(activePrice, val);
+
+        if (globalCoupon.max_discount && discountBDT > Number(globalCoupon.max_discount)) {
+          discountBDT = Number(globalCoupon.max_discount);
+        }
+
         setAppliedCoupon({ code: code.toUpperCase(), discount: discountBDT });
-        const discountLabel = val <= 100 ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
-        toast({ title: `🎉 Coupon applied! ${discountLabel} discount` });
+        const discountLabel = isPercent ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
+        toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ${discountLabel} ছাড়` });
       } else {
-        toast({ title: "Invalid or expired coupon code", variant: "destructive" });
+        if (candidateCoupons.length > 0) {
+          toast({ title: "এই কুপনটি এই প্রোডাক্টে প্রযোজ্য নয়", variant: "destructive" });
+        } else {
+          toast({ title: "কুপন কোডটি সঠিক নয় অথবা মেয়াদ উত্তীর্ণ", variant: "destructive" });
+        }
         setAppliedCoupon(null);
       }
     } finally {
