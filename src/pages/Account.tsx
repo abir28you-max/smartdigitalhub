@@ -22,6 +22,7 @@ import {
   KeyRound,
   Sparkles,
 } from "lucide-react";
+import { RedeemVideoPlayer } from "@/components/RedeemVideoPlayer";
 
 interface OrderItem {
   id: string;
@@ -33,6 +34,7 @@ interface OrderItem {
 interface DeliveryNote {
   note?: string;
   link?: string;
+  video_url?: string;
 }
 interface Order {
   id: string;
@@ -383,6 +385,12 @@ const Account = () => {
                                   >
                                     Open Access Link <ExternalLink className="h-3.5 w-3.5" />
                                   </a>
+                                </div>
+                              )}
+
+                              {n.video_url && (
+                                <div className="pt-2">
+                                  <RedeemVideoPlayer videoUrl={n.video_url} variant="card" />
                                 </div>
                               )}
                             </div>

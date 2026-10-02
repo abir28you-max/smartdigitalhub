@@ -7,8 +7,9 @@ import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Mail, Settings, RefreshCw, Send } from "lucide-react";
+import { Plus, Trash2, Mail, Settings, RefreshCw, Send, Video, PlayCircle } from "lucide-react";
 import { sendDeliveryEmail, getEmailSettings, saveEmailSettings } from "@/lib/sendDeliveryEmail";
+import { RedeemVideoPlayer } from "@/components/RedeemVideoPlayer";
 
 interface Order {
   id: string;
@@ -22,13 +23,14 @@ interface Order {
   created_at: string;
   coupon_code: string | null;
   payment_methods?: { name: string } | null;
-  delivery_notes?: { note: string; link: string }[] | null;
+  delivery_notes?: { note: string; link: string; video_url?: string }[] | null;
   delivery_details?: { product_name?: string; option?: string | null; name?: string; profile_pin?: string; email?: string | null }[] | null;
 }
 
 interface DeliveryNote {
   note: string;
   link: string;
+  video_url?: string;
 }
 
 const statusColors: Record<string, string> = {
@@ -84,13 +86,13 @@ const AdminOrders = () => {
   const openDeliverDialog = (order: Order) => {
     setSelectedOrder(order);
     const existing = order.delivery_notes;
-    setDeliveryNotes(existing && existing.length > 0 ? existing : [{ note: "", link: "" }]);
+    setDeliveryNotes(existing && existing.length > 0 ? existing : [{ note: "", link: "", video_url: "" }]);
     setDeliverDialogOpen(true);
   };
 
   const handleDeliver = async () => {
     if (!selectedOrder) return;
-    const notes = deliveryNotes.filter(n => n.note.trim() || n.link.trim());
+    const notes = deliveryNotes.filter(n => n.note.trim() || n.link.trim() || (n.video_url && n.video_url.trim()));
     setSendingEmail(true);
 
     const { error } = await supabase.from("orders").update({
@@ -169,11 +171,11 @@ const AdminOrders = () => {
     setSettingsOpen(false);
   };
 
-  const updateNote = (index: number, field: "note" | "link", value: string) => {
+  const updateNote = (index: number, field: "note" | "link" | "video_url", value: string) => {
     setDeliveryNotes(prev => prev.map((n, i) => i === index ? { ...n, [field]: value } : n));
   };
 
-  const addNote = () => setDeliveryNotes(prev => [...prev, { note: "", link: "" }]);
+  const addNote = () => setDeliveryNotes(prev => [...prev, { note: "", link: "", video_url: "" }]);
   const removeNote = (index: number) => setDeliveryNotes(prev => prev.filter((_, i) => i !== index));
 
   return (
@@ -235,15 +237,20 @@ const AdminOrders = () => {
                   </div>
                 )}
                 {Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0 && (
-                  <div className="mt-2 rounded-md bg-primary/5 border border-primary/20 p-2.5 space-y-1.5">
+                  <div className="mt-2 rounded-md bg-primary/5 border border-primary/20 p-2.5 space-y-2">
                     <p className="text-xs font-bold text-primary">Delivered Information / Access</p>
                     {o.delivery_notes.map((dn, i) => (
-                      <div key={i} className="text-xs text-foreground bg-card p-2 rounded border border-border">
+                      <div key={i} className="text-xs text-foreground bg-card p-2.5 rounded-lg border border-border space-y-1.5">
                         {dn.note && <div className="font-mono whitespace-pre-wrap">{dn.note}</div>}
                         {dn.link && (
-                          <a href={dn.link} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline block mt-1">
+                          <a href={dn.link} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline block">
                             {dn.link}
                           </a>
+                        )}
+                        {dn.video_url && (
+                          <div className="pt-1">
+                            <RedeemVideoPlayer videoUrl={dn.video_url} variant="card" />
+                          </div>
                         )}
                       </div>
                     ))}
@@ -350,6 +357,26 @@ const AdminOrders = () => {
                         value={dn.link}
                         onChange={(e) => updateNote(i, "link", e.target.value)}
                       />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                          <Video className="h-3.5 w-3.5 text-rose-500" />
+                          Redeem Video Tutorial URL (Optional)
+                        </label>
+                        {dn.video_url && dn.video_url.trim() && (
+                          <RedeemVideoPlayer videoUrl={dn.video_url} variant="button" />
+                        )}
+                      </div>
+                      <Input
+                        placeholder="https://youtube.com/shorts/... or MP4 video link (Optional)"
+                        value={dn.video_url || ""}
+                        onChange={(e) => updateNote(i, "video_url", e.target.value)}
+                        className="text-xs font-mono"
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        💡 কাস্টমারকে কীভাবে প্রোডাক্ট রিডিম করতে হবে তা দেখানোর জন্য YouTube Shorts, YouTube, Loom বা MP4 ভিডিও লিঙ্ক দিন
+                      </p>
                     </div>
                   </div>
                 ))}

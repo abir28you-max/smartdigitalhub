@@ -10,6 +10,7 @@ interface Item {
 interface Note {
   note?: string;
   link?: string;
+  video_url?: string;
 }
 
 interface DeliveryEmailParams {
@@ -84,6 +85,15 @@ export const generateDeliveryHtml = (params: DeliveryEmailParams): string => {
             ? `<div style="margin-top: 10px;">
                 <a href="${n.link}" target="_blank" style="display: inline-block; background-color: #7c3aed; color: #ffffff; text-decoration: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px;">
                   Access Link / Subscription &rarr;
+                </a>
+               </div>`
+            : ""
+        }
+        ${
+          n.video_url
+            ? `<div style="margin-top: 8px;">
+                <a href="${n.video_url}" target="_blank" style="display: inline-block; background-color: #e11d48; color: #ffffff; text-decoration: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px;">
+                  🎬 রিডিম গাইড ভিডিও টিউটোরিয়াল দেখুন &rarr;
                 </a>
                </div>`
             : ""

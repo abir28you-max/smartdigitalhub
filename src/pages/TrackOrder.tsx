@@ -28,6 +28,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { RedeemVideoPlayer } from "@/components/RedeemVideoPlayer";
 
 interface OrderItem {
   id?: string;
@@ -40,6 +41,7 @@ interface OrderItem {
 interface DeliveryNote {
   note: string;
   link: string;
+  video_url?: string;
 }
 
 interface Order {
@@ -537,6 +539,12 @@ const TrackOrder = () => {
                                     <ExternalLink className="h-4 w-4" />
                                     Open Subscription Link &rarr;
                                   </a>
+                                </div>
+                              )}
+
+                              {dn.video_url && (
+                                <div className="pt-2">
+                                  <RedeemVideoPlayer videoUrl={dn.video_url} variant="card" />
                                 </div>
                               )}
                             </div>
