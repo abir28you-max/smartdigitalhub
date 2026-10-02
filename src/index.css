@@ -130,7 +130,11 @@
 }
 
 .animate-marquee {
-  animation: marquee 10s linear infinite;
+  animation: marquee 16s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* Hide Lovable branding widget completely across all pages */
