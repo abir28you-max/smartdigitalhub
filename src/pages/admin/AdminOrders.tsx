@@ -7,8 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Mail, Settings, RefreshCw, Send, Video, PlayCircle } from "lucide-react";
-import { sendDeliveryEmail, getEmailSettings, saveEmailSettings } from "@/lib/sendDeliveryEmail";
+import { Plus, Trash2, RefreshCw, Send, Video, PlayCircle } from "lucide-react";
 import { RedeemVideoPlayer } from "@/components/RedeemVideoPlayer";
 
 interface Order {
@@ -44,12 +43,9 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState("all");
   const [deliverDialogOpen, setDeliverDialogOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([{ note: "", link: "" }]);
-  const [resendApiKey, setResendApiKey] = useState("");
-  const [senderEmail, setSenderEmail] = useState("");
-  const [sendingEmail, setSendingEmail] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     let query = supabase.from("orders").select("*, payment_methods(name)").order("created_at", { ascending: false });
@@ -60,10 +56,6 @@ const AdminOrders = () => {
 
   useEffect(() => {
     fetchData();
-    getEmailSettings().then((s) => {
-      setResendApiKey(s.apiKey);
-      setSenderEmail(s.senderEmail);
-    });
   }, [filter]);
 
   const updateStatus = async (id: string, status: string) => {
@@ -93,7 +85,7 @@ const AdminOrders = () => {
   const handleDeliver = async () => {
     if (!selectedOrder) return;
     const notes = deliveryNotes.filter(n => n.note.trim() || n.link.trim() || (n.video_url && n.video_url.trim()));
-    setSendingEmail(true);
+    setSaving(true);
 
     const { error } = await supabase.from("orders").update({
       status: "delivered",
@@ -103,72 +95,13 @@ const AdminOrders = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Order marked as Delivered!" });
-      
-      // Send Email to customer via Resend
-      if (selectedOrder.customer_email) {
-        const mailRes = await sendDeliveryEmail({
-          recipientEmail: selectedOrder.customer_email,
-          customerName: selectedOrder.customer_name,
-          orderId: selectedOrder.id,
-          transactionId: selectedOrder.transaction_id,
-          totalPrice: selectedOrder.total_price,
-          items: Array.isArray(selectedOrder.items) ? selectedOrder.items : [],
-          notes,
-        });
-
-        if (mailRes.success) {
-          toast({ title: "✅ Email Delivered!", description: `Details sent to ${selectedOrder.customer_email}` });
-        } else {
-          toast({
-            title: "⚠️ Email Failed to Send",
-            description: mailRes.error,
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({ title: "No customer email provided on order." });
-      }
-
+      toast({ title: "🎉 Order marked as Delivered!" });
       fetchData();
     }
 
-    setSendingEmail(false);
+    setSaving(false);
     setDeliverDialogOpen(false);
     setSelectedOrder(null);
-  };
-
-  const handleResendEmail = async (order: Order) => {
-    if (!order.customer_email) {
-      toast({ title: "Customer email is missing", variant: "destructive" });
-      return;
-    }
-    const notes = order.delivery_notes || [];
-    const mailRes = await sendDeliveryEmail({
-      recipientEmail: order.customer_email,
-      customerName: order.customer_name,
-      orderId: order.id,
-      transactionId: order.transaction_id,
-      totalPrice: order.total_price,
-      items: Array.isArray(order.items) ? order.items : [],
-      notes,
-    });
-
-    if (mailRes.success) {
-      toast({ title: "✅ Email Resent!", description: `Details sent to ${order.customer_email}` });
-    } else {
-      toast({
-        title: "⚠️ Email Failed",
-        description: mailRes.error,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    await saveEmailSettings(resendApiKey, senderEmail);
-    toast({ title: "Email settings saved successfully!" });
-    setSettingsOpen(false);
   };
 
   const updateNote = (index: number, field: "note" | "link" | "video_url", value: string) => {
@@ -181,17 +114,7 @@ const AdminOrders = () => {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-xl font-bold">Orders</h1>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setSettingsOpen(true)}
-            className="flex items-center gap-1.5 text-xs"
-          >
-            <Settings className="h-3.5 w-3.5" /> Email Settings
-          </Button>
-        </div>
+        <h1 className="font-display text-xl font-bold">Orders</h1>
         <Select value={filter} onValueChange={setFilter}>
           <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -283,7 +206,7 @@ const AdminOrders = () => {
               {o.status === "verified" && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => openDeliverDialog(o)}>
-                    <Send className="h-3.5 w-3.5 mr-1" /> Deliver & Send Email
+                    <Send className="h-3.5 w-3.5 mr-1" /> Deliver Order
                   </Button>
                   <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, "rejected")}>Reject</Button>
                   <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteOrder(o.id)}>
@@ -296,9 +219,6 @@ const AdminOrders = () => {
                 <div className="flex flex-wrap gap-2 mt-3 items-center">
                   <Button size="sm" variant="outline" onClick={() => openDeliverDialog(o)}>
                     Edit Delivery Info
-                  </Button>
-                  <Button size="sm" variant="secondary" onClick={() => handleResendEmail(o)}>
-                    <Mail className="h-3.5 w-3.5 mr-1" /> Resend Email
                   </Button>
                   <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 ml-auto" onClick={() => handleDeleteOrder(o.id)}>
                     <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
@@ -315,7 +235,7 @@ const AdminOrders = () => {
       <Dialog open={deliverDialogOpen} onOpenChange={setDeliverDialogOpen}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Deliver Order & Send Email</DialogTitle>
+            <DialogTitle>Deliver Order</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
@@ -331,7 +251,6 @@ const AdminOrders = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold">Delivery Access & Credentials</p>
-                  <span className="text-xs text-muted-foreground">Will be emailed to customer</span>
                 </div>
                 {deliveryNotes.map((dn, i) => (
                   <div key={i} className="border border-border rounded-lg p-3 space-y-2 relative bg-card">
@@ -388,51 +307,9 @@ const AdminOrders = () => {
           )}
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDeliverDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleDeliver} disabled={sendingEmail}>
-              {sendingEmail ? "Sending..." : "Confirm Delivery & Send Email"}
+            <Button onClick={handleDeliver} disabled={saving}>
+              {saving ? "Saving..." : "Confirm Delivery"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Resend Email Settings Dialog */}
-      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-primary" /> Resend Email Settings
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">Resend API Key</label>
-              <Input
-                type="password"
-                placeholder="re_123456789..."
-                value={resendApiKey}
-                onChange={(e) => setResendApiKey(e.target.value)}
-                className="font-mono"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                Get this from your <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary underline">Resend Dashboard &rarr; API Keys</a>
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">Sender Email (From)</label>
-              <Input
-                placeholder="Smart Digital Hub <onboarding@resend.dev>"
-                value={senderEmail}
-                onChange={(e) => setSenderEmail(e.target.value)}
-              />
-              <p className="text-[11px] text-muted-foreground">
-                Default: <code>Smart Digital Hub &lt;onboarding@resend.dev&gt;</code> or your verified domain.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSettingsOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveSettings}>Save Settings</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
