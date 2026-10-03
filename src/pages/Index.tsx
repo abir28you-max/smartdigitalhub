@@ -144,11 +144,9 @@ const Index = () => {
 
       {!shellLoading && (
         <>
-          <section className="container mt-4 md:mt-6 mb-1 md:mb-2">
-            <h1 className="font-display text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight leading-tight">
-              Smart Digital Hub — Genuine Digital Product Subscriptions in Bangladesh
-            </h1>
-          </section>
+          <h1 className="sr-only">
+            Smart Digital Hub — Genuine Digital Product Subscriptions in Bangladesh
+          </h1>
 
           <BannerCarousel initialBanners={banners} />
 
