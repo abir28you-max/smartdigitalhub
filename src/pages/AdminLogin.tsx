@@ -53,7 +53,7 @@ const AdminLogin = () => {
       <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-6 md:p-8 shadow-xl">
         <div className="flex flex-col items-center mb-6">
           <Link to="/" className="mb-3 hover:opacity-90 transition-opacity">
-            <img src={logo} alt="Smart Digital Hub" className="h-16 w-auto object-contain rounded-lg" />
+            <img src={logo} alt="Smart Digital Hub" className="h-16 w-auto object-contain rounded-lg dark:invert dark:brightness-125 transition-all" />
           </Link>
           <h1 className="font-display text-xl font-bold text-center">
             {isSignup ? "Create Admin Account" : "Admin Portal Login"}

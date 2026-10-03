@@ -22,27 +22,27 @@ const Footer = () => (
       </div>
     </section>
 
-    <footer className="bg-foreground text-background py-4 pb-14 md:py-6 md:pb-6 mt-4">
-      <div className="container text-center space-y-3">
+    <footer className="bg-slate-900 text-slate-100 dark:bg-card dark:text-foreground border-t border-slate-800 dark:border-border py-6 pb-16 md:py-8 md:pb-8 mt-6">
+      <div className="container text-center space-y-4">
         <div>
-          <p className="font-display text-lg md:text-2xl font-bold">Smart Digital Hub</p>
-          <p className="opacity-70 text-xs">The Digital Product Store</p>
+          <p className="font-display text-lg md:text-2xl font-bold tracking-tight">Smart Digital Hub</p>
+          <p className="opacity-75 text-xs">The Digital Product Store</p>
         </div>
 
         <form onSubmit={(e) => e.preventDefault()} className="flex max-w-md mx-auto gap-2">
           <label htmlFor="footer-email" className="sr-only">Email address</label>
-          <Input id="footer-email" type="email" placeholder="Enter your email" className="bg-background/10 border-background/20 text-background placeholder:opacity-50" />
-          <Button type="submit" variant="default">Subscribe</Button>
+          <Input id="footer-email" type="email" placeholder="Enter your email" className="bg-slate-800/80 border-slate-700 text-slate-100 placeholder:text-slate-400 dark:bg-background dark:border-border dark:text-foreground dark:placeholder:text-muted-foreground" />
+          <Button type="submit" variant="default" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">Subscribe</Button>
         </form>
 
-        <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-4 text-sm opacity-70">
-          <Link to="/" className="hover:opacity-100">Home</Link>
-          <Link to="/about" className="hover:opacity-100">About Us</Link>
-          <Link to="/privacy" className="hover:opacity-100">Privacy Policy</Link>
-          <Link to="/terms" className="hover:opacity-100">Terms & Conditions</Link>
+        <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-4 text-sm opacity-80">
+          <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
+          <Link to="/about" className="hover:opacity-100 transition-opacity">About Us</Link>
+          <Link to="/privacy" className="hover:opacity-100 transition-opacity">Privacy Policy</Link>
+          <Link to="/terms" className="hover:opacity-100 transition-opacity">Terms & Conditions</Link>
         </nav>
 
-        <p className="text-xs opacity-50">© 2026 Smart Digital Hub. All rights reserved.</p>
+        <p className="text-xs opacity-60">© 2026 Smart Digital Hub. All rights reserved.</p>
       </div>
     </footer>
   </>

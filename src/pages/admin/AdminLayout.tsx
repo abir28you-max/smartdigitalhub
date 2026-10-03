@@ -186,7 +186,7 @@ const AdminLayout = () => {
       {/* Desktop Sidebar */}
       <aside className="w-60 bg-card border-r border-border flex-col flex-shrink-0 hidden md:flex">
         <div className="p-4 border-b border-border flex items-center gap-3">
-          <img src="/logo.png" alt="Smart Digital Hub" className="h-8 w-auto object-contain rounded" />
+          <img src="/logo.png" alt="Smart Digital Hub" className="h-8 w-auto object-contain rounded dark:invert dark:brightness-125 transition-all" />
           <span className="font-display text-base font-bold">Admin Panel</span>
         </div>
         <NavLinks />
@@ -206,7 +206,7 @@ const AdminLayout = () => {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0 flex flex-col">
                 <div className="p-4 border-b border-border flex items-center gap-3">
-                  <img src="/logo.png" alt="Smart Digital Hub" className="h-8 w-auto object-contain rounded" />
+                  <img src="/logo.png" alt="Smart Digital Hub" className="h-8 w-auto object-contain rounded dark:invert dark:brightness-125 transition-all" />
                   <span className="font-display text-base font-bold">Admin Panel</span>
                 </div>
                 <NavLinks />
@@ -214,7 +214,7 @@ const AdminLayout = () => {
               </SheetContent>
             </Sheet>
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Smart Digital Hub" className="h-6 w-auto object-contain rounded" />
+              <img src="/logo.png" alt="Smart Digital Hub" className="h-6 w-auto object-contain rounded dark:invert dark:brightness-125 transition-all" />
               <span className="font-display font-bold text-base">
                 {tabs.find(t => t.to === location.pathname)?.label || "Admin"}
               </span>

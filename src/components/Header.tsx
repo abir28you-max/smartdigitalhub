@@ -100,7 +100,7 @@ const Header = () => {
         <div className="container flex items-center justify-between h-14 md:h-20 gap-2">
           {/* Logo */}
           <div onClick={handleLogoTap} className="cursor-pointer font-display text-xl font-bold text-header-foreground tracking-tight flex-shrink-0">
-            <img src={logo} alt="Smart Digital Hub" width="180" height="80" className="h-14 md:h-20 w-auto" />
+            <img src={logo} alt="Smart Digital Hub" width="180" height="80" className="h-14 md:h-20 w-auto dark:invert dark:brightness-125 dark:contrast-125 transition-all duration-300" />
           </div>
 
           {/* Search bar restored in middle */}

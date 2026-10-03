@@ -117,7 +117,7 @@ const FastAdmin = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 bg-card border border-border rounded-2xl p-6 shadow-xl">
           <div className="flex flex-col items-center gap-2 mb-2">
-            <img src="/logo.png" alt="Smart Digital Hub" className="h-16 w-auto object-contain rounded-lg mb-1" />
+            <img src="/logo.png" alt="Smart Digital Hub" className="h-16 w-auto object-contain rounded-lg mb-1 dark:invert dark:brightness-125 transition-all" />
             <h1 className="font-display font-bold text-lg">Mobile Fast Admin</h1>
             <p className="text-xs text-muted-foreground">Smart Digital Hub</p>
           </div>
