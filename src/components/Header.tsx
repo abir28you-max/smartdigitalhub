@@ -20,12 +20,19 @@ const navLinks = [
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFlippingCurrency, setIsFlippingCurrency] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { totalItems } = useCart();
   const { currency, toggleCurrency } = useCurrency();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const handleCurrencyToggle = () => {
+    setIsFlippingCurrency(true);
+    toggleCurrency();
+    setTimeout(() => setIsFlippingCurrency(false), 550);
+  };
 
   const handleLogoTap = useCallback(() => {
     tapCountRef.current += 1;
@@ -80,11 +87,11 @@ const Header = () => {
 
           <div className="flex items-center gap-3 md:gap-5">
             <button
-              onClick={toggleCurrency}
+              onClick={handleCurrencyToggle}
               aria-label={`Switch currency, current: ${currency}`}
               className="text-header-foreground text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1 active:scale-95"
             >
-              <span key={currency} className="inline-block animate-coin-flip px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25 text-xs font-bold shadow-2xs">
+              <span className={`inline-block px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25 text-xs font-bold shadow-2xs ${isFlippingCurrency ? "animate-coin-flip" : ""}`}>
                 {currency === "BDT" ? "৳ BDT" : "$ USD"}
               </span>
             </button>
