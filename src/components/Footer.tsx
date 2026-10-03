@@ -42,7 +42,20 @@ const Footer = () => (
           <Link to="/terms" className="hover:opacity-100 transition-opacity">Terms & Conditions</Link>
         </nav>
 
-        <p className="text-xs opacity-60">© 2026 Smart Digital Hub. All rights reserved.</p>
+        <div className="space-y-1.5 pt-1">
+          <p className="text-xs opacity-60">© 2026 Smart Digital Hub. All rights reserved.</p>
+          <p className="text-xs text-slate-300 dark:text-muted-foreground">
+            Designed &amp; Developed by{" "}
+            <a
+              href="https://www.facebook.com/share/1Hqkd68ccr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline hover:text-primary/90 transition-colors"
+            >
+              Abir Roy
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   </>
