@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getOptimizedImageUrl } from "@/lib/image";
+import { Flame } from "lucide-react";
 
 interface HotDeal {
   id: string;
@@ -63,8 +64,14 @@ const HotDeals = ({ initialDeals = [] }: { initialDeals?: HotDeal[] }) => {
   };
 
   return (
-    <section className="container mt-8">
-      <h2 className="font-display text-xl md:text-2xl font-black text-center mb-4">Hot Deals</h2>
+    <section className="container mt-8 animate-fade-in-up">
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <Flame className="h-6 w-6 text-orange-500 fill-amber-400 animate-flame" />
+        <h2 className="font-display text-xl md:text-2xl font-black text-center tracking-tight bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+          Hot Deals
+        </h2>
+        <Flame className="h-6 w-6 text-orange-500 fill-amber-400 animate-flame" />
+      </div>
       <div className="overflow-hidden flex select-none group">
         <div className="flex gap-4 shrink-0 animate-marquee group-hover:[animation-play-state:paused]">
           {trackItems.map((deal, i) => renderDealCard(deal, `t1-${deal.id}-${i}`))}

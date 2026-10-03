@@ -111,7 +111,7 @@ const StarRating = ({ rating, onRate, interactive = false }: { rating: number; o
     {[1, 2, 3, 4, 5].map((star) => (
       <Star
         key={star}
-        className={`h-5 w-5 ${interactive ? "cursor-pointer" : ""} ${
+        className={`h-5 w-5 transition-transform duration-150 ${interactive ? "cursor-pointer hover-star-sparkle hover:scale-125" : ""} ${
           star <= rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"
         }`}
         onClick={() => interactive && onRate?.(star)}
@@ -279,6 +279,7 @@ const ProductDetail = () => {
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [couponShake, setCouponShake] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", slug],
@@ -509,6 +510,8 @@ const ProductDetail = () => {
         } else {
           toast({ title: "কুপন কোডটি সঠিক নয় অথবা মেয়াদ উত্তীর্ণ", variant: "destructive" });
         }
+        setCouponShake(true);
+        setTimeout(() => setCouponShake(false), 500);
         setAppliedCoupon(null);
       }
     } finally {
@@ -558,14 +561,22 @@ const ProductDetail = () => {
       <Header />
       <div className="container mt-4 mb-8">
         {/* Product image */}
-        <div className="relative bg-card rounded-lg border border-border p-6 flex items-center justify-center aspect-square max-w-md mx-auto">
+        <div className="relative bg-card rounded-2xl border border-border p-6 flex items-center justify-center aspect-square max-w-md mx-auto shadow-xs group overflow-hidden">
           {product.image_url ? (
-            <img src={productImage} alt={product.name} width="400" height="400" fetchPriority="high" decoding="async" className="max-w-full max-h-full object-contain" />
+            <img src={productImage} alt={product.name} width="400" height="400" fetchPriority="high" decoding="async" className="max-w-full max-h-full object-contain transition-transform duration-500 ease-out group-hover:scale-105" />
           ) : (
             <div className="w-24 h-24 bg-muted rounded-full" />
           )}
-          {product.stock_status !== "in_stock" && (
-            <span className="absolute top-3 left-3 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1 rounded-full">
+          {product.stock_status === "in_stock" ? (
+            <span className="absolute top-3 left-3 bg-emerald-500/90 backdrop-blur-xs text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+              In Stock
+            </span>
+          ) : (
+            <span className="absolute top-3 left-3 bg-destructive/90 backdrop-blur-xs text-destructive-foreground text-xs font-bold px-3 py-1 rounded-full shadow-xs">
               Stock Out
             </span>
           )}
@@ -604,11 +615,11 @@ const ProductDetail = () => {
                     key={opt.name}
                     disabled={soldOut}
                     onClick={() => setSelectedOption(opt.name)}
-                    className={`px-3 py-1.5 rounded-full border text-sm transition-colors ${
+                    className={`px-3.5 py-1.5 rounded-full border text-sm transition-all duration-200 active:scale-95 ${
                       soldOut
                         ? "border-border text-muted-foreground/60 line-through opacity-60 cursor-not-allowed"
                         : selectedOption === opt.name
-                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        ? "border-primary bg-primary/15 text-primary font-bold shadow-2xs scale-[1.02]"
                         : "border-border text-muted-foreground hover:border-primary/50"
                     }`}
                   >
@@ -627,20 +638,20 @@ const ProductDetail = () => {
         )}
 
         {/* Coupon */}
-        <div className="mt-4 bg-card rounded-lg border border-border p-3">
+        <div className={`mt-4 bg-card rounded-xl border border-border p-3.5 shadow-2xs transition-all ${couponShake ? "animate-shake border-destructive/60" : ""}`}>
           <p className="text-sm font-medium mb-2 flex items-center gap-1.5">
             <Tag className="h-4 w-4 text-primary" /> Have a coupon?
           </p>
           {appliedCoupon ? (
-            <div className="flex items-center gap-2">
-              <span className="bg-red-50 text-red-700 border border-red-200 rounded-full px-3 py-1 text-sm font-medium flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" /> {appliedCoupon.code} (-{formatPrice(appliedCoupon.discount)})
+            <div className="flex items-center gap-2 animate-selection-pop">
+              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-full px-3 py-1 text-sm font-semibold flex items-center gap-1 shadow-2xs">
+                <CheckCircle className="h-3.5 w-3.5" /> {appliedCoupon.code} (-{formatPrice(appliedCoupon.discount)})
               </span>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="text-destructive text-xs"
+                className="text-destructive text-xs hover:bg-destructive/10"
                 onClick={() => { setAppliedCoupon(null); setCouponInput(""); }}
               >
                 <X className="h-3 w-3 mr-1" /> Remove
@@ -652,8 +663,9 @@ const ProductDetail = () => {
                 placeholder="ENTER CODE"
                 value={couponInput}
                 onChange={(e) => setCouponInput(e.target.value)}
+                className="rounded-lg"
               />
-              <Button type="button" variant="outline" onClick={handleApplyCoupon} disabled={applyingCoupon}>
+              <Button type="button" variant="outline" onClick={handleApplyCoupon} disabled={applyingCoupon} className="rounded-lg font-semibold active:scale-95">
                 {applyingCoupon ? "..." : "Apply"}
               </Button>
             </div>
@@ -664,7 +676,7 @@ const ProductDetail = () => {
         <div className="flex gap-3 mt-6">
           <Button
             variant="outline"
-            className="flex-1"
+            className="flex-1 h-12 rounded-xl font-bold border-2 border-primary/50 text-primary hover:bg-primary/10 active:scale-95 transition-all shadow-xs"
             disabled={unavailable}
             onClick={handleAddToCart}
           >
@@ -672,7 +684,7 @@ const ProductDetail = () => {
             Add to Cart
           </Button>
           <Button
-            className="flex-1"
+            className="flex-1 h-12 rounded-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground btn-shine active:scale-95 transition-all shadow-md hover:shadow-lg"
             disabled={unavailable}
             onClick={handleBuyNow}
           >

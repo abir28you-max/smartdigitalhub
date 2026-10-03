@@ -62,7 +62,7 @@ const Header = () => {
             <img src={logo} alt="Smart Digital Hub" width="180" height="80" className="h-16 md:h-20 w-auto" />
           </div>
 
-          <form onSubmit={handleSearch} className="flex flex-1 mx-2 md:mx-4 max-w-xl">
+          <form onSubmit={handleSearch} className="flex flex-1 mx-2 md:mx-4 max-w-xl group">
             <div className="relative w-full">
               <label htmlFor="header-search" className="sr-only">Search products</label>
               <Input
@@ -70,17 +70,23 @@ const Header = () => {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="rounded-full bg-background border-2 border-muted text-foreground placeholder:text-muted-foreground pr-10 h-10"
+                className="rounded-full bg-background border-2 border-muted text-foreground placeholder:text-muted-foreground pr-10 h-10 transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/20 focus:shadow-md"
               />
-              <button type="submit" aria-label="Search products" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <button type="submit" aria-label="Search products" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
                 <Search className="h-5 w-5" />
               </button>
             </div>
           </form>
 
           <div className="flex items-center gap-3 md:gap-5">
-            <button onClick={toggleCurrency} aria-label={`Switch currency, current: ${currency}`} className="text-header-foreground text-sm font-medium hover:text-primary transition-colors">
-              $ {currency}
+            <button
+              onClick={toggleCurrency}
+              aria-label={`Switch currency, current: ${currency}`}
+              className="text-header-foreground text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1 active:scale-95"
+            >
+              <span key={currency} className="inline-block animate-coin-flip px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/25 text-xs font-bold shadow-2xs">
+                {currency === "BDT" ? "৳ BDT" : "$ USD"}
+              </span>
             </button>
             <Link to="/cart" aria-label={`Shopping cart${totalItems > 0 ? `, ${totalItems} items` : ''}`} className="relative text-header-foreground hover:scale-105 active:scale-95 transition-transform">
               <ShoppingBag className="h-5 w-5" />

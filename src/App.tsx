@@ -54,6 +54,7 @@ const LivestockMap = lazy(() => import("./pages/LivestockMap"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const NeedHelpButton = lazy(() => import("./components/NeedHelpButton"));
+const ScrollToTopButton = lazy(() => import("./components/ScrollToTopButton"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +107,7 @@ const App = () => (
             <RoutePrefetcher />
             <Suspense fallback={null}>
               <NeedHelpButton />
+              <ScrollToTopButton />
             </Suspense>
             <Suspense fallback={<PageLoader />}>
               <Routes>

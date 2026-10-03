@@ -51,6 +51,7 @@ const Checkout = () => {
   const [discount, setDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [couponShake, setCouponShake] = useState(false);
   const [ddProducts, setDdProducts] = useState<string[]>([]);
   const [ddForm, setDdForm] = useState<Record<string, { name: string; pin: string; email: string }>>({});
 
@@ -225,6 +226,8 @@ const Checkout = () => {
         toast({ title: `এই কুপনটি শুধুমাত্র "${requiredOption}" প্যাকেজে প্রযোজ্য`, variant: "destructive" });
         setDiscount(0);
         setCouponApplied(false);
+        setCouponShake(true);
+        setTimeout(() => setCouponShake(false), 500);
       } else {
         const totalSuperDiscount = eligibleProducts.reduce((sum, p) => {
           const cartItem = items.find(i => i.id === p.product_id);
@@ -244,6 +247,8 @@ const Checkout = () => {
           toast({ title: "Coupon has no discount set", variant: "destructive" });
           setDiscount(0);
           setCouponApplied(false);
+          setCouponShake(true);
+          setTimeout(() => setCouponShake(false), 500);
         }
       }
     } else {
@@ -263,6 +268,8 @@ const Checkout = () => {
         }
         setDiscount(0);
         setCouponApplied(false);
+        setCouponShake(true);
+        setTimeout(() => setCouponShake(false), 500);
       } else {
         const val = Number(globalCoupon.discount_amount);
         const isPercent = globalCoupon.discount_type === "percentage";
@@ -272,6 +279,8 @@ const Checkout = () => {
           toast({ title: `এই কুপনের জন্য সর্বনিম্ন ৳${globalCoupon.min_order_amount} টাকার অর্ডার প্রয়োজন`, variant: "destructive" });
           setDiscount(0);
           setCouponApplied(false);
+          setCouponShake(true);
+          setTimeout(() => setCouponShake(false), 500);
           setApplyingCoupon(false);
           return;
         }
@@ -441,19 +450,19 @@ const Checkout = () => {
               <span>Total</span><span>{formatPrice(finalPrice)}</span>
             </div>
           </div>
-          <div className="mt-3">
-            <Label className="text-xs">Coupon Code</Label>
+          <div className={`mt-3 p-3 rounded-lg border border-border/80 transition-all ${couponShake ? "animate-shake border-destructive/60 bg-destructive/5" : ""}`}>
+            <Label className="text-xs font-semibold">Coupon Code</Label>
             {couponApplied ? (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="bg-red-50 text-red-700 border border-red-200 rounded-full px-3 py-1 text-sm font-medium flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3" /> {form.coupon.toUpperCase()}
+              <div className="flex items-center gap-2 mt-1 animate-selection-pop">
+                <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-full px-3 py-1 text-sm font-semibold flex items-center gap-1 shadow-2xs">
+                  <CheckCircle className="h-3.5 w-3.5" /> {form.coupon.toUpperCase()}
                 </span>
-                <Button type="button" variant="ghost" size="sm" className="text-destructive text-xs" onClick={removeCoupon}>Remove</Button>
+                <Button type="button" variant="ghost" size="sm" className="text-destructive text-xs hover:bg-destructive/10" onClick={removeCoupon}>Remove</Button>
               </div>
             ) : (
               <div className="flex gap-2 mt-1">
-                <Input placeholder="ENTER CODE" value={form.coupon} onChange={(e) => setForm({ ...form, coupon: e.target.value })} />
-                <Button type="button" variant="outline" size="sm" onClick={handleApplyCoupon} disabled={applyingCoupon}>
+                <Input placeholder="ENTER CODE" value={form.coupon} onChange={(e) => setForm({ ...form, coupon: e.target.value })} className="rounded-lg" />
+                <Button type="button" variant="outline" size="sm" onClick={handleApplyCoupon} disabled={applyingCoupon} className="rounded-lg font-semibold active:scale-95">
                   {applyingCoupon ? "..." : "Apply"}
                 </Button>
               </div>
@@ -543,10 +552,10 @@ const Checkout = () => {
                   key={pm.id}
                   type="button"
                   onClick={() => setSelectedPM(pm)}
-                  className={`p-2.5 rounded-xl border-2 flex items-center gap-2.5 transition-all text-left ${
+                  className={`p-2.5 rounded-xl border-2 flex items-center gap-2.5 transition-all text-left active:scale-95 ${
                     isSelected
-                      ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/30"
-                      : "border-border hover:border-muted-foreground/40 bg-card"
+                      ? "border-primary bg-primary/10 shadow-md ring-2 ring-primary/40 scale-[1.02] animate-selection-pop"
+                      : "border-border hover:border-primary/40 bg-card hover:shadow-xs"
                   }`}
                 >
                   <PaymentLogo name={pm.name} logoUrl={pm.logo_url} size="md" />
@@ -554,7 +563,7 @@ const Checkout = () => {
                     <p className={`text-xs font-bold truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
                       {pm.name}
                     </p>
-                    <span className="text-[10px] text-muted-foreground block">
+                    <span className="text-[10px] text-muted-foreground block font-medium">
                       {isSelected ? "Selected ✓" : "Pay with"}
                     </span>
                   </div>
@@ -564,7 +573,7 @@ const Checkout = () => {
           </div>
 
           {selectedPM && (
-            <div className="pt-4 border-t border-border space-y-4">
+            <div className="pt-4 border-t border-border space-y-4 animate-fade-in-up">
               <div className="flex items-center gap-2.5 bg-muted/30 p-2.5 rounded-xl border border-border">
                 <PaymentLogo name={selectedPM.name} logoUrl={selectedPM.logo_url} size="sm" />
                 <div>
@@ -582,7 +591,7 @@ const Checkout = () => {
                       <span className="text-xs text-muted-foreground">{label}</span>
                       <button
                         type="button"
-                        className="text-xs text-primary flex items-center gap-1"
+                        className="text-xs text-primary flex items-center gap-1 font-semibold hover:underline"
                         onClick={() => {
                           navigator.clipboard.writeText(account.account_number || "");
                           toast({ title: "Copied!" });
@@ -657,6 +666,7 @@ const Checkout = () => {
                   required
                   value={form.transactionId}
                   onChange={(e) => setForm({ ...form, transactionId: e.target.value })}
+                  className="rounded-lg font-mono font-medium"
                 />
               </div>
             </div>
@@ -671,7 +681,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading || !agreed}>
+        <Button type="submit" className="w-full h-12 rounded-xl font-bold text-base btn-shine shadow-md hover:shadow-lg active:scale-95 transition-all" disabled={loading || !agreed}>
           {loading ? "Placing Order..." : "Place Order"}
         </Button>
       </form>

@@ -59,7 +59,7 @@ const Reviews = () => {
                   className="p-1"
                 >
                   <Star
-                    className={`h-8 w-8 transition-colors ${
+                    className={`h-8 w-8 transition-all duration-150 hover-star-sparkle hover:scale-125 ${
                       star <= (hoverRating || rating)
                         ? "fill-primary text-primary"
                         : "text-muted-foreground"
