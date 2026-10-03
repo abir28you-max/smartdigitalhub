@@ -78,7 +78,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
   return (
     <section className="container mt-2 md:mt-3">
       <div
-        className="relative w-full rounded-xl md:rounded-2xl overflow-hidden bg-muted md:shadow-lg group select-none aspect-[16/9] sm:aspect-[16/7.5] md:aspect-[16/7]"
+        className="relative w-full rounded-xl md:rounded-2xl overflow-hidden bg-muted md:shadow-lg group select-none aspect-[16/7]"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -96,7 +96,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
           {banners.map((b, i) => {
             const imageElement = (
               <div className="w-full h-full relative overflow-hidden bg-card flex items-center justify-center">
-                {/* Ambient blur background for seamless fit */}
+                {/* Ambient blur background for seamless edge blending */}
                 <img
                   src={getOptimizedImageUrl(b.image_url, { width: 300, quality: 35 })}
                   alt=""
@@ -104,12 +104,12 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
                   className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-125 pointer-events-none"
                 />
                 <img
-                  src={getOptimizedImageUrl(b.image_url, { width: 1400, quality: 80 })}
+                  src={getOptimizedImageUrl(b.image_url, { width: 1400, quality: 85 })}
                   alt={b.title || "Promotional banner"}
                   loading={i === 0 ? "eager" : "lazy"}
                   fetchPriority={i === 0 ? "high" : undefined}
-                  width="1400"
-                  height="612"
+                  width="1600"
+                  height="700"
                   decoding="async"
                   draggable={false}
                   className="relative w-full h-full object-cover object-center pointer-events-none"
@@ -144,7 +144,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
           })}
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows (Desktop/Tablet hover, Touch on Mobile) */}
         {banners.length > 1 && (
           <>
             <button
@@ -153,7 +153,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
                 e.stopPropagation();
                 prev();
               }}
-              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/95 text-foreground backdrop-blur-xs rounded-full p-2 sm:p-2.5 transition-all shadow-md opacity-90 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105 active:scale-95"
+              className="hidden sm:flex absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/95 text-foreground backdrop-blur-xs rounded-full p-2 sm:p-2.5 transition-all shadow-md sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105 active:scale-95 items-center justify-center"
               aria-label="Previous Slide"
             >
               <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -164,14 +164,14 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
                 e.stopPropagation();
                 next();
               }}
-              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/95 text-foreground backdrop-blur-xs rounded-full p-2 sm:p-2.5 transition-all shadow-md opacity-90 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105 active:scale-95"
+              className="hidden sm:flex absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/95 text-foreground backdrop-blur-xs rounded-full p-2 sm:p-2.5 transition-all shadow-md sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105 active:scale-95 items-center justify-center"
               aria-label="Next Slide"
             >
               <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
             {/* Pagination Indicators (Pill Dots) */}
-            <div className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/25 backdrop-blur-xs">
+            <div className="absolute bottom-1.5 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-xs">
               {banners.map((_, i) => (
                 <button
                   key={i}
@@ -182,8 +182,8 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
                   }}
                   className={`transition-all duration-300 rounded-full ${
                     i === current
-                      ? "bg-primary w-6 h-2 shadow-xs"
-                      : "bg-white/60 hover:bg-white/90 w-2 h-2"
+                      ? "bg-primary w-5 sm:w-6 h-1.5 sm:h-2 shadow-xs"
+                      : "bg-white/60 hover:bg-white/90 w-1.5 sm:w-2 h-1.5 sm:h-2"
                   }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />

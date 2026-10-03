@@ -122,7 +122,7 @@ const Index = () => {
       {shellLoading && (
         <div className="container mt-6 space-y-6">
           {/* Banner skeleton */}
-          <div className="w-full aspect-[16/9] sm:aspect-[16/7.5] md:aspect-[16/7] bg-muted rounded-xl md:rounded-2xl animate-pulse" />
+          <div className="w-full aspect-[16/7] bg-muted rounded-xl md:rounded-2xl animate-pulse" />
           {/* Category skeleton */}
           <div className="flex gap-3 overflow-hidden">
             {[1,2,3,4].map(i => <div key={i} className="w-20 h-20 rounded-lg bg-muted animate-pulse flex-shrink-0" />)}
