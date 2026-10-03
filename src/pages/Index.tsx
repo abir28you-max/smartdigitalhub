@@ -163,6 +163,8 @@ const Index = () => {
             </section>
           )}
 
+          <HotDeals initialDeals={hotDeals} />
+
           {loading && (
             <div className="container mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
               {[1, 2, 3, 4].map((i) => (
