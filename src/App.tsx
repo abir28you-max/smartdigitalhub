@@ -49,6 +49,7 @@ const About = lazy(() => import("./pages/About"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Refund = lazy(() => import("./pages/Refund"));
+const DMCA = lazy(() => import("./pages/DMCA"));
 const Salami = lazy(() => import("./pages/Salami"));
 const TwoFA = lazy(() => import("./pages/TwoFA"));
 const LivestockMap = lazy(() => import("./pages/LivestockMap"));
@@ -132,6 +133,7 @@ const App = () => (
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/refund" element={<Refund />} />
+                  <Route path="/dmca" element={<DMCA />} />
                   <Route path="/salami" element={<Salami />} />
                   <Route path="/2fa" element={<TwoFA />} />
                   <Route path="/map" element={<LivestockMap />} />

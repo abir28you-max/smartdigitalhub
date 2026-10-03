@@ -39,10 +39,28 @@ const Footer = () => (
           <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
           <Link to="/about" className="hover:opacity-100 transition-opacity">About Us</Link>
           <Link to="/privacy" className="hover:opacity-100 transition-opacity">Privacy Policy</Link>
-          <Link to="/terms" className="hover:opacity-100 transition-opacity">Terms & Conditions</Link>
+          <Link to="/terms" className="hover:opacity-100 transition-opacity">Terms &amp; Conditions</Link>
+          <Link to="/refund" className="hover:opacity-100 transition-opacity">Refund Policy</Link>
+          <Link to="/dmca" className="hover:opacity-100 text-primary font-semibold transition-opacity">DMCA &amp; Copyright</Link>
         </nav>
 
-        <div className="space-y-1.5 pt-1">
+        {/* Legal Disclaimer & Protection Badge */}
+        <div className="max-w-xl mx-auto pt-2 pb-1 text-[11px] text-slate-400 dark:text-muted-foreground leading-relaxed">
+          <p>
+            Disclaimer: All third-party product names, logos, and brands (such as Netflix, Canva, ChatGPT) are trademarks of their respective owners. Smart Digital Hub is an independent digital service provider and reseller.
+          </p>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <Link
+              to="/dmca"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 text-[10px] font-semibold hover:border-primary/50 transition-colors"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>DMCA Protected</span>
+            </Link>
+          </div>
+        </div>
+
+        <div className="space-y-1.5 pt-1 border-t border-slate-800/60 dark:border-border/60">
           <p className="text-xs opacity-60">© 2026 Smart Digital Hub. All rights reserved.</p>
           <p className="text-xs text-slate-300 dark:text-muted-foreground">
             Designed &amp; Developed by{" "}
