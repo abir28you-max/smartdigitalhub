@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import SmartIndex from "./pages/Index";
 const IndexOrAdmin = () => {
   // Only redirect to /fastadmin if opened as installed PWA AND admin flag exists
@@ -98,67 +99,69 @@ const RoutePrefetcher = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CurrencyProvider>
-        <AuthProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <RoutePrefetcher />
-            <Suspense fallback={null}>
-              <NeedHelpButton />
-              <ScrollToTopButton />
-            </Suspense>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<IndexOrAdmin />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/category/:slug" element={<Products />} />
-                <Route path="/product/:slug" element={<ProductDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order-success" element={<OrderSuccess />} />
-                <Route path="/orders" element={<TrackOrder />} />
-                <Route path="/my-orders" element={<TrackOrder />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/login" element={<Navigate to="/auth" replace />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/track-order" element={<Navigate to="/orders" replace />} />
-                <Route path="/reviews" element={<Reviews />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/refund" element={<Refund />} />
-                <Route path="/salami" element={<Salami />} />
-                <Route path="/2fa" element={<TwoFA />} />
-                <Route path="/map" element={<LivestockMap />} />
-                <Route path="/unsubscribe" element={<Unsubscribe />} />
-                <Route path="/admin-login" element={<AdminLogin />} />
-                <Route path="/fastadmin" element={<FastAdmin />} />
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="/admin/products" replace />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="payments" element={<AdminPayments />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="banners" element={<AdminBanners />} />
-                  <Route path="hot-deals" element={<AdminHotDeals />} />
-                  <Route path="reviews" element={<AdminReviews />} />
-                  <Route path="customers" element={<AdminCustomers />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="earnings" element={<AdminEarnings />} />
-                  <Route path="coupons" element={<AdminCoupons />} />
-                  <Route path="salami" element={<AdminSalami />} />
-                  <Route path="delivery-details" element={<AdminDeliveryDetails />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </CartProvider>
-        </AuthProvider>
-      </CurrencyProvider>
+      <ThemeProvider>
+        <CurrencyProvider>
+          <AuthProvider>
+          <CartProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <RoutePrefetcher />
+              <Suspense fallback={null}>
+                <NeedHelpButton />
+                <ScrollToTopButton />
+              </Suspense>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<IndexOrAdmin />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/category/:slug" element={<Products />} />
+                  <Route path="/product/:slug" element={<ProductDetail />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/order-success" element={<OrderSuccess />} />
+                  <Route path="/orders" element={<TrackOrder />} />
+                  <Route path="/my-orders" element={<TrackOrder />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/login" element={<Navigate to="/auth" replace />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/track-order" element={<Navigate to="/orders" replace />} />
+                  <Route path="/reviews" element={<Reviews />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/refund" element={<Refund />} />
+                  <Route path="/salami" element={<Salami />} />
+                  <Route path="/2fa" element={<TwoFA />} />
+                  <Route path="/map" element={<LivestockMap />} />
+                  <Route path="/unsubscribe" element={<Unsubscribe />} />
+                  <Route path="/admin-login" element={<AdminLogin />} />
+                  <Route path="/fastadmin" element={<FastAdmin />} />
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Navigate to="/admin/products" replace />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="payments" element={<AdminPayments />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="banners" element={<AdminBanners />} />
+                    <Route path="hot-deals" element={<AdminHotDeals />} />
+                    <Route path="reviews" element={<AdminReviews />} />
+                    <Route path="customers" element={<AdminCustomers />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="earnings" element={<AdminEarnings />} />
+                    <Route path="coupons" element={<AdminCoupons />} />
+                    <Route path="salami" element={<AdminSalami />} />
+                    <Route path="delivery-details" element={<AdminDeliveryDetails />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </CartProvider>
+          </AuthProvider>
+        </CurrencyProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
