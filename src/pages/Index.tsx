@@ -153,7 +153,7 @@ const Index = () => {
           <BannerCarousel initialBanners={banners} />
 
           {categories.length > 0 && (
-            <section className="container mt-8 md:mt-14">
+            <section className="container mt-8 md:mt-14 animate-fade-in-up">
               <h2 className="font-display text-xl md:text-3xl font-black text-center mb-4 md:mb-6">Product Categories</h2>
               <div className="flex gap-3 md:gap-4 overflow-x-auto md:overflow-visible md:flex-wrap md:justify-center pb-2 scrollbar-none">
                 {categories.map((cat) => (
@@ -183,10 +183,10 @@ const Index = () => {
             const catProducts = getProductsByCategory(cat.id);
             if (catProducts.length === 0) return null;
             return (
-              <section key={cat.id} className="container mt-8 md:mt-14">
+              <section key={cat.id} className="container mt-8 md:mt-14 animate-fade-in-up">
                 <div className="flex items-center justify-between mb-4 md:mb-6">
                   <h2 className="font-display text-xl md:text-2xl font-bold">{cat.name}</h2>
-                  <Link to={`/category/${cat.slug}`} className="text-primary text-sm font-medium flex items-center gap-1">
+                  <Link to={`/category/${cat.slug}`} className="text-primary text-sm font-medium flex items-center gap-1 hover:translate-x-0.5 transition-transform">
                     View all <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
@@ -200,7 +200,7 @@ const Index = () => {
           })}
 
           {categories.length === 0 && products.length > 0 && (
-            <section className="container mt-8 md:mt-14">
+            <section className="container mt-8 md:mt-14 animate-fade-in-up">
               <h2 className="font-display text-xl md:text-2xl font-bold mb-4 md:mb-6">All Products</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
                 {products.map((p, i) => (
@@ -210,31 +210,31 @@ const Index = () => {
             </section>
           )}
 
-          <section className="container mt-8 md:mt-16 mb-6 md:mb-12">
+          <section className="container mt-8 md:mt-16 mb-6 md:mb-12 animate-fade-in-up">
             <h2 className="font-display text-xl md:text-3xl font-black text-center mb-4 md:mb-8">Why Choose Us</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-5">
-              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center">
+              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30">
                 <div className="w-10 h-10 md:w-14 md:h-14 mx-auto mb-2 md:mb-3 rounded-full bg-primary/10 flex items-center justify-center">
                   <DollarSign className="h-5 w-5 md:h-7 md:w-7 text-primary" />
                 </div>
                 <h3 className="font-display font-bold text-sm md:text-base mb-1 md:mb-2">Affordable Price</h3>
                 <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">Get top-tier content without breaking the bank. Quality education for everyone.</p>
               </div>
-              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center">
+              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30">
                 <div className="w-10 h-10 md:w-14 md:h-14 mx-auto mb-2 md:mb-3 rounded-full bg-primary/10 flex items-center justify-center">
                   <Award className="h-5 w-5 md:h-7 md:w-7 text-primary" />
                 </div>
                 <h3 className="font-display font-bold text-sm md:text-base mb-1 md:mb-2">Premium Quality</h3>
                 <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">Expert-curated content to ensure the best learning experience and outcomes.</p>
               </div>
-              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center">
+              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30">
                 <div className="w-10 h-10 md:w-14 md:h-14 mx-auto mb-2 md:mb-3 rounded-full bg-primary/10 flex items-center justify-center">
                   <Shield className="h-5 w-5 md:h-7 md:w-7 text-primary" />
                 </div>
                 <h3 className="font-display font-bold text-sm md:text-base mb-1 md:mb-2">Trusted</h3>
                 <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">Join thousands of satisfied learners on our platform, building skills and careers.</p>
               </div>
-              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center">
+              <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30">
                 <div className="w-10 h-10 md:w-14 md:h-14 mx-auto mb-2 md:mb-3 rounded-full bg-primary/10 flex items-center justify-center">
                   <Lock className="h-5 w-5 md:h-7 md:w-7 text-primary" />
                 </div>

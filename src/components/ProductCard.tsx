@@ -41,16 +41,16 @@ const ProductCard = ({ id, name, description, price, image_url, stock_status, sl
   };
 
   return (
-    <div className="group bg-card rounded-lg md:rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-lg md:hover:-translate-y-1 transition-all duration-200 h-full flex flex-col">
-      <Link to={productUrl} className="relative" onMouseEnter={prefetchProduct} onTouchStart={prefetchProduct}>
-        <div className="aspect-[4/3] bg-muted flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div className="product-card-hover group bg-card rounded-xl border border-border/80 overflow-hidden shadow-xs hover:border-primary/40 h-full flex flex-col">
+      <Link to={productUrl} className="relative block" onMouseEnter={prefetchProduct} onTouchStart={prefetchProduct}>
+        <div className="aspect-[4/3] bg-muted/60 flex items-center justify-center p-3.5 md:p-6 overflow-hidden">
           {image_url ? (
             <img
               src={cardImage}
               alt={name}
               width="200"
               height="150"
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-108"
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
               decoding="async"
@@ -60,21 +60,21 @@ const ProductCard = ({ id, name, description, price, image_url, stock_status, sl
           )}
         </div>
         {stock_status === "in_stock" ? (
-          <span className="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <span className="absolute top-2.5 left-2.5 bg-emerald-500/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
             In Stock
           </span>
         ) : (
-          <span className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <span className="absolute top-2.5 left-2.5 bg-destructive/90 backdrop-blur-xs text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
             Stock Out
           </span>
         )}
       </Link>
-      <div className="p-3 md:p-4 flex flex-col flex-1">
-        <h3 className="font-display font-semibold text-sm md:text-base truncate">{name}</h3>
-        {description && <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2">{description.replace(/<[^>]+>/g, "")}</p>}
-        <p className="text-price font-bold mt-2 md:text-lg">{formatPrice(price)}</p>
+      <div className="p-3.5 md:p-4 flex flex-col flex-1">
+        <h3 className="font-display font-semibold text-sm md:text-base truncate group-hover:text-primary transition-colors duration-200">{name}</h3>
+        {description && <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{description.replace(/<[^>]+>/g, "")}</p>}
+        <p className="text-primary font-bold mt-2 text-base md:text-lg">{formatPrice(price)}</p>
         <div className="mt-auto pt-3 md:pt-4">
-          <Button size="sm" variant="outline" className="w-full text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+          <Button size="sm" variant="outline" className="w-full text-xs font-semibold border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all duration-150 rounded-lg shadow-xs" asChild>
             <Link to={productUrl}>
               <ExternalLink className="h-3 w-3 mr-1" />
               View Details

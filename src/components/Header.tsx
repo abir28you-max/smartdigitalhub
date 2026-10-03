@@ -82,10 +82,10 @@ const Header = () => {
             <button onClick={toggleCurrency} aria-label={`Switch currency, current: ${currency}`} className="text-header-foreground text-sm font-medium hover:text-primary transition-colors">
               $ {currency}
             </button>
-            <Link to="/cart" aria-label={`Shopping cart${totalItems > 0 ? `, ${totalItems} items` : ''}`} className="relative text-header-foreground">
+            <Link to="/cart" aria-label={`Shopping cart${totalItems > 0 ? `, ${totalItems} items` : ''}`} className="relative text-header-foreground hover:scale-105 active:scale-95 transition-transform">
               <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                <span key={totalItems} className="animate-cart-bounce absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-xs">
                   {totalItems}
                 </span>
               )}
