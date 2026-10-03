@@ -78,7 +78,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
   return (
     <section className="container mt-2 md:mt-3">
       <div
-        className="relative w-full rounded-xl md:rounded-2xl overflow-hidden bg-muted md:shadow-lg group select-none aspect-[16/8] sm:aspect-[16/7] md:aspect-[16/7]"
+        className="relative w-full rounded-xl md:rounded-2xl overflow-hidden bg-muted md:shadow-lg group select-none aspect-[16/9] sm:aspect-[16/7.5] md:aspect-[16/7]"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -95,9 +95,16 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
         >
           {banners.map((b, i) => {
             const imageElement = (
-              <div className="w-full h-full relative overflow-hidden bg-muted">
+              <div className="w-full h-full relative overflow-hidden bg-card flex items-center justify-center">
+                {/* Ambient blur background for seamless fit */}
                 <img
-                  src={getOptimizedImageUrl(b.image_url, { width: 1400, quality: 78 })}
+                  src={getOptimizedImageUrl(b.image_url, { width: 300, quality: 35 })}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-125 pointer-events-none"
+                />
+                <img
+                  src={getOptimizedImageUrl(b.image_url, { width: 1400, quality: 80 })}
                   alt={b.title || "Promotional banner"}
                   loading={i === 0 ? "eager" : "lazy"}
                   fetchPriority={i === 0 ? "high" : undefined}
@@ -105,7 +112,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
                   height="612"
                   decoding="async"
                   draggable={false}
-                  className="w-full h-full object-cover object-center pointer-events-none"
+                  className="relative w-full h-full object-cover object-center pointer-events-none"
                 />
               </div>
             );
