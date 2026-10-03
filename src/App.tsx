@@ -72,7 +72,7 @@ const queryClient = new QueryClient({
 const PageLoader = () => (
   <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3 animate-fade-in">
     <div className="h-10 w-10 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
-    <span className="text-xs text-muted-foreground font-medium animate-pulse">স্মার্ট ডিজিটাল হাব লোড হচ্ছে...</span>
+    <span className="text-xs text-muted-foreground font-medium animate-pulse">Loading Smart Digital Hub...</span>
   </div>
 );
 
