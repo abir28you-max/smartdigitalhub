@@ -4,7 +4,6 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/logo.png";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,7 +22,8 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [isFlippingCurrency, setIsFlippingCurrency] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { totalItems } = useCart();
@@ -33,7 +33,10 @@ const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const isOutsideDesktop = !desktopSearchRef.current || !desktopSearchRef.current.contains(target);
+      const isOutsideMobile = !mobileSearchRef.current || !mobileSearchRef.current.contains(target);
+      if (isOutsideDesktop && isOutsideMobile) {
         setIsFocused(false);
       }
     };
@@ -92,129 +95,142 @@ const Header = () => {
     }
   };
 
+  // Reusable Amazon Search Bar & Suggestions
+  const renderSearchForm = (isMobile = false) => (
+    <div className="relative w-full">
+      <form
+        onSubmit={handleSearch}
+        className="flex w-full items-center bg-background rounded-xl md:rounded-2xl border-2 border-primary/35 focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20 shadow-xs overflow-hidden transition-all"
+      >
+        <div className="relative flex-1 flex items-center">
+          <input
+            id={isMobile ? "header-search-mobile" : "header-search-desktop"}
+            autoComplete="off"
+            type="text"
+            placeholder="Search 'ChatGPT', 'Netflix', 'Canva'..."
+            value={searchQuery}
+            onFocus={() => setIsFocused(true)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setIsFocused(true);
+            }}
+            className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground pl-3.5 md:pl-4 pr-8 h-9 md:h-11 text-xs md:text-sm focus:outline-none"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setIsFocused(false);
+              }}
+              aria-label="Clear search"
+              className="absolute right-2 p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Amazon-style Connected Action Button */}
+        <button
+          type="submit"
+          aria-label="Search products"
+          className="h-9 md:h-11 px-3.5 md:px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold flex items-center justify-center gap-1.5 transition-all active:brightness-95 shrink-0 cursor-pointer"
+        >
+          <Search className="h-4 w-4" />
+          <span className="hidden sm:inline text-xs md:text-sm font-semibold">Search</span>
+        </button>
+      </form>
+
+      {/* Live Instant Search Suggestions Dropdown */}
+      {isFocused && searchQuery.trim().length >= 1 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card/98 backdrop-blur-xl border border-border shadow-2xl rounded-2xl overflow-hidden z-[75] animate-fade-in-up">
+          {isSearching ? (
+            <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+              <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              Searching products...
+            </div>
+          ) : suggestions && suggestions.length > 0 ? (
+            <div className="py-2 divide-y divide-border/50 max-h-80 overflow-y-auto">
+              <div className="px-3.5 py-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Product Suggestions ({suggestions.length})
+              </div>
+              {suggestions.map((p) => {
+                const thumb = getOptimizedImageUrl(p.image_url, { width: 64, quality: 65 });
+                const productUrl = `/product/${p.slug || p.id}`;
+                return (
+                  <Link
+                    key={p.id}
+                    to={productUrl}
+                    onClick={() => {
+                      setIsFocused(false);
+                      setSearchQuery("");
+                    }}
+                    className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-primary/5 transition-colors group"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-muted/60 border border-border p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {p.image_url ? (
+                        <img src={thumb} alt={p.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-muted-foreground/20" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-semibold truncate text-foreground group-hover:text-primary transition-colors">
+                        {p.name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs font-bold text-primary">
+                          {formatPrice(p.price)}
+                        </span>
+                        {p.stock_status === "in_stock" ? (
+                          <span className="text-[10px] text-emerald-600 font-medium">
+                            ● In Stock
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-destructive font-medium">
+                            ● Stock Out
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+              <div className="p-2 bg-muted/30 text-center">
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="text-xs text-primary font-bold hover:underline py-1 w-full"
+                >
+                  See all results for "{searchQuery}" →
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="p-5 text-center text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">No products found</p>
+              <p className="mt-1 text-[11px]">Try searching with a different keyword</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       <header className="bg-header sticky top-0 z-50 border-b border-border shadow-xs">
+        {/* Main Top Header Bar */}
         <div className="container flex items-center justify-between h-14 md:h-20 gap-2">
           {/* Logo */}
           <div onClick={handleLogoTap} className="cursor-pointer font-display text-xl font-bold text-header-foreground tracking-tight flex-shrink-0">
             <img src={logo} alt="Smart Digital Hub" width="180" height="80" className="h-14 md:h-20 w-auto" />
           </div>
 
-          {/* Search bar in middle */}
-          <div ref={searchContainerRef} className="relative flex flex-1 mx-2 md:mx-4 max-w-xl">
-            <form onSubmit={handleSearch} className="relative w-full flex items-center">
-              <label htmlFor="header-search" className="sr-only">Search products</label>
-              <Input
-                id="header-search"
-                autoComplete="off"
-                placeholder="Search 'ChatGPT', 'Netflix', 'Canva'..."
-                value={searchQuery}
-                onFocus={() => setIsFocused(true)}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsFocused(true);
-                }}
-                className="w-full rounded-full bg-background border-2 border-primary/25 text-foreground placeholder:text-muted-foreground pl-3 md:pl-4 pr-20 md:pr-28 h-9 md:h-11 text-xs md:text-sm transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/20 focus:shadow-md"
-              />
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setIsFocused(false);
-                    }}
-                    aria-label="Clear search"
-                    className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-                <button
-                  type="submit"
-                  aria-label="Search products"
-                  className="h-7 md:h-8 px-2.5 md:px-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-transform active:scale-95 cursor-pointer"
-                >
-                  <Search className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline font-semibold">Search</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Live Instant Search Suggestions Dropdown */}
-            {isFocused && searchQuery.trim().length >= 1 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl rounded-2xl overflow-hidden z-[70] animate-fade-in-up">
-                {isSearching ? (
-                  <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    Searching products...
-                  </div>
-                ) : suggestions && suggestions.length > 0 ? (
-                  <div className="py-2 divide-y divide-border/50 max-h-80 overflow-y-auto">
-                    <div className="px-3 py-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                      Product Suggestions ({suggestions.length})
-                    </div>
-                    {suggestions.map((p) => {
-                      const thumb = getOptimizedImageUrl(p.image_url, { width: 64, quality: 65 });
-                      const productUrl = `/product/${p.slug || p.id}`;
-                      return (
-                        <Link
-                          key={p.id}
-                          to={productUrl}
-                          onClick={() => {
-                            setIsFocused(false);
-                            setSearchQuery("");
-                          }}
-                          className="flex items-center gap-3 px-3 py-2.5 hover:bg-primary/5 transition-colors group"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-muted/60 border border-border p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                            {p.image_url ? (
-                              <img src={thumb} alt={p.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-muted-foreground/20" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs md:text-sm font-semibold truncate text-foreground group-hover:text-primary transition-colors">
-                              {p.name}
-                            </p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs font-bold text-primary">
-                                {formatPrice(p.price)}
-                              </span>
-                              {p.stock_status === "in_stock" ? (
-                                <span className="text-[10px] text-emerald-600 font-medium">
-                                  ● In Stock
-                                </span>
-                              ) : (
-                                <span className="text-[10px] text-destructive font-medium">
-                                  ● Stock Out
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                    <div className="p-2 bg-muted/30 text-center">
-                      <button
-                        type="button"
-                        onClick={handleSearch}
-                        className="text-xs text-primary font-bold hover:underline py-1 w-full"
-                      >
-                        See all results for "{searchQuery}" →
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-5 text-center text-xs text-muted-foreground">
-                    <p className="font-medium text-foreground">No products found</p>
-                    <p className="mt-1 text-[11px]">Try searching with a different keyword</p>
-                  </div>
-                )}
-              </div>
-            )}
+          {/* Desktop Search Bar (Amazon Style in center) */}
+          <div ref={desktopSearchRef} className="hidden md:flex flex-1 mx-4 max-w-xl">
+            {renderSearchForm(false)}
           </div>
 
           {/* Action Icons */}
@@ -246,6 +262,11 @@ const Header = () => {
               <Menu className="h-5 w-5" />
             </button>
           </div>
+        </div>
+
+        {/* Mobile Dedicated Search Bar (Amazon Mobile Style on 2nd row) */}
+        <div ref={mobileSearchRef} className="md:hidden px-3 pb-2.5 pt-0.5 container">
+          {renderSearchForm(true)}
         </div>
 
         {/* Desktop navigation bar */}
