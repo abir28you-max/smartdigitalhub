@@ -1,10 +1,9 @@
-import { Search, ShoppingBag, Menu, X, User, Sun, Moon } from "lucide-react";
+import { Search, ShoppingBag, Menu, X, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/logo.png";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +28,6 @@ const Header = () => {
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { totalItems } = useCart();
   const { currency, toggleCurrency, formatPrice } = useCurrency();
-  const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -221,20 +219,6 @@ const Header = () => {
 
           {/* Action Icons */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-4 flex-shrink-0">
-            {/* Theme Toggle Button (Light / Dark) */}
-            <button
-              onClick={toggleTheme}
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-              className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 flex items-center justify-center transition-all duration-200 active:scale-90 shadow-2xs group"
-              title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
-            >
-              {theme === "light" ? (
-                <Moon className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
-              ) : (
-                <Sun className="h-4 w-4 text-amber-400 transition-transform duration-300 group-hover:rotate-45" />
-              )}
-            </button>
-
             <button
               onClick={handleCurrencyToggle}
               aria-label={`Switch currency, current: ${currency}`}
