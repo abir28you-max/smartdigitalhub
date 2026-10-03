@@ -1,10 +1,9 @@
-import { Search, ShoppingBag, Menu, X, User } from "lucide-react";
+import { Search, ShoppingBag, Menu, X, User, Sparkles, TrendingUp, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/logo.png";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,12 +17,24 @@ const navLinks = [
   { label: "Refund Policy", to: "/refund" },
 ];
 
+const trendingKeywords = [
+  "ChatGPT",
+  "Netflix",
+  "Canva Pro",
+  "Spotify",
+  "VPN",
+  "Telegram Premium",
+  "TradingView",
+  "YouTube Premium",
+];
+
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [isFlippingCurrency, setIsFlippingCurrency] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const inputElemRef = useRef<HTMLInputElement>(null);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { totalItems } = useCart();
@@ -31,15 +42,32 @@ const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Global Ctrl+K / Cmd+K and Esc listener
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setIsFocused(false);
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSpotlightOpen((prev) => !prev);
+      }
+      if (e.key === "Escape" && spotlightOpen) {
+        e.preventDefault();
+        setSpotlightOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [spotlightOpen]);
+
+  // Focus input when spotlight opens
+  useEffect(() => {
+    if (spotlightOpen) {
+      setSelectedIndex(0);
+      const timer = setTimeout(() => {
+        inputElemRef.current?.focus();
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [spotlightOpen]);
 
   const handleCurrencyToggle = () => {
     setIsFlippingCurrency(true);
@@ -77,17 +105,47 @@ const Header = () => {
         .from("products")
         .select("id, name, slug, price, image_url, stock_status")
         .ilike("name", `%${q}%`)
-        .limit(6);
+        .limit(8);
       return data || [];
     },
-    enabled: searchQuery.trim().length >= 1 && isFocused,
+    enabled: searchQuery.trim().length >= 1 && spotlightOpen,
     staleTime: 30_000,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      setIsFocused(false);
+      setSpotlightOpen(false);
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSpotlightKeyDown = (e: React.KeyboardEvent) => {
+    if (suggestions && suggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % suggestions.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const selected = suggestions[selectedIndex];
+        if (selected) {
+          setSpotlightOpen(false);
+          setSearchQuery("");
+          navigate(`/product/${selected.slug || selected.id}`);
+          return;
+        }
+      }
+    }
+    if (e.key === "Enter" && searchQuery.trim()) {
+      e.preventDefault();
+      setSpotlightOpen(false);
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
@@ -98,123 +156,31 @@ const Header = () => {
         <div className="container flex items-center justify-between h-14 md:h-20 gap-2">
           {/* Logo */}
           <div onClick={handleLogoTap} className="cursor-pointer font-display text-xl font-bold text-header-foreground tracking-tight flex-shrink-0">
-            <img src={logo} alt="Smart Digital Hub" width="180" height="80" className="h-14 md:h-20 w-auto dark:invert dark:brightness-125 dark:contrast-125 transition-all duration-300" />
+            <img src={logo} alt="Smart Digital Hub" width="180" height="80" className="h-14 md:h-20 w-auto" />
           </div>
 
-          {/* Search bar restored in middle */}
-          <div ref={searchContainerRef} className="relative flex flex-1 mx-2 md:mx-4 max-w-xl">
-            <form onSubmit={handleSearch} className="relative w-full flex items-center">
-              <label htmlFor="header-search" className="sr-only">Search products</label>
-              <Input
-                id="header-search"
-                autoComplete="off"
-                placeholder="Search 'ChatGPT', 'Netflix', 'Canva'..."
-                value={searchQuery}
-                onFocus={() => setIsFocused(true)}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsFocused(true);
-                }}
-                className="w-full rounded-full bg-background border-2 border-primary/25 text-foreground placeholder:text-muted-foreground pl-3 md:pl-4 pr-20 md:pr-28 h-9 md:h-11 text-xs md:text-sm transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/20 focus:shadow-md"
-              />
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setIsFocused(false);
-                    }}
-                    aria-label="Clear search"
-                    className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-                <button
-                  type="submit"
-                  aria-label="Search products"
-                  className="h-7 md:h-8 px-2.5 md:px-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-transform active:scale-95"
-                >
+          {/* Spotlight Search Trigger in Header */}
+          <div className="flex flex-1 mx-2 md:mx-4 max-w-xl">
+            <button
+              type="button"
+              onClick={() => setSpotlightOpen(true)}
+              className="w-full flex items-center justify-between gap-2 px-3 md:px-4 h-9 md:h-11 rounded-full bg-muted/40 hover:bg-muted/75 border border-primary/25 hover:border-primary/50 text-muted-foreground transition-all duration-200 shadow-2xs group text-left cursor-pointer"
+            >
+              <div className="flex items-center gap-2 md:gap-2.5 truncate">
+                <Search className="h-4 w-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-xs md:text-sm text-foreground/80 truncate font-medium">
+                  Search products, tools... <span className="hidden lg:inline text-muted-foreground font-normal">(ChatGPT, Netflix, Canva)</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-background/90 border border-border text-[11px] font-medium text-muted-foreground shadow-2xs">
+                  <kbd className="font-sans font-semibold text-[10px]">Ctrl</kbd>+<kbd className="font-sans font-semibold text-[10px]">K</kbd>
+                </span>
+                <span className="sm:hidden p-1 rounded-full bg-primary/10 text-primary">
                   <Search className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline font-semibold">Search</span>
-                </button>
+                </span>
               </div>
-            </form>
-
-            {/* Live Instant Search Suggestions Dropdown */}
-            {isFocused && searchQuery.trim().length >= 1 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl rounded-2xl overflow-hidden z-[70] animate-fade-in-up">
-                {isSearching ? (
-                  <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    Searching products...
-                  </div>
-                ) : suggestions && suggestions.length > 0 ? (
-                  <div className="py-2 divide-y divide-border/50 max-h-80 overflow-y-auto">
-                    <div className="px-3 py-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                      Product Suggestions ({suggestions.length})
-                    </div>
-                    {suggestions.map((p) => {
-                      const thumb = getOptimizedImageUrl(p.image_url, { width: 64, quality: 65 });
-                      const productUrl = `/product/${p.slug || p.id}`;
-                      return (
-                        <Link
-                          key={p.id}
-                          to={productUrl}
-                          onClick={() => {
-                            setIsFocused(false);
-                            setSearchQuery("");
-                          }}
-                          className="flex items-center gap-3 px-3 py-2.5 hover:bg-primary/5 transition-colors group"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-muted/60 border border-border p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                            {p.image_url ? (
-                              <img src={thumb} alt={p.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-muted-foreground/20" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs md:text-sm font-semibold truncate text-foreground group-hover:text-primary transition-colors">
-                              {p.name}
-                            </p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs font-bold text-primary">
-                                {formatPrice(p.price)}
-                              </span>
-                              {p.stock_status === "in_stock" ? (
-                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-                                  ● In Stock
-                                </span>
-                              ) : (
-                                <span className="text-[10px] text-destructive font-medium">
-                                  ● Stock Out
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                    <div className="p-2 bg-muted/30 text-center">
-                      <button
-                        type="button"
-                        onClick={handleSearch}
-                        className="text-xs text-primary font-bold hover:underline py-1 w-full"
-                      >
-                        See all results for "{searchQuery}" →
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-5 text-center text-xs text-muted-foreground">
-                    <p className="font-medium text-foreground">No products found</p>
-                    <p className="mt-1 text-[11px]">Try searching with a different keyword</p>
-                  </div>
-                )}
-              </div>
-            )}
+            </button>
           </div>
 
           {/* Action Icons */}
@@ -273,6 +239,213 @@ const Header = () => {
           </div>
         </div>
       </header>
+
+      {/* Mac Spotlight Search Modal */}
+      {spotlightOpen && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center p-3 sm:p-4 pt-12 md:pt-20">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-fade-in transition-opacity"
+            onClick={() => setSpotlightOpen(false)}
+          />
+
+          {/* Modal Box */}
+          <div
+            className="relative w-full max-w-2xl bg-card border border-border/80 shadow-2xl rounded-2xl overflow-hidden z-10 animate-scale-in flex flex-col max-h-[85vh]"
+          >
+            {/* Search Input Bar */}
+            <form onSubmit={handleSearchSubmit} className="flex items-center px-4 py-3.5 border-b border-border gap-3 bg-card">
+              <Search className="h-5 w-5 text-primary shrink-0" />
+              <input
+                ref={inputElemRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSelectedIndex(0);
+                }}
+                onKeyDown={handleSpotlightKeyDown}
+                placeholder="Type product name, tool, or subscription..."
+                className="w-full bg-transparent text-sm md:text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    inputElemRef.current?.focus();
+                  }}
+                  className="p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setSpotlightOpen(false)}
+                className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-muted text-muted-foreground border border-border hover:bg-muted/80"
+              >
+                ESC
+              </button>
+            </form>
+
+            {/* Modal Body */}
+            <div className="overflow-y-auto p-3 space-y-4 max-h-[60vh] divide-y divide-border/40">
+              {/* If no search query: Show Trending / Quick Searches */}
+              {!searchQuery.trim() && (
+                <div className="space-y-4 pt-1">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2.5 px-2">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      <span>Trending Searches</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 px-1">
+                      {trendingKeywords.map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery(tag);
+                          }}
+                          className="px-3 py-1.5 rounded-full text-xs font-medium bg-muted/70 hover:bg-primary/10 hover:text-primary border border-border/80 hover:border-primary/30 transition-all active:scale-95"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {categories && categories.length > 0 && (
+                    <div className="pt-3">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2.5 px-2">
+                        <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                        <span>Browse Categories</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-1">
+                        {categories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            to={`/category/${cat.slug}`}
+                            onClick={() => setSpotlightOpen(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-muted/40 hover:bg-primary/10 border border-border/60 hover:border-primary/30 transition-all text-xs font-semibold text-foreground hover:text-primary group"
+                          >
+                            <span>{cat.name}</span>
+                            <ArrowRight className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all text-primary" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* If Searching */}
+              {searchQuery.trim() && (
+                <div>
+                  {isSearching ? (
+                    <div className="p-8 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+                      <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      Searching products...
+                    </div>
+                  ) : suggestions && suggestions.length > 0 ? (
+                    <div className="space-y-1 pt-1">
+                      <div className="px-2 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Matching Products ({suggestions.length})
+                      </div>
+                      {suggestions.map((p, idx) => {
+                        const thumb = getOptimizedImageUrl(p.image_url, { width: 64, quality: 65 });
+                        const productUrl = `/product/${p.slug || p.id}`;
+                        const isSelected = selectedIndex === idx;
+
+                        return (
+                          <Link
+                            key={p.id}
+                            to={productUrl}
+                            onClick={() => {
+                              setSpotlightOpen(false);
+                              setSearchQuery("");
+                            }}
+                            className={`flex items-center justify-between gap-3 p-2.5 rounded-xl transition-all group ${
+                              isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-muted/60 border border-transparent"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-11 h-11 rounded-lg bg-muted border border-border p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                {p.image_url ? (
+                                  <img src={thumb} alt={p.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-muted-foreground/20" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold truncate text-foreground group-hover:text-primary transition-colors">
+                                  {p.name}
+                                </p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-xs font-bold text-primary">
+                                    {formatPrice(p.price)}
+                                  </span>
+                                  {p.stock_status === "in_stock" ? (
+                                    <span className="text-[10px] text-emerald-600 font-medium">
+                                      ● In Stock
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-destructive font-medium">
+                                      ● Stock Out
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-primary hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                View <ArrowRight className="h-3 w-3" />
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                      <div className="pt-2 px-2">
+                        <button
+                          type="button"
+                          onClick={handleSearchSubmit}
+                          className="w-full py-2 px-3 rounded-lg text-xs font-bold text-center text-primary hover:bg-primary/10 border border-primary/20 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <span>See all results for "{searchQuery}"</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center text-xs text-muted-foreground">
+                      <p className="font-semibold text-foreground text-sm">No products found</p>
+                      <p className="mt-1">Try searching with a different keyword like "ChatGPT", "Netflix", "Canva"</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer Info */}
+            <div className="px-4 py-2.5 bg-muted/40 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
+              <div className="hidden sm:flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-semibold">↑↓</kbd> to navigate
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-semibold">↵</kbd> to select
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-semibold">ESC</kbd> to close
+                </span>
+              </div>
+              <span className="text-[11px] font-medium text-primary ml-auto">
+                Smart Digital Hub Spotlight Search
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile menu overlay */}
       {menuOpen && (
