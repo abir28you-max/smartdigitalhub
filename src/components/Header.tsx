@@ -1,5 +1,5 @@
 import { Search, ShoppingBag, Menu, X, User } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/logo.png";
@@ -18,7 +18,11 @@ const navLinks = [
   { label: "DMCA Policy", to: "/dmca" },
 ];
 
-const Header = () => {
+interface HeaderProps {
+  hideSearch?: boolean;
+}
+
+const Header = ({ hideSearch = false }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -31,6 +35,13 @@ const Header = () => {
   const { currency, toggleCurrency, formatPrice } = useCurrency();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isSearchHidden =
+    hideSearch ||
+    location.pathname === "/orders" ||
+    location.pathname === "/my-orders" ||
+    location.pathname === "/track-order";
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -230,9 +241,11 @@ const Header = () => {
           </div>
 
           {/* Desktop Search Bar (Amazon Style in center) */}
-          <div ref={desktopSearchRef} className="hidden md:flex flex-1 mx-4 max-w-xl">
-            {renderSearchForm(false)}
-          </div>
+          {!isSearchHidden && (
+            <div ref={desktopSearchRef} className="hidden md:flex flex-1 mx-4 max-w-xl">
+              {renderSearchForm(false)}
+            </div>
+          )}
 
           {/* Action Icons */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-4 flex-shrink-0">
@@ -266,9 +279,11 @@ const Header = () => {
         </div>
 
         {/* Mobile Dedicated Search Bar (Amazon Mobile Style on 2nd row) */}
-        <div ref={mobileSearchRef} className="md:hidden px-3 pb-2.5 pt-0.5 container">
-          {renderSearchForm(true)}
-        </div>
+        {!isSearchHidden && (
+          <div ref={mobileSearchRef} className="md:hidden px-3 pb-2.5 pt-0.5 container">
+            {renderSearchForm(true)}
+          </div>
+        )}
 
         {/* Desktop navigation bar */}
         <div className="hidden md:block border-t border-border bg-header">

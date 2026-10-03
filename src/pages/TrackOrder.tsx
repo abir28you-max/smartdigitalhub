@@ -6,12 +6,10 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   ChevronDown,
   ChevronUp,
-  Search,
   ExternalLink,
   Hash,
   Package,
@@ -235,7 +233,7 @@ const TrackOrder = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-10">
-      <Header />
+      <Header hideSearch={true} />
 
       <main className="container max-w-4xl mt-4 mb-8 space-y-6">
         {/* Header Hero Section */}
