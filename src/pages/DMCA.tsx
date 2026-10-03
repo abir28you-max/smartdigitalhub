@@ -16,10 +16,6 @@ const DMCA = () => {
 
       <main className="container mt-8 mb-12 max-w-4xl mx-auto px-4">
         <div className="text-center space-y-2 mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Intellectual Property &amp; DMCA Compliance
-          </div>
           <h1 className="font-display text-2xl md:text-4xl font-black text-foreground tracking-tight">
             DMCA &amp; Copyright Policy
           </h1>
