@@ -267,23 +267,23 @@ const TrackOrder = () => {
             </button>
             <button
               onClick={() => setActiveTab("pending")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "pending"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-foreground hover:text-foreground"
               }`}
             >
-              <Clock className="h-3.5 w-3.5 text-amber-500" /> Processing ({pendingCount})
+              Processing ({pendingCount})
             </button>
             <button
               onClick={() => setActiveTab("delivered")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "delivered"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-foreground hover:text-foreground"
               }`}
             >
-              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-500" /> Delivered ({deliveredCount})
+              Delivered ({deliveredCount})
             </button>
           </div>
         )}
