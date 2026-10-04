@@ -90,7 +90,7 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
       if (!q) return [];
       const { data } = await supabase
         .from("products")
-        .select("id, name, slug, price, image_url, stock_status")
+        .select("id, name, slug")
         .ilike("name", `%${q}%`)
         .limit(6);
       return data || [];
@@ -154,21 +154,17 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
         </button>
       </form>
 
-      {/* Live Instant Search Suggestions Dropdown */}
+      {/* Live Instant Search Suggestions Dropdown (Name Only) */}
       {isFocused && searchQuery.trim().length >= 1 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-card/98 backdrop-blur-xl border border-border shadow-2xl rounded-2xl overflow-hidden z-[75] animate-fade-in-up">
           {isSearching ? (
             <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
               <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              Searching products...
+              Searching...
             </div>
           ) : suggestions && suggestions.length > 0 ? (
-            <div className="py-2 divide-y divide-border/50 max-h-80 overflow-y-auto">
-              <div className="px-3.5 py-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                Product Suggestions ({suggestions.length})
-              </div>
+            <div className="py-1.5 divide-y divide-border/40 max-h-80 overflow-y-auto">
               {suggestions.map((p) => {
-                const thumb = getOptimizedImageUrl(p.image_url, { width: 64, quality: 65 });
                 const productUrl = `/product/${p.slug || p.id}`;
                 return (
                   <Link
@@ -178,34 +174,17 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
                       setIsFocused(false);
                       setSearchQuery("");
                     }}
-                    className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-primary/5 transition-colors group"
+                    className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-primary/10 transition-colors group cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-muted/60 border border-border p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {p.image_url ? (
-                        <img src={thumb} alt={p.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-muted-foreground/20" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs md:text-sm font-semibold truncate text-foreground group-hover:text-primary transition-colors">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Search className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="text-xs md:text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
                         {p.name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs font-bold text-primary">
-                          {formatPrice(p.price)}
-                        </span>
-                        {p.stock_status === "in_stock" ? (
-                          <span className="text-[10px] text-emerald-600 font-medium">
-                            ● In Stock
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-destructive font-medium">
-                            ● Stock Out
-                          </span>
-                        )}
-                      </div>
+                      </span>
                     </div>
+                    <span className="text-[11px] text-muted-foreground/60 group-hover:text-primary transition-colors shrink-0 font-bold">
+                      →
+                    </span>
                   </Link>
                 );
               })}
@@ -220,9 +199,9 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
               </div>
             </div>
           ) : (
-            <div className="p-5 text-center text-xs text-muted-foreground">
+            <div className="p-4 text-center text-xs text-muted-foreground">
               <p className="font-medium text-foreground">No products found</p>
-              <p className="mt-1 text-[11px]">Try searching with a different keyword</p>
+              <p className="mt-0.5 text-[11px]">Try searching with a different keyword</p>
             </div>
           )}
         </div>
