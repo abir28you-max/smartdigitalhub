@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   MessageCircle,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { RedeemVideoPlayer } from "@/components/RedeemVideoPlayer";
@@ -62,12 +63,12 @@ const TrackOrder = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "pending" | "delivered">("all");
 
-  const fetchUserOrders = useCallback(async () => {
+  const fetchUserOrders = useCallback(async (showLoading = false) => {
     if (!user) {
       setLoading(false);
       return;
     }
-    setLoading(true);
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from("orders")
@@ -80,13 +81,13 @@ const TrackOrder = () => {
     } catch (err: any) {
       console.error("Failed to load user orders:", err);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, [user]);
 
-  const handleSearchWithTrx = useCallback(async (trxToSearch: string) => {
+  const handleSearchWithTrx = useCallback(async (trxToSearch: string, showLoading = false) => {
     if (!trxToSearch.trim()) return;
-    setLoading(true);
+    if (showLoading) setLoading(true);
     try {
       const { data: dbData } = await supabase
         .from("orders")
@@ -107,21 +108,22 @@ const TrackOrder = () => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
       setOrders([]);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
 
+  // Initial Load
   useEffect(() => {
     if (user) {
-      fetchUserOrders();
+      fetchUserOrders(true);
     } else if (searchParams.get("trx")) {
-      handleSearchWithTrx(searchParams.get("trx")!);
+      handleSearchWithTrx(searchParams.get("trx")!, true);
     } else {
       setLoading(false);
     }
   }, [user, searchParams, fetchUserOrders, handleSearchWithTrx]);
 
-  // Realtime updates
+  // Realtime updates via Supabase Channel
   useEffect(() => {
     if (!user) return;
 
@@ -141,16 +143,16 @@ const TrackOrder = () => {
             if (updated.status === "delivered") {
               toast({
                 title: "🎉 Order Delivered!",
-                description: "Your subscription account details are ready below.",
+                description: "Your subscription credentials are ready below.",
               });
             } else if (updated.status === "verified") {
               toast({
-                title: "✅ Payment Approved!",
-                description: "Your order is now being processed for delivery.",
+                title: "✅ Payment Verified!",
+                description: "Your payment has been approved. Preparing delivery.",
               });
             }
           }
-          fetchUserOrders();
+          fetchUserOrders(false);
         }
       )
       .subscribe();
@@ -159,6 +161,25 @@ const TrackOrder = () => {
       supabase.removeChannel(channel);
     };
   }, [user, fetchUserOrders]);
+
+  // Active orders auto-polling (every 4 seconds for instant live feedback)
+  useEffect(() => {
+    const hasActiveOrders = orders.some(
+      (o) => o.status === "pending" || o.status === "verified"
+    );
+
+    if (!hasActiveOrders) return;
+
+    const interval = setInterval(() => {
+      if (user) {
+        fetchUserOrders(false);
+      } else if (searchParams.get("trx")) {
+        handleSearchWithTrx(searchParams.get("trx")!, false);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [orders, user, searchParams, fetchUserOrders, handleSearchWithTrx]);
 
   const copyText = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -220,7 +241,7 @@ const TrackOrder = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={fetchUserOrders}
+                onClick={() => fetchUserOrders(true)}
                 disabled={loading}
                 className="self-start sm:self-auto rounded-xl gap-2 h-9"
               >
@@ -236,7 +257,7 @@ const TrackOrder = () => {
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "all"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
@@ -246,7 +267,7 @@ const TrackOrder = () => {
             </button>
             <button
               onClick={() => setActiveTab("pending")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === "pending"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-foreground hover:text-foreground"
@@ -256,7 +277,7 @@ const TrackOrder = () => {
             </button>
             <button
               onClick={() => setActiveTab("delivered")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === "delivered"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-foreground hover:text-foreground"
@@ -270,8 +291,8 @@ const TrackOrder = () => {
         {/* Loading Skeleton */}
         {loading && (
           <div className="space-y-4">
-            <div className="h-44 rounded-3xl bg-card border-2 border-amber-200 p-6" />
-            <div className="h-56 rounded-3xl bg-amber-50/50 border-2 border-amber-200 p-6" />
+            <div className="h-44 rounded-3xl bg-card border-2 border-amber-200 p-6 animate-pulse" />
+            <div className="h-56 rounded-3xl bg-amber-50/50 border-2 border-amber-200 p-6 animate-pulse" />
           </div>
         )}
 
@@ -302,7 +323,8 @@ const TrackOrder = () => {
           {filteredOrders.map((o) => {
             const items = Array.isArray(o.items) ? o.items : [];
             const isDelivered = o.status === "delivered";
-            const isPending = o.status === "pending" || o.status === "verified";
+            const isVerified = o.status === "verified";
+            const isPending = o.status === "pending";
             const pm = o.payment_methods as { name: string } | null;
             const hasDeliveryInfo =
               (Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0) ||
@@ -377,13 +399,15 @@ const TrackOrder = () => {
                 </div>
 
                 {/* ══════════════════════════════════════════════════
-                    SECTION 2: VERIFICATION PROGRESS / DELIVERY CARD (from Image 1)
+                    SECTION 2: VERIFICATION & DELIVERY PROGRESS CARD
                    ══════════════════════════════════════════════════ */}
+
+                {/* ── STAGE 1: PENDING (Verification In Progress) ── */}
                 {isPending && (
                   <div className="bg-[#FFFDF5] dark:bg-amber-950/20 rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-7 shadow-sm space-y-4">
                     {/* Header: Clock Icon + Title + Description */}
                     <div className="flex items-start gap-4">
-                      <div className="h-14 w-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                      <div className="h-14 w-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm animate-pulse">
                         <Clock className="h-8 w-8 text-white stroke-[2.3]" />
                       </div>
                       <div className="space-y-1">
@@ -402,10 +426,10 @@ const TrackOrder = () => {
 
                     <div className="border-t border-amber-200/90 dark:border-amber-800/80" />
 
-                    {/* 3 Step Boxes with Horizontal Connectors */}
+                    {/* 3 Step Boxes: Step 1 (✓ Checked), Step 2 (Spinning), Step 3 (Pending) */}
                     <div className="flex items-center justify-between gap-1 sm:gap-2 pt-1">
-                      {/* Box 1: Order Placed */}
-                      <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-300 dark:border-emerald-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px]">
+                      {/* Box 1: Order Placed (COMPLETED) */}
+                      <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border-2 border-emerald-300 dark:border-emerald-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px]">
                         <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
                           <Check className="h-4 w-4 stroke-[3]" />
                         </div>
@@ -417,22 +441,22 @@ const TrackOrder = () => {
                         </span>
                       </div>
 
-                      {/* Connector Line 1 */}
+                      {/* Connector Line 1 (Active Amber) */}
                       <div className="h-0.5 bg-amber-400 w-3 sm:w-6 shrink-0" />
 
-                      {/* Box 2: Verification */}
-                      <div className="bg-amber-100/70 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
+                      {/* Box 2: Verification (ACTIVE SPINNER) */}
+                      <div className="bg-amber-100/80 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
                         <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
                         <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
                           2. Verification
                         </span>
                       </div>
 
-                      {/* Connector Line 2 */}
+                      {/* Connector Line 2 (Inactive Gray) */}
                       <div className="h-0.5 bg-slate-300 dark:bg-slate-700 w-3 sm:w-6 shrink-0" />
 
-                      {/* Box 3: Delivery */}
-                      <div className="bg-slate-50/70 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] opacity-80">
+                      {/* Box 3: Delivery (PENDING) */}
+                      <div className="bg-slate-50/70 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] opacity-75">
                         <Gift className="h-7 w-7 text-slate-500 mb-2" />
                         <span className="font-bold text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-tight block">
                           3. Delivery
@@ -449,7 +473,86 @@ const TrackOrder = () => {
                   </div>
                 )}
 
-                {/* Delivered Access Box */}
+                {/* ── STAGE 2: VERIFIED / PAYMENT APPROVED (Waiting for Delivery) ── */}
+                {isVerified && (
+                  <div className="bg-[#F0FDF4] dark:bg-emerald-950/20 rounded-3xl border-2 border-emerald-300 dark:border-emerald-600/80 p-5 sm:p-7 shadow-sm space-y-4">
+                    {/* Header: Verified Check Icon + Title + Description */}
+                    <div className="flex items-start gap-4">
+                      <div className="h-14 w-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <CheckCircle2 className="h-8 w-8 text-white stroke-[2.3]" />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="font-bold text-emerald-950 dark:text-emerald-100 text-lg sm:text-xl leading-snug">
+                          Payment Verified! Setting up your subscription...
+                        </h3>
+                        <p className="text-sm sm:text-base text-emerald-900/85 dark:text-emerald-200/85 leading-relaxed">
+                          Your payment has been successfully confirmed. Our team is now preparing your subscription account (usually delivered within{" "}
+                          <strong className="font-bold text-emerald-950 dark:text-emerald-100">
+                            5 to 10 minutes
+                          </strong>
+                          ).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-emerald-200/90 dark:border-emerald-800/80" />
+
+                    {/* 3 Step Boxes: Step 1 (✓ Checked), Step 2 (✓ Checked), Step 3 (Spinning/Preparing) */}
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 pt-1">
+                      {/* Box 1: Order Placed (COMPLETED) */}
+                      <div className="bg-emerald-100/70 dark:bg-emerald-950/40 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px]">
+                        <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
+                          <Check className="h-4 w-4 stroke-[3]" />
+                        </div>
+                        <span className="font-bold text-emerald-950 dark:text-emerald-100 text-xs sm:text-sm leading-tight block">
+                          1. Order
+                        </span>
+                        <span className="font-bold text-emerald-950 dark:text-emerald-100 text-xs sm:text-sm leading-tight block">
+                          Placed
+                        </span>
+                      </div>
+
+                      {/* Connector Line 1 (COMPLETED GREEN) */}
+                      <div className="h-0.5 bg-emerald-500 w-3 sm:w-6 shrink-0" />
+
+                      {/* Box 2: Verification (COMPLETED WITH GREEN CHECKMARK!) */}
+                      <div className="bg-emerald-100/70 dark:bg-emerald-950/40 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
+                        <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
+                          <Check className="h-4 w-4 stroke-[3]" />
+                        </div>
+                        <span className="font-bold text-emerald-950 dark:text-emerald-100 text-xs sm:text-sm leading-tight block">
+                          2. Verified
+                        </span>
+                        <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold block">
+                          Approved ✓
+                        </span>
+                      </div>
+
+                      {/* Connector Line 2 (ACTIVE AMBER) */}
+                      <div className="h-0.5 bg-amber-400 w-3 sm:w-6 shrink-0" />
+
+                      {/* Box 3: Delivery (NOW ACTIVE & PROCESSING!) */}
+                      <div className="bg-amber-100/80 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
+                        <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
+                        <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
+                          3. Delivery
+                        </span>
+                        <span className="text-[10px] text-amber-700 dark:text-amber-300 font-bold block">
+                          In Progress
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-emerald-200/90 dark:border-emerald-800/80" />
+
+                    {/* Bottom Notice Text */}
+                    <p className="text-center text-xs sm:text-sm text-emerald-900/85 dark:text-emerald-200/85 font-medium leading-relaxed">
+                      Payment approved! Your subscription credentials will automatically appear right here once ready.
+                    </p>
+                  </div>
+                )}
+
+                {/* ── STAGE 3: DELIVERED (Access & Credentials Box) ── */}
                 {isDelivered && hasDeliveryInfo && (
                   <div className="bg-indigo-50/70 dark:bg-indigo-950/40 rounded-3xl border-2 border-indigo-300 dark:border-indigo-800/60 p-5 sm:p-6 space-y-4 shadow-sm">
                     <div className="flex items-center gap-3">
@@ -516,7 +619,7 @@ const TrackOrder = () => {
                                     href={dn.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-xs"
+                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-[1.01]"
                                   >
                                     <ExternalLink className="h-4 w-4" />
                                     Open Subscription Link &rarr;
