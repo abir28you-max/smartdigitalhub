@@ -21,6 +21,7 @@ import {
   Loader2,
   ShieldCheck,
   MessageCircle,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { RedeemVideoPlayer } from "@/components/RedeemVideoPlayer";
@@ -221,7 +222,34 @@ const TrackOrder = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-10">
       <Header hideSearch={true} />
 
-      <main className="container max-w-4xl mt-4 mb-8 space-y-4">
+      <main className="container max-w-4xl mt-4 mb-8 space-y-6">
+        {/* Header Hero Section */}
+        <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                My Orders & Subscriptions
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1">
+                Live status of your orders and subscription access details
+              </p>
+            </div>
+
+            {user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchUserOrders}
+                disabled={loading}
+                className="self-start sm:self-auto rounded-xl gap-2 h-9"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-primary" : ""}`} />
+                Refresh
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* Tab Filters */}
         {orders.length > 0 && (
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
