@@ -224,7 +224,7 @@ const TrackOrder = () => {
                 disabled={loading}
                 className="self-start sm:self-auto rounded-xl gap-2 h-9"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-primary" : ""}`} />
+                <RefreshCw className="h-4 w-4 text-primary" />
                 Refresh
               </Button>
             )}
@@ -236,7 +236,7 @@ const TrackOrder = () => {
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${
                 activeTab === "all"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
@@ -246,7 +246,7 @@ const TrackOrder = () => {
             </button>
             <button
               onClick={() => setActiveTab("pending")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
                 activeTab === "pending"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-foreground hover:text-foreground"
@@ -256,7 +256,7 @@ const TrackOrder = () => {
             </button>
             <button
               onClick={() => setActiveTab("delivered")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
                 activeTab === "delivered"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-foreground hover:text-foreground"
@@ -270,8 +270,8 @@ const TrackOrder = () => {
         {/* Loading Skeleton */}
         {loading && (
           <div className="space-y-4">
-            <div className="h-44 rounded-3xl bg-card border-2 border-amber-200 p-6 animate-pulse" />
-            <div className="h-56 rounded-3xl bg-amber-50/50 border-2 border-amber-200 p-6 animate-pulse" />
+            <div className="h-44 rounded-3xl bg-card border-2 border-amber-200 p-6" />
+            <div className="h-56 rounded-3xl bg-amber-50/50 border-2 border-amber-200 p-6" />
           </div>
         )}
 
@@ -422,7 +422,9 @@ const TrackOrder = () => {
 
                       {/* Box 2: Verification */}
                       <div className="bg-amber-100/70 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
-                        <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
+                        <svg className="h-7 w-7 text-amber-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                        </svg>
                         <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
                           2. Verification
                         </span>
@@ -516,7 +518,7 @@ const TrackOrder = () => {
                                     href={dn.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-[1.01]"
+                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-xs"
                                   >
                                     <ExternalLink className="h-4 w-4" />
                                     Open Subscription Link &rarr;
