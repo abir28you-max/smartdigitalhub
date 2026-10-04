@@ -515,10 +515,8 @@ const AdminProducts = () => {
             disabled={bulkLoading}
             className="h-10 px-4 rounded-xl border border-border bg-background hover:bg-muted/80 text-foreground font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
           >
-            {bulkLoading ? (
+            {bulkLoading && (
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            ) : (
-              <Sparkles className="h-4 w-4 text-foreground stroke-[2.2]" />
             )}
             <span className="text-sm font-medium tracking-tight">
               {bulkLoading ? "Generating..." : "Generate SEO for All"}
