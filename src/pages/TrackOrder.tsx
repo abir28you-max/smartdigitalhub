@@ -333,68 +333,34 @@ const TrackOrder = () => {
             return (
               <div key={o.id} className="space-y-4">
                 {/* ══════════════════════════════════════════════════
-                    SECTION 1: ORDER DETAILS CARD (from Image 2)
+                    SECTION 1: SUBSCRIPTION ACCOUNT INFO CARD
                    ══════════════════════════════════════════════════ */}
-                <div className="bg-card rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-6 shadow-sm space-y-4">
-                  {/* Top Order ID and Date */}
+                <div className="bg-card rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-6 shadow-sm space-y-2">
                   <div className="space-y-1">
-                    <div className="text-base sm:text-lg">
-                      <span className="text-slate-600 dark:text-slate-400 font-semibold">Order ID: </span>
-                      <span className="font-mono font-bold text-foreground text-lg sm:text-xl">
-                        {shortId(o.id)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                      {formatDate(o.created_at)}
-                    </p>
-                  </div>
-
-                  <div className="border-t border-slate-200/80 dark:border-slate-800" />
-
-                  {/* Product items */}
-                  <div className="space-y-2">
-                    {items.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center">
-                        <div className="text-base sm:text-lg text-foreground font-bold">
-                          {item.name}{" "}
-                          {item.option && (
-                            <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
-                              ({item.option}){" "}
-                            </span>
-                          )}
-                          <span className="text-primary font-bold">×{item.quantity}</span>
-                        </div>
-                        <span className="text-base sm:text-lg font-bold text-foreground">
-                          {formatPrice(Number(item.price || 0) * Number(item.quantity || 1))}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border-t border-slate-200/80 dark:border-slate-800" />
-
-                  {/* Payment method & Trx ID */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium">
-                    {pm && (
-                      <div>
-                        Payment: <strong className="text-foreground font-bold">{pm.name}</strong>
-                      </div>
-                    )}
-                    {o.transaction_id && (
-                      <div>
-                        TrxID: <strong className="font-mono text-foreground font-bold">{o.transaction_id}</strong>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-t border-slate-200/80 dark:border-slate-800" />
-
-                  {/* Total price */}
-                  <div className="flex items-center text-base sm:text-lg text-slate-600 dark:text-slate-400 font-semibold">
-                    <span>Total:</span>
-                    <span className="text-primary font-extrabold text-2xl sm:text-3xl ml-2">
-                      {formatPrice(Number(o.total_price))}
+                    <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block">
+                      Account Login Details
                     </span>
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                      {items.length > 0 ? (
+                        items.map((item, idx) => (
+                          <span key={idx}>
+                            {item.name}
+                            {item.option ? ` (${item.option})` : ""}
+                            {item.quantity > 1 ? ` ×${item.quantity}` : ""}
+                            {idx < items.length - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      ) : (
+                        <span>Subscription Order</span>
+                      )}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 pt-1">
+                      <span>
+                        Order ID: <strong className="font-mono text-foreground">{shortId(o.id)}</strong>
+                      </span>
+                      <span>•</span>
+                      <span>{formatDate(o.created_at)}</span>
+                    </div>
                   </div>
                 </div>
 
