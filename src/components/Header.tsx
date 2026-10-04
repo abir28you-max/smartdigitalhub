@@ -154,16 +154,15 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
         </button>
       </form>
 
-      {/* Live Instant Search Suggestions Dropdown (Name Only) */}
+      {/* Live Instant Search Suggestions Dropdown (Simple, Clean, No Blur, No Arrows) */}
       {isFocused && searchQuery.trim().length >= 1 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-card/98 backdrop-blur-xl border border-border shadow-2xl rounded-2xl overflow-hidden z-[75] animate-fade-in-up">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-card border border-border shadow-lg rounded-xl overflow-hidden z-[75]">
           {isSearching ? (
-            <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-              <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="p-3 text-center text-xs text-muted-foreground">
               Searching...
             </div>
           ) : suggestions && suggestions.length > 0 ? (
-            <div className="py-1.5 divide-y divide-border/40 max-h-80 overflow-y-auto">
+            <div className="py-1 divide-y divide-border/30 max-h-72 overflow-y-auto">
               {suggestions.map((p) => {
                 const productUrl = `/product/${p.slug || p.id}`;
                 return (
@@ -174,34 +173,16 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
                       setIsFocused(false);
                       setSearchQuery("");
                     }}
-                    className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-primary/10 transition-colors group cursor-pointer"
+                    className="block px-4 py-2.5 text-xs md:text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Search className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="text-xs md:text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
-                        {p.name}
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground/60 group-hover:text-primary transition-colors shrink-0 font-bold">
-                      →
-                    </span>
+                    {p.name}
                   </Link>
                 );
               })}
-              <div className="p-2 bg-muted/30 text-center">
-                <button
-                  type="button"
-                  onClick={handleSearch}
-                  className="text-xs text-primary font-bold hover:underline py-1 w-full"
-                >
-                  See all results for "{searchQuery}" →
-                </button>
-              </div>
             </div>
           ) : (
-            <div className="p-4 text-center text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">No products found</p>
-              <p className="mt-0.5 text-[11px]">Try searching with a different keyword</p>
+            <div className="p-3 text-center text-xs text-muted-foreground">
+              No products found
             </div>
           )}
         </div>
