@@ -6,10 +6,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  ChevronDown,
-  ChevronUp,
   ExternalLink,
   Package,
   CheckCircle2,
@@ -18,7 +15,6 @@ import {
   Clock,
   Copy,
   Check,
-  Loader2,
   ShieldCheck,
   MessageCircle,
   RefreshCw,
@@ -55,20 +51,6 @@ interface Order {
   delivery_details?: string | null;
 }
 
-const statusColors: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800",
-  verified: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800",
-  rejected: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950/60 dark:text-rose-200 dark:border-rose-800",
-  delivered: "bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-200 dark:border-indigo-800",
-};
-
-const statusLabels: Record<string, string> = {
-  pending: "Verification In Progress ⏳",
-  verified: "Payment Approved ✅",
-  rejected: "Rejected ❌",
-  delivered: "Delivered 🎉",
-};
-
 const TrackOrder = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -77,7 +59,6 @@ const TrackOrder = () => {
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "pending" | "delivered">("all");
 
@@ -222,9 +203,9 @@ const TrackOrder = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-10">
       <Header hideSearch={true} />
 
-      <main className="container max-w-4xl mt-4 mb-8 space-y-6">
+      <main className="container max-w-2xl mt-4 mb-8 space-y-6 px-4">
         {/* Header Hero Section */}
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-7 shadow-xs">
+        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
@@ -289,8 +270,8 @@ const TrackOrder = () => {
         {/* Loading Skeleton */}
         {loading && (
           <div className="space-y-4">
-            <div className="h-36 rounded-2xl bg-card border border-border p-6 animate-pulse" />
-            <div className="h-36 rounded-2xl bg-card border border-border p-6 animate-pulse" />
+            <div className="h-44 rounded-3xl bg-card border-2 border-amber-200 p-6 animate-pulse" />
+            <div className="h-56 rounded-3xl bg-amber-50/50 border-2 border-amber-200 p-6 animate-pulse" />
           </div>
         )}
 
@@ -316,158 +297,176 @@ const TrackOrder = () => {
           </div>
         )}
 
-        {/* Orders List */}
-        <div className="space-y-5">
+        {/* Orders List: Two Separate Cards per Order */}
+        <div className="space-y-8">
           {filteredOrders.map((o) => {
             const items = Array.isArray(o.items) ? o.items : [];
             const isDelivered = o.status === "delivered";
             const isPending = o.status === "pending" || o.status === "verified";
-            const expanded = isDelivered || isPending || expandedId === o.id;
             const pm = o.payment_methods as { name: string } | null;
             const hasDeliveryInfo =
               (Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0) ||
               Boolean(o.delivery_details);
 
             return (
-              <div
-                key={o.id}
-                className={`bg-card rounded-2xl border transition-all shadow-xs overflow-hidden ${
-                  isDelivered
-                    ? "border-indigo-300 dark:border-indigo-800/80 ring-1 ring-indigo-500/20"
-                    : isPending
-                    ? "border-amber-300 dark:border-amber-800/80 ring-1 ring-amber-500/20"
-                    : "border-border"
-                }`}
-              >
-                {/* Top Status Header */}
-                <div className="p-4 sm:p-5 pb-3">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-3">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-muted-foreground">Order ID:</span>
-                        <span className="font-mono font-bold text-foreground text-sm">
-                          {shortId(o.id)}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{formatDate(o.created_at)}</p>
+              <div key={o.id} className="space-y-4">
+                {/* ══════════════════════════════════════════════════
+                    SECTION 1: ORDER DETAILS CARD (from Image 2)
+                   ══════════════════════════════════════════════════ */}
+                <div className="bg-card rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-6 shadow-sm space-y-4">
+                  {/* Top Order ID and Date */}
+                  <div className="space-y-1">
+                    <div className="text-base sm:text-lg">
+                      <span className="text-slate-600 dark:text-slate-400 font-semibold">Order ID: </span>
+                      <span className="font-mono font-bold text-foreground text-lg sm:text-xl">
+                        {shortId(o.id)}
+                      </span>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${statusColors[o.status] || ""} border font-semibold px-3 py-1 text-xs`}>
-                        {statusLabels[o.status] || o.status}
-                      </Badge>
-                      {!isDelivered && !isPending && (
-                        <button
-                          onClick={() => setExpandedId(expanded ? null : o.id)}
-                          className="text-muted-foreground hover:text-foreground p-1"
-                        >
-                          {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                        </button>
-                      )}
-                    </div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                      {formatDate(o.created_at)}
+                    </p>
                   </div>
 
-                  {/* Items list */}
-                  <div className="py-3 space-y-2">
+                  <div className="border-t border-slate-200/80 dark:border-slate-800" />
+
+                  {/* Product items */}
+                  <div className="space-y-2">
                     {items.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center text-sm">
-                        <div className="font-medium text-foreground">
+                      <div key={i} className="flex justify-between items-center">
+                        <div className="text-base sm:text-lg text-foreground font-bold">
                           {item.name}{" "}
                           {item.option && (
-                            <span className="text-xs text-muted-foreground font-normal">
-                              ({item.option})
+                            <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
+                              ({item.option}){" "}
                             </span>
-                          )}{" "}
-                          <span className="text-xs text-primary font-bold">×{item.quantity}</span>
+                          )}
+                          <span className="text-primary font-bold">×{item.quantity}</span>
                         </div>
-                        <span className="font-semibold text-foreground">
+                        <span className="text-base sm:text-lg font-bold text-foreground">
                           {formatPrice(Number(item.price || 0) * Number(item.quantity || 1))}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Summary & Trx */}
-                  <div className="flex flex-wrap justify-between items-center pt-2.5 border-t border-border/80 text-xs text-muted-foreground gap-2">
-                    <div className="flex items-center gap-3">
-                      {pm && <span>Payment: <strong className="text-foreground">{pm.name}</strong></span>}
-                      {o.transaction_id && (
-                        <span>
-                          TrxID: <strong className="font-mono text-foreground">{o.transaction_id}</strong>
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm">
-                      <span className="mr-1.5 text-xs text-muted-foreground">Total:</span>
-                      <span className="font-bold text-primary text-base">
-                        {formatPrice(Number(o.total_price))}
-                      </span>
-                    </div>
+                  <div className="border-t border-slate-200/80 dark:border-slate-800" />
+
+                  {/* Payment method & Trx ID */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium">
+                    {pm && (
+                      <div>
+                        Payment: <strong className="text-foreground font-bold">{pm.name}</strong>
+                      </div>
+                    )}
+                    {o.transaction_id && (
+                      <div>
+                        TrxID: <strong className="font-mono text-foreground font-bold">{o.transaction_id}</strong>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-slate-200/80 dark:border-slate-800" />
+
+                  {/* Total price */}
+                  <div className="flex items-center text-base sm:text-lg text-slate-600 dark:text-slate-400 font-semibold">
+                    <span>Total:</span>
+                    <span className="text-primary font-extrabold text-2xl sm:text-3xl ml-2">
+                      {formatPrice(Number(o.total_price))}
+                    </span>
                   </div>
                 </div>
 
-                {/* ⏳ PENDING / VERIFICATION WAIT CARD */}
+                {/* ══════════════════════════════════════════════════
+                    SECTION 2: VERIFICATION PROGRESS / DELIVERY CARD (from Image 1)
+                   ══════════════════════════════════════════════════ */}
                 {isPending && (
-                  <div className="bg-amber-500/10 dark:bg-amber-950/30 border-t border-amber-200 dark:border-amber-800/60 p-4 sm:p-5 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
-                        <Clock className="h-5 w-5" />
+                  <div className="bg-[#FFFDF5] dark:bg-amber-950/20 rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-7 shadow-sm space-y-4">
+                    {/* Header: Clock Icon + Title + Description */}
+                    <div className="flex items-start gap-4">
+                      <div className="h-14 w-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Clock className="h-8 w-8 text-white stroke-[2.3]" />
                       </div>
                       <div className="space-y-1">
-                        <h4 className="font-bold text-amber-950 dark:text-amber-200 text-sm sm:text-base flex items-center gap-2">
+                        <h3 className="font-bold text-amber-950 dark:text-amber-100 text-lg sm:text-xl leading-snug">
                           Payment verification & account setup in progress...
-                        </h4>
-                        <p className="text-xs sm:text-sm text-amber-900/90 dark:text-amber-300/90 leading-relaxed">
-                          Our team usually verifies your payment and delivers your subscription within <strong className="text-amber-950 dark:text-amber-100 font-bold">5 to 10 minutes</strong>.
+                        </h3>
+                        <p className="text-sm sm:text-base text-amber-900/85 dark:text-amber-200/85 leading-relaxed">
+                          Our team usually verifies your payment and delivers your subscription within{" "}
+                          <strong className="font-bold text-amber-950 dark:text-amber-100">
+                            5 to 10 minutes
+                          </strong>
+                          .
                         </p>
                       </div>
                     </div>
 
-                    {/* Progress steps */}
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-amber-200/60 dark:border-amber-800/40 text-center">
-                      <div className="bg-background/80 rounded-lg p-2 border border-amber-200/80 dark:border-amber-900/50">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 mx-auto mb-1" />
-                        <span className="text-[11px] font-bold text-foreground block">1. Order Placed</span>
-                        <span className="text-[10px] text-muted-foreground">Received</span>
+                    <div className="border-t border-amber-200/90 dark:border-amber-800/80" />
+
+                    {/* 3 Step Boxes with Horizontal Connectors */}
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 pt-1">
+                      {/* Box 1: Order Placed */}
+                      <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-300 dark:border-emerald-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px]">
+                        <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
+                          <Check className="h-4 w-4 stroke-[3]" />
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm leading-tight block">
+                          1. Order
+                        </span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm leading-tight block">
+                          Placed
+                        </span>
                       </div>
-                      <div className="bg-amber-500/15 rounded-lg p-2 border border-amber-300 dark:border-amber-700">
-                        <Loader2 className="h-4 w-4 text-amber-600 animate-spin mx-auto mb-1" />
-                        <span className="text-[11px] font-bold text-amber-900 dark:text-amber-200 block">2. Verification</span>
-                        <span className="text-[10px] text-amber-700 dark:text-amber-300 font-medium">In Progress (5-10m)</span>
+
+                      {/* Connector Line 1 */}
+                      <div className="h-0.5 bg-amber-400 w-3 sm:w-6 shrink-0" />
+
+                      {/* Box 2: Verification */}
+                      <div className="bg-amber-100/70 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
+                        <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
+                        <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
+                          2. Verification
+                        </span>
                       </div>
-                      <div className="bg-background/60 rounded-lg p-2 border border-border/70 opacity-70">
-                        <Gift className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
-                        <span className="text-[11px] font-bold text-muted-foreground block">3. Delivery</span>
-                        <span className="text-[10px] text-muted-foreground">Access Provided</span>
+
+                      {/* Connector Line 2 */}
+                      <div className="h-0.5 bg-slate-300 dark:bg-slate-700 w-3 sm:w-6 shrink-0" />
+
+                      {/* Box 3: Delivery */}
+                      <div className="bg-slate-50/70 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] opacity-80">
+                        <Gift className="h-7 w-7 text-slate-500 mb-2" />
+                        <span className="font-bold text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-tight block">
+                          3. Delivery
+                        </span>
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-amber-800/80 dark:text-amber-400 text-center pt-1">
-                      💡 No need to refresh — your credentials and access details will appear live right here!
+                    <div className="border-t border-amber-200/90 dark:border-amber-800/80" />
+
+                    {/* Bottom Notice Text */}
+                    <p className="text-center text-xs sm:text-sm text-amber-900/85 dark:text-amber-200/85 font-medium leading-relaxed">
+                      No need to refresh — your credentials and access details will appear live right here!
                     </p>
                   </div>
                 )}
 
-                {/* 🎉 DELIVERED ACCOUNT CREDENTIALS / ACCESS BOX */}
+                {/* Delivered Access Box */}
                 {isDelivered && hasDeliveryInfo && (
-                  <div className="bg-indigo-50/70 dark:bg-indigo-950/40 border-t border-indigo-200 dark:border-indigo-800/60 p-4 sm:p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-9 w-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-                          <Gift className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-sm sm:text-base flex items-center gap-1.5">
-                            🎉 Your Subscription is Ready!
-                          </h4>
-                          <p className="text-xs text-indigo-800/80 dark:text-indigo-300">
-                            Your subscription credentials and access details are provided below
-                          </p>
-                        </div>
+                  <div className="bg-indigo-50/70 dark:bg-indigo-950/40 rounded-3xl border-2 border-indigo-300 dark:border-indigo-800/60 p-5 sm:p-6 space-y-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                        <Gift className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-base sm:text-lg">
+                          🎉 Your Subscription is Ready!
+                        </h4>
+                        <p className="text-xs sm:text-sm text-indigo-800/80 dark:text-indigo-300">
+                          Your subscription credentials and access details are provided below
+                        </p>
                       </div>
                     </div>
 
-                    {/* Delivery Notes & Credentials */}
+                    {/* Delivery Notes */}
                     {Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0 ? (
                       <div className="space-y-3">
                         {o.delivery_notes.map((dn, i) => {
@@ -478,19 +477,19 @@ const TrackOrder = () => {
                           return (
                             <div
                               key={i}
-                              className="bg-background rounded-xl p-3.5 sm:p-4 border border-indigo-100 dark:border-indigo-900/60 shadow-xs space-y-3"
+                              className="bg-background rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/60 shadow-xs space-y-3"
                             >
                               {noteText && (
-                                <div className="space-y-1.5">
+                                <div className="space-y-2">
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1">
-                                      <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
+                                    <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                                      <ShieldCheck className="h-4 w-4 text-indigo-600" />
                                       Account / Login Credentials #{i + 1}
                                     </span>
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="h-7 text-xs px-2.5 text-primary hover:bg-primary/10"
+                                      className="h-8 text-xs px-3 text-primary hover:bg-primary/10 font-bold"
                                       onClick={() => copyText(noteText, copyId)}
                                     >
                                       {isCopied ? (
@@ -505,11 +504,9 @@ const TrackOrder = () => {
                                     </Button>
                                   </div>
 
-                                  <div className="relative">
-                                    <pre className="text-xs sm:text-sm font-mono bg-muted/80 p-3 rounded-lg whitespace-pre-wrap break-all text-foreground select-all border border-border">
-                                      {noteText}
-                                    </pre>
-                                  </div>
+                                  <pre className="text-xs sm:text-sm font-mono bg-muted/80 p-3.5 rounded-xl whitespace-pre-wrap break-all text-foreground select-all border border-border leading-relaxed">
+                                    {noteText}
+                                  </pre>
                                 </div>
                               )}
 
@@ -519,7 +516,7 @@ const TrackOrder = () => {
                                     href={dn.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-xs hover:scale-[1.01]"
+                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-[1.01]"
                                   >
                                     <ExternalLink className="h-4 w-4" />
                                     Open Subscription Link &rarr;
@@ -537,7 +534,7 @@ const TrackOrder = () => {
                         })}
                       </div>
                     ) : o.delivery_details ? (
-                      <div className="bg-background rounded-xl p-3.5 border border-indigo-100 dark:border-indigo-900/60 shadow-xs space-y-2">
+                      <div className="bg-background rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/60 shadow-xs space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-muted-foreground uppercase">
                             Account Information
@@ -545,7 +542,7 @@ const TrackOrder = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 text-xs px-2 text-primary"
+                            className="h-8 text-xs px-3 text-primary"
                             onClick={() => copyText(o.delivery_details || "", `${o.id}-det`)}
                           >
                             {copiedId === `${o.id}-det` ? (
@@ -559,7 +556,7 @@ const TrackOrder = () => {
                             )}
                           </Button>
                         </div>
-                        <pre className="text-xs font-mono bg-muted/80 p-3 rounded-lg whitespace-pre-wrap break-all select-all">
+                        <pre className="text-xs font-mono bg-muted/80 p-3 rounded-xl whitespace-pre-wrap break-all select-all">
                           {o.delivery_details}
                         </pre>
                       </div>
