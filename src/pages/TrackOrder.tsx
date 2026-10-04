@@ -318,8 +318,8 @@ const TrackOrder = () => {
           </div>
         )}
 
-        {/* Orders List: Two Separate Cards per Order */}
-        <div className="space-y-8">
+        {/* Orders List */}
+        <div className="space-y-6">
           {filteredOrders.map((o) => {
             const items = Array.isArray(o.items) ? o.items : [];
             const isDelivered = o.status === "delivered";
@@ -330,11 +330,190 @@ const TrackOrder = () => {
               (Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0) ||
               Boolean(o.delivery_details);
 
+            /* ── DELIVERED STATE: UNIFIED SINGLE CARD (Login Details + Ready Credentials) ── */
+            if (isDelivered) {
+              return (
+                <div
+                  key={o.id}
+                  className="bg-card dark:bg-card rounded-3xl border-2 border-indigo-300 dark:border-indigo-800/80 p-5 sm:p-6 shadow-sm space-y-4"
+                >
+                  {/* Part 1: Account Login Details Header */}
+                  <div className="space-y-1">
+                    <span className="text-xs sm:text-sm font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider block">
+                      Account Login Details
+                    </span>
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                      {items.length > 0 ? (
+                        items.map((item, idx) => (
+                          <span key={idx}>
+                            {item.name}
+                            {item.option ? ` (${item.option})` : ""}
+                            {item.quantity > 1 ? ` ×${item.quantity}` : ""}
+                            {idx < items.length - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      ) : (
+                        <span>Subscription Order</span>
+                      )}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 pt-0.5">
+                      <span>
+                        Order ID: <strong className="font-mono text-foreground">{shortId(o.id)}</strong>
+                      </span>
+                      <span>•</span>
+                      <span>{formatDate(o.created_at)}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-indigo-100 dark:border-indigo-900/60" />
+
+                  {/* Part 2: Your Subscription is Ready! */}
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-base sm:text-lg">
+                      Your Subscription is Ready!
+                    </h4>
+                    <p className="text-xs sm:text-sm text-indigo-800/80 dark:text-indigo-300">
+                      Your subscription credentials and access details are provided below
+                    </p>
+                  </div>
+
+                  {/* Credentials / Delivery Notes */}
+                  {Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0 ? (
+                    <div className="space-y-3">
+                      {o.delivery_notes.map((dn, i) => {
+                        const noteText = dn.note || "";
+                        const copyId = `${o.id}-dn-${i}`;
+                        const isCopied = copiedId === copyId;
+
+                        return (
+                          <div
+                            key={i}
+                            className="bg-indigo-50/50 dark:bg-indigo-950/40 rounded-2xl p-4 border border-indigo-200/80 dark:border-indigo-900/60 shadow-xs space-y-3"
+                          >
+                            {noteText && (
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <ShieldCheck className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                    Account / Login Credentials {o.delivery_notes.length > 1 ? `#${i + 1}` : ""}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 text-xs px-3 text-primary hover:bg-primary/10 font-bold"
+                                    onClick={() => copyText(noteText, copyId)}
+                                  >
+                                    {isCopied ? (
+                                      <>
+                                        <Check className="h-3.5 w-3.5 mr-1 text-green-600" /> Copied
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy className="h-3.5 w-3.5 mr-1" /> Copy All
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+
+                                <pre className="text-xs sm:text-sm font-mono bg-background p-3.5 rounded-xl whitespace-pre-wrap break-all text-foreground select-all border border-border leading-relaxed">
+                                  {noteText}
+                                </pre>
+                              </div>
+                            )}
+
+                            {dn.link && (
+                              <div className="pt-1">
+                                <a
+                                  href={dn.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-[1.01]"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                  Open Subscription Link &rarr;
+                                </a>
+                              </div>
+                            )}
+
+                            {dn.video_url && (
+                              <div className="pt-2">
+                                <RedeemVideoPlayer videoUrl={dn.video_url} variant="card" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : o.delivery_details ? (
+                    <div className="bg-indigo-50/50 dark:bg-indigo-950/40 rounded-2xl p-4 border border-indigo-200/80 dark:border-indigo-900/60 shadow-xs space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-muted-foreground uppercase">
+                          Account Information
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-xs px-3 text-primary"
+                          onClick={() => copyText(o.delivery_details || "", `${o.id}-det`)}
+                        >
+                          {copiedId === `${o.id}-det` ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 mr-1 text-green-600" /> Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5 mr-1" /> Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <pre className="text-xs font-mono bg-background p-3 rounded-xl whitespace-pre-wrap break-all select-all border border-border">
+                        {o.delivery_details}
+                      </pre>
+                    </div>
+                  ) : (
+                    <div className="bg-indigo-50/50 dark:bg-indigo-950/40 rounded-2xl p-4 border border-indigo-200/80 dark:border-indigo-900/60 text-sm text-indigo-900 dark:text-indigo-200">
+                      Subscription marked as delivered. Please check your email or contact support if credentials are not visible.
+                    </div>
+                  )}
+
+                  {/* Part 3: Support & Review Action Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900/60 text-xs">
+                    <a
+                      href="https://wa.me/8801516524644"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold hover:underline"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      WhatsApp Support (+8801516524644)
+                    </a>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-amber-600 hover:text-amber-700 gap-1 px-2"
+                      onClick={() => {
+                        const firstItem = items.find((item: OrderItem) => item.id);
+                        if (firstItem?.id) {
+                          navigate(`/product/${firstItem.id}?tab=reviews`);
+                        } else {
+                          navigate("/reviews");
+                        }
+                      }}
+                    >
+                      <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                      Give Review
+                    </Button>
+                  </div>
+                </div>
+              );
+            }
+
+            /* ── PENDING / VERIFIED STATES ── */
             return (
               <div key={o.id} className="space-y-4">
-                {/* ══════════════════════════════════════════════════
-                    SECTION 1: SUBSCRIPTION ACCOUNT INFO CARD
-                   ══════════════════════════════════════════════════ */}
+                {/* Section 1: Subscription Account Info Header Card */}
                 <div className="bg-card rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-6 shadow-sm space-y-2">
                   <div className="space-y-1">
                     <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block">
@@ -364,14 +543,9 @@ const TrackOrder = () => {
                   </div>
                 </div>
 
-                {/* ══════════════════════════════════════════════════
-                    SECTION 2: VERIFICATION & DELIVERY PROGRESS CARD
-                   ══════════════════════════════════════════════════ */}
-
-                {/* ── STAGE 1: PENDING (Verification In Progress) ── */}
+                {/* Section 2: Verification Progress Card */}
                 {isPending && (
                   <div className="bg-[#FFFDF5] dark:bg-amber-950/20 rounded-3xl border-2 border-amber-300 dark:border-amber-600/80 p-5 sm:p-7 shadow-sm space-y-4">
-                    {/* Header: Clock Icon + Title + Description */}
                     <div className="flex items-start gap-4">
                       <div className="h-14 w-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm animate-pulse">
                         <Clock className="h-8 w-8 text-white stroke-[2.3]" />
@@ -392,9 +566,8 @@ const TrackOrder = () => {
 
                     <div className="border-t border-amber-200/90 dark:border-amber-800/80" />
 
-                    {/* 3 Step Boxes: Step 1 (✓ Checked), Step 2 (Spinning), Step 3 (Pending) */}
+                    {/* 3 Step Boxes */}
                     <div className="flex items-center justify-between gap-1 sm:gap-2 pt-1">
-                      {/* Box 1: Order Placed (COMPLETED) */}
                       <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border-2 border-emerald-300 dark:border-emerald-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px]">
                         <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
                           <Check className="h-4 w-4 stroke-[3]" />
@@ -407,10 +580,8 @@ const TrackOrder = () => {
                         </span>
                       </div>
 
-                      {/* Connector Line 1 (Active Amber) */}
                       <div className="h-0.5 bg-amber-400 w-3 sm:w-6 shrink-0" />
 
-                      {/* Box 2: Verification (ACTIVE SPINNER) */}
                       <div className="bg-amber-100/80 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
                         <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
                         <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
@@ -418,10 +589,8 @@ const TrackOrder = () => {
                         </span>
                       </div>
 
-                      {/* Connector Line 2 (Inactive Gray) */}
                       <div className="h-0.5 bg-slate-300 dark:bg-slate-700 w-3 sm:w-6 shrink-0" />
 
-                      {/* Box 3: Delivery (PENDING) */}
                       <div className="bg-slate-50/70 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] opacity-75">
                         <Gift className="h-7 w-7 text-slate-500 mb-2" />
                         <span className="font-bold text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-tight block">
@@ -432,17 +601,15 @@ const TrackOrder = () => {
 
                     <div className="border-t border-amber-200/90 dark:border-amber-800/80" />
 
-                    {/* Bottom Notice Text */}
                     <p className="text-center text-xs sm:text-sm text-amber-900/85 dark:text-amber-200/85 font-medium leading-relaxed">
                       No need to refresh — your credentials and access details will appear live right here!
                     </p>
                   </div>
                 )}
 
-                {/* ── STAGE 2: VERIFIED / PAYMENT APPROVED (Waiting for Delivery) ── */}
+                {/* Section 2: Verified Progress Card */}
                 {isVerified && (
                   <div className="bg-[#F0FDF4] dark:bg-emerald-950/20 rounded-3xl border-2 border-emerald-300 dark:border-emerald-600/80 p-5 sm:p-7 shadow-sm space-y-4">
-                    {/* Header: Verified Check Icon + Title + Description */}
                     <div className="flex items-start gap-4">
                       <div className="h-14 w-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                         <CheckCircle2 className="h-8 w-8 text-white stroke-[2.3]" />
@@ -463,9 +630,8 @@ const TrackOrder = () => {
 
                     <div className="border-t border-emerald-200/90 dark:border-emerald-800/80" />
 
-                    {/* 3 Step Boxes: Step 1 (✓ Checked), Step 2 (✓ Checked), Step 3 (Spinning/Preparing) */}
+                    {/* 3 Step Boxes */}
                     <div className="flex items-center justify-between gap-1 sm:gap-2 pt-1">
-                      {/* Box 1: Order Placed (COMPLETED) */}
                       <div className="bg-emerald-100/70 dark:bg-emerald-950/40 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px]">
                         <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
                           <Check className="h-4 w-4 stroke-[3]" />
@@ -478,10 +644,8 @@ const TrackOrder = () => {
                         </span>
                       </div>
 
-                      {/* Connector Line 1 (COMPLETED GREEN) */}
                       <div className="h-0.5 bg-emerald-500 w-3 sm:w-6 shrink-0" />
 
-                      {/* Box 2: Verification (COMPLETED WITH GREEN CHECKMARK!) */}
                       <div className="bg-emerald-100/70 dark:bg-emerald-950/40 border-2 border-emerald-400 dark:border-emerald-600 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
                         <div className="h-7 w-7 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-xs">
                           <Check className="h-4 w-4 stroke-[3]" />
@@ -494,10 +658,8 @@ const TrackOrder = () => {
                         </span>
                       </div>
 
-                      {/* Connector Line 2 (ACTIVE AMBER) */}
                       <div className="h-0.5 bg-amber-400 w-3 sm:w-6 shrink-0" />
 
-                      {/* Box 3: Delivery (NOW ACTIVE & PROCESSING!) */}
                       <div className="bg-amber-100/80 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
                         <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
                         <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
@@ -511,150 +673,9 @@ const TrackOrder = () => {
 
                     <div className="border-t border-emerald-200/90 dark:border-emerald-800/80" />
 
-                    {/* Bottom Notice Text */}
                     <p className="text-center text-xs sm:text-sm text-emerald-900/85 dark:text-emerald-200/85 font-medium leading-relaxed">
                       Payment approved! Your subscription credentials will automatically appear right here once ready.
                     </p>
-                  </div>
-                )}
-
-                {/* ── STAGE 3: DELIVERED (Access & Credentials Box) ── */}
-                {isDelivered && hasDeliveryInfo && (
-                  <div className="bg-indigo-50/70 dark:bg-indigo-950/40 rounded-3xl border-2 border-indigo-300 dark:border-indigo-800/60 p-5 sm:p-6 space-y-4 shadow-sm">
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-base sm:text-lg">
-                        Your Subscription is Ready!
-                      </h4>
-                      <p className="text-xs sm:text-sm text-indigo-800/80 dark:text-indigo-300">
-                        Your subscription credentials and access details are provided below
-                      </p>
-                    </div>
-
-                    {/* Delivery Notes */}
-                    {Array.isArray(o.delivery_notes) && o.delivery_notes.length > 0 ? (
-                      <div className="space-y-3">
-                        {o.delivery_notes.map((dn, i) => {
-                          const noteText = dn.note || "";
-                          const copyId = `${o.id}-dn-${i}`;
-                          const isCopied = copiedId === copyId;
-
-                          return (
-                            <div
-                              key={i}
-                              className="bg-background rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/60 shadow-xs space-y-3"
-                            >
-                              {noteText && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
-                                      <ShieldCheck className="h-4 w-4 text-indigo-600" />
-                                      Account / Login Credentials #{i + 1}
-                                    </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 text-xs px-3 text-primary hover:bg-primary/10 font-bold"
-                                      onClick={() => copyText(noteText, copyId)}
-                                    >
-                                      {isCopied ? (
-                                        <>
-                                          <Check className="h-3.5 w-3.5 mr-1 text-green-600" /> Copied
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Copy className="h-3.5 w-3.5 mr-1" /> Copy All
-                                        </>
-                                      )}
-                                    </Button>
-                                  </div>
-
-                                  <pre className="text-xs sm:text-sm font-mono bg-muted/80 p-3.5 rounded-xl whitespace-pre-wrap break-all text-foreground select-all border border-border leading-relaxed">
-                                    {noteText}
-                                  </pre>
-                                </div>
-                              )}
-
-                              {dn.link && (
-                                <div className="pt-1">
-                                  <a
-                                    href={dn.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-[1.01]"
-                                  >
-                                    <ExternalLink className="h-4 w-4" />
-                                    Open Subscription Link &rarr;
-                                  </a>
-                                </div>
-                              )}
-
-                              {dn.video_url && (
-                                <div className="pt-2">
-                                  <RedeemVideoPlayer videoUrl={dn.video_url} variant="card" />
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : o.delivery_details ? (
-                      <div className="bg-background rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/60 shadow-xs space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-muted-foreground uppercase">
-                            Account Information
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 text-xs px-3 text-primary"
-                            onClick={() => copyText(o.delivery_details || "", `${o.id}-det`)}
-                          >
-                            {copiedId === `${o.id}-det` ? (
-                              <>
-                                <Check className="h-3.5 w-3.5 mr-1 text-green-600" /> Copied
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="h-3.5 w-3.5 mr-1" /> Copy
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                        <pre className="text-xs font-mono bg-muted/80 p-3 rounded-xl whitespace-pre-wrap break-all select-all">
-                          {o.delivery_details}
-                        </pre>
-                      </div>
-                    ) : null}
-
-                    {/* Support & Review Action Bar */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-indigo-200/60 dark:border-indigo-800/40 text-xs">
-                      <a
-                        href="https://wa.me/8801516524644"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold hover:underline"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        WhatsApp Support (+8801516524644)
-                      </a>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs text-amber-600 hover:text-amber-700 gap-1 px-2"
-                        onClick={() => {
-                          const firstItem = items.find((item: OrderItem) => item.id);
-                          if (firstItem?.id) {
-                            navigate(`/product/${firstItem.id}?tab=reviews`);
-                          } else {
-                            navigate("/reviews");
-                          }
-                        }}
-                      >
-                        <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                        Give Review
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
