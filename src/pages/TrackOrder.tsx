@@ -224,7 +224,7 @@ const TrackOrder = () => {
                 disabled={loading}
                 className="self-start sm:self-auto rounded-xl gap-2 h-9"
               >
-                <RefreshCw className="h-4 w-4 text-primary" />
+                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-primary" : ""}`} />
                 Refresh
               </Button>
             )}
@@ -422,9 +422,7 @@ const TrackOrder = () => {
 
                       {/* Box 2: Verification */}
                       <div className="bg-amber-100/70 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center flex-1 min-h-[110px] shadow-xs">
-                        <svg className="h-7 w-7 text-amber-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                        </svg>
+                        <div className="h-7 w-7 rounded-full border-[2.5px] border-amber-500 border-t-transparent animate-spin mb-2" />
                         <span className="font-bold text-amber-950 dark:text-amber-100 text-xs sm:text-sm leading-tight block">
                           2. Verification
                         </span>
