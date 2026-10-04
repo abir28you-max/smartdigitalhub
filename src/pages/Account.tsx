@@ -48,17 +48,17 @@ interface Order {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 border-amber-300",
-  verified: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  rejected: "bg-rose-100 text-rose-800 border-rose-300",
-  delivered: "bg-indigo-100 text-indigo-800 border-indigo-300",
+  pending: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
+  verified: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
+  rejected: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20",
+  delivered: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
 };
 
 const statusLabels: Record<string, string> = {
-  pending: "Pending Review",
-  verified: "Approved",
-  rejected: "Rejected",
-  delivered: "Delivered 🎉",
+  pending: "Processing",
+  verified: "Payment Verified",
+  rejected: "Cancelled",
+  delivered: "Delivered",
 };
 
 const Account = () => {
