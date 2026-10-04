@@ -94,7 +94,7 @@ const AdminCategories = () => {
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
               />
             </div>
-            <div><Label>Sort Order (ছোট নম্বর আগে দেখাবে)</Label><Input type="number" required value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} /></div>
+            <div><Label>Sort Order (lower numbers appear first)</Label><Input type="number" required value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} /></div>
             <div>
               <Label>Icon</Label>
               <div className="grid grid-cols-6 gap-2 mt-2 max-h-48 overflow-y-auto border border-border rounded-lg p-2">

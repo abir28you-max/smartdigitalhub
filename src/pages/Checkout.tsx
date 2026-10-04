@@ -223,7 +223,7 @@ const Checkout = () => {
 
       if (eligibleProducts.length === 0) {
         const requiredOption = matchingProducts[0].option_name;
-        toast({ title: `এই কুপনটি শুধুমাত্র "${requiredOption}" প্যাকেজে প্রযোজ্য`, variant: "destructive" });
+        toast({ title: `This coupon is only valid for the "${requiredOption}" package`, variant: "destructive" });
         setDiscount(0);
         setCouponApplied(false);
         setCouponShake(true);
@@ -242,7 +242,7 @@ const Checkout = () => {
         if (totalSuperDiscount > 0) {
           setDiscount(totalSuperDiscount);
           setCouponApplied(true);
-          toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ৳${totalSuperDiscount} ছাড়` });
+          toast({ title: `🎉 Coupon applied successfully! ৳${totalSuperDiscount} off` });
         } else {
           toast({ title: "Coupon has no discount set", variant: "destructive" });
           setDiscount(0);
@@ -262,9 +262,9 @@ const Checkout = () => {
 
       if (!globalCoupon) {
         if (candidateProductCoupons.length > 0) {
-          toast({ title: "এই কুপনটি আপনার কার্টের প্রোডাক্টে প্রযোজ্য নয়", variant: "destructive" });
+          toast({ title: "This coupon is not valid for the items in your cart", variant: "destructive" });
         } else {
-          toast({ title: "কুপন কোডটি সঠিক নয় অথবা মেয়াদ উত্তীর্ণ", variant: "destructive" });
+          toast({ title: "Invalid or expired coupon code", variant: "destructive" });
         }
         setDiscount(0);
         setCouponApplied(false);
@@ -276,7 +276,7 @@ const Checkout = () => {
         const cartTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
         if (globalCoupon.min_order_amount && cartTotal < Number(globalCoupon.min_order_amount)) {
-          toast({ title: `এই কুপনের জন্য সর্বনিম্ন ৳${globalCoupon.min_order_amount} টাকার অর্ডার প্রয়োজন`, variant: "destructive" });
+          toast({ title: `Minimum order amount of ৳${globalCoupon.min_order_amount} required for this coupon`, variant: "destructive" });
           setDiscount(0);
           setCouponApplied(false);
           setCouponShake(true);
@@ -296,7 +296,7 @@ const Checkout = () => {
         setDiscount(calculatedDiscount);
         setCouponApplied(true);
         const label = isPercent ? `${val}% (৳${calculatedDiscount})` : `৳${calculatedDiscount}`;
-        toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ${label} ছাড়` });
+        toast({ title: `🎉 Coupon applied successfully! ${label} off` });
       }
     }
     setApplyingCoupon(false);
@@ -578,7 +578,7 @@ const Checkout = () => {
                 <PaymentLogo name={selectedPM.name} logoUrl={selectedPM.logo_url} size="sm" />
                 <div>
                   <p className="text-xs font-bold text-foreground">{selectedPM.name}</p>
-                  <p className="text-[11px] text-muted-foreground">নিচের নাম্বারে টাকা পাঠিয়ে TrxID লিখুন</p>
+                  <p className="text-[11px] text-muted-foreground">Send payment to the number below and enter your TrxID</p>
                 </div>
               </div>
               {account?.account_number && (() => {
@@ -638,12 +638,12 @@ const Checkout = () => {
                   if (isBank) {
                     return (
                       <>
-                        <p>1. আপনার ব্যাংকিং অ্যাপ ওপেন করুন এবং <strong>Fund Transfer</strong> অপশনে যান।</p>
-                        <p>2. <strong>NPSB</strong> সিলেক্ট করুন।</p>
-                        <p>3. <strong>Select Bank Name</strong> থেকে <strong>Pubali Bank</strong> সিলেক্ট করুন।</p>
-                        <p>4. <strong>Receiver A/C No.</strong> তে নিচের অ্যাকাউন্ট নম্বরটি পেস্ট করুন।</p>
-                        <p>5. Amount এ <strong>৳{finalPrice.toFixed(2)}</strong> লিখুন এবং পেমেন্ট সম্পন্ন করুন।</p>
-                        <p>6. পেমেন্ট সফল হলে <strong>Transaction ID</strong> কপি করে নিচের বক্সে পেস্ট করুন।</p>
+                        <p>1. Open your banking app and go to <strong>Fund Transfer</strong>.</p>
+                        <p>2. Select <strong>NPSB</strong> transfer method.</p>
+                        <p>3. Select <strong>Pubali Bank</strong> as the destination bank.</p>
+                        <p>4. Paste the <strong>Receiver A/C No.</strong> shown above.</p>
+                        <p>5. Enter <strong>৳{finalPrice.toFixed(2)}</strong> as the amount and complete the transfer.</p>
+                        <p>6. Copy the <strong>Transaction ID</strong> and paste it in the box below.</p>
                       </>
                     );
                   }

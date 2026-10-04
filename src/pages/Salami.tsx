@@ -8,12 +8,12 @@ import eidImage from "@/assets/eid-ul-adha.jpg";
 import { Gift, Moon, Star, Sparkles, CheckCircle2 } from "lucide-react";
 
 const BD_NAMES = [
-  "রাহাত হোসেন", "তানভীর আহমেদ", "সাবরিনা আক্তার", "মোঃ আরিফ", "নুসরাত জাহান",
-  "ফারহান ইসলাম", "তাসনিম আরা", "মাহমুদুল হাসান", "জান্নাতুল ফেরদৌস", "শাকিল আহমেদ",
-  "ফাতেমা খাতুন", "রিফাত হোসেন", "মারিয়া আক্তার", "আবু সাঈদ", "সুমাইয়া ইসলাম",
-  "কামরুল হাসান", "নাফিসা তাবাসসুম", "ইমরান হোসেন", "সাদিয়া আফরিন", "জাহিদ হাসান",
-  "রুমানা পারভীন", "আশরাফুল আলম", "মিথিলা রহমান", "সোহেল রানা", "তাহমিনা বেগম",
-  "আনিসুর রহমান", "শারমিন সুলতানা", "মোস্তাফিজুর রহমান", "আফরোজা বেগম", "রাকিবুল ইসলাম",
+  "Rahat Hossain", "Tanvir Ahmed", "Sabrina Akter", "Md. Arif", "Nusrat Jahan",
+  "Farhan Islam", "Tasnim Ara", "Mahmudul Hasan", "Jannatul Ferdous", "Shakil Ahmed",
+  "Fatema Khatun", "Rifat Hossain", "Maria Akter", "Abu Sayed", "Sumaiya Islam",
+  "Kamrul Hasan", "Nafisa Tabassum", "Imran Hossain", "Sadia Afrin", "Zahid Hasan",
+  "Rumana Parveen", "Ashraful Alam", "Mithila Rahman", "Sohel Rana", "Tahmina Begum",
+  "Anisur Rahman", "Sharmin Sultana", "Mostafizur Rahman", "Afroza Begum", "Rakibul Islam",
 ];
 
 const AMOUNTS = [50, 80, 100, 120, 150, 200, 250, 300];
@@ -68,11 +68,11 @@ const Salami = () => {
     e.preventDefault();
     const trimmed = bkash.trim();
     if (!trimmed) {
-      toast({ title: "bKash নম্বর দিন", variant: "destructive" });
+      toast({ title: "Please enter your bKash number", variant: "destructive" });
       return;
     }
     if (!/^01[3-9]\d{8}$/.test(trimmed)) {
-      toast({ title: "সঠিক bKash নম্বর দিন", description: "11 ডিজিটের বাংলাদেশি নম্বর দিন", variant: "destructive" });
+      toast({ title: "Please enter a valid bKash number", description: "11-digit Bangladeshi mobile number required", variant: "destructive" });
       return;
     }
 
@@ -84,7 +84,7 @@ const Salami = () => {
     });
 
     if (existing === true) {
-      toast({ title: "আপনি ইতিমধ্যে সাবমিট করেছেন!", description: "একই bKash নম্বর দিয়ে একবারই সাবমিট করা যায়।", variant: "destructive" });
+      toast({ title: "You have already submitted!", description: "Only one entry allowed per bKash number.", variant: "destructive" });
       setLoading(false);
       return;
     }
@@ -97,13 +97,13 @@ const Salami = () => {
 
     if (error) {
       if (error.code === "23505") {
-        toast({ title: "আপনি ইতিমধ্যে সাবমিট করেছেন!", variant: "destructive" });
+        toast({ title: "You have already submitted!", variant: "destructive" });
       } else {
-        toast({ title: "সমস্যা হয়েছে", description: error.message, variant: "destructive" });
+        toast({ title: "An error occurred", description: error.message, variant: "destructive" });
       }
     } else {
       setSubmitted(true);
-      toast({ title: "ধন্যবাদ! ✨", description: "আপনার তথ্য সফলভাবে জমা হয়েছে।" });
+      toast({ title: "Thank you! ✨", description: "Your submission has been recorded successfully." });
     }
     setLoading(false);
   };
@@ -151,16 +151,14 @@ const Salami = () => {
         {/* Eid Greeting */}
         <div className="text-center mb-6 space-y-2">
           <h1 className="text-3xl font-bold text-emerald-800 font-display" style={{ lineHeight: "1.2" }}>
-            ঈদুল আযহা মোবারক! 🐄🐐
+            Eid ul-Adha Mubarak! 🐄🐐
           </h1>
           <p className="text-emerald-700/80 text-sm leading-relaxed">
-            কুরবানির ঈদের শুভেচ্ছা জানাই সকলকে। ত্যাগ ও কুরবানির এই
-            পবিত্র দিনে আল্লাহ আমাদের সকল কুরবানি কবুল করুন। ঈদের
-            সালামি গ্রহণ করতে নিচে আপনার bKash নম্বর দিন।
+            Wishing everyone a joyous Eid ul-Adha! May this blessed occasion bring happiness, peace, and prosperity. Enter your bKash number below to receive your Eid Salami gift.
           </p>
           <div className="flex items-center justify-center gap-2 text-emerald-700 text-xs pt-1">
             <Gift className="h-4 w-4" />
-            <span>কুরবানি ঈদ সালামি</span>
+            <span>Eid Salami Special</span>
             <Gift className="h-4 w-4" />
           </div>
         </div>
@@ -168,19 +166,19 @@ const Salami = () => {
         {submitted ? (
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 text-center shadow-lg border border-emerald-200/50 space-y-3">
             <div className="text-5xl">🐄🐐</div>
-            <h2 className="text-xl font-bold text-emerald-800">জাযাকাল্লাহু খাইরান!</h2>
+            <h2 className="text-xl font-bold text-emerald-800">Jazakallahu Khairan!</h2>
             <p className="text-emerald-700/70 text-sm">
-              আপনার তথ্য সফলভাবে জমা হয়েছে। কুরবানি ঈদের শুভেচ্ছা রইলো! 🌙
+              Your details have been submitted successfully. Have a wonderful Eid! 🌙
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-200/50 space-y-4">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-emerald-800">
-                নাম <span className="text-emerald-500 text-xs">(optional)</span>
+                Name <span className="text-emerald-500 text-xs">(optional)</span>
               </label>
               <Input
-                placeholder="আপনার নাম"
+                placeholder="Your Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={100}
@@ -190,7 +188,7 @@ const Salami = () => {
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-emerald-800">
-                bKash নম্বর <span className="text-destructive">*</span>
+                bKash Number <span className="text-destructive">*</span>
               </label>
               <Input
                 placeholder="01XXXXXXXXX"
@@ -204,10 +202,10 @@ const Salami = () => {
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-emerald-800">
-                নোট <span className="text-emerald-500 text-xs">(optional)</span>
+                Note <span className="text-emerald-500 text-xs">(optional)</span>
               </label>
               <Textarea
-                placeholder="কোনো কিছু বলতে চাইলে..."
+                placeholder="Leave a message..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={500}
@@ -221,14 +219,14 @@ const Salami = () => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-700 hover:to-green-800 text-white font-semibold py-5 rounded-xl shadow-md"
             >
-              {loading ? "সাবমিট হচ্ছে..." : "সালামি নিন 🎁"}
+              {loading ? "Submitting..." : "Get Salami 🎁"}
             </Button>
           </form>
         )}
 
 
         <p className="text-center text-emerald-700/50 text-xs mt-6">
-          © Smart Digital Hub — ঈদুল আযহা ২০২৬
+          © Smart Digital Hub — Eid ul-Adha 2026
         </p>
       </div>
     </div>

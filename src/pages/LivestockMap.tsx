@@ -11,9 +11,9 @@ type Animal = "cow" | "goat";
 
 const LivestockMap = () => {
   useSEO({
-    title: "গরু ও ছাগলের ওজন পরিমাপ ক্যালকুলেটর | Tech Subx BD",
+    title: "Livestock Weight & Meat Calculator | Smart Digital Hub",
     description:
-      "ঈদুল আযহার গরু ও ছাগল কেনার আগে সঠিক ওজন ও মাংসের পরিমাণ বের করুন। বেড় ও দৈর্ঘ্য দিয়ে ৯৮-৯৯% নির্ভুল হিসাব।",
+      "Accurately calculate live weight and meat yield for cattle and goats with 98-99% accuracy.",
   });
 
   const [animal, setAnimal] = useState<Animal>("cow");
@@ -61,8 +61,8 @@ const LivestockMap = () => {
       <header className="sticky top-0 z-30 backdrop-blur-lg bg-background/80 border-b border-border/50">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <h1 className="text-base font-bold leading-tight">পশুর ওজন ক্যালকুলেটর</h1>
-            <p className="text-[11px] text-muted-foreground">ঈদুল আযহা স্পেশাল • ৯৮-৯৯% নির্ভুল</p>
+            <h1 className="text-base font-bold leading-tight">Livestock Weight Calculator</h1>
+            <p className="text-[11px] text-muted-foreground">Eid ul-Adha Special • 98-99% Accurate</p>
           </div>
           <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
             <Scale className="h-4 w-4 text-primary-foreground" />
@@ -79,9 +79,9 @@ const LivestockMap = () => {
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 text-[10px] font-semibold backdrop-blur-sm mb-2">
               <Sparkles className="h-3 w-3" /> PREMIUM CALCULATOR
             </div>
-            <h2 className="text-xl font-extrabold leading-tight">গরু-ছাগলের সঠিক ওজন বের করুন</h2>
+            <h2 className="text-xl font-extrabold leading-tight">Estimate Livestock Weight & Meat</h2>
             <p className="text-sm text-primary-foreground/90 mt-1">
-              হাটে যাওয়ার আগে বা গরু কেনার সময় লস বাঁচান। কয়েক সেকেন্ডে জানুন আনুমানিক ওজন ও মাংসের পরিমাণ।
+              Know the approximate weight and meat yield in seconds before buying cattle or goats.
             </p>
           </div>
         </div>
@@ -90,10 +90,10 @@ const LivestockMap = () => {
         <Tabs value={animal} onValueChange={(v) => setAnimal(v as Animal)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted/60 backdrop-blur rounded-xl">
             <TabsTrigger value="cow" className="rounded-lg h-full text-sm font-semibold data-[state=active]:shadow-md gap-1.5">
-              <span className="text-base">🐄</span> গরু
+              <span className="text-base">🐄</span> Cow / Cattle
             </TabsTrigger>
             <TabsTrigger value="goat" className="rounded-lg h-full text-sm font-semibold data-[state=active]:shadow-md gap-1.5">
-              <span className="text-base">🐐</span> ছাগল / খাসি
+              <span className="text-base">🐐</span> Goat / Sheep
             </TabsTrigger>
           </TabsList>
 
@@ -107,8 +107,8 @@ const LivestockMap = () => {
                       <Calculator className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold">পরিমাপ দিন</p>
-                      <p className="text-[11px] text-muted-foreground">একক বেছে নিন</p>
+                      <p className="text-sm font-semibold">Enter Measurements</p>
+                      <p className="text-[11px] text-muted-foreground">Select unit</p>
                     </div>
                   </div>
                   <div className="inline-flex bg-muted rounded-lg p-0.5">
@@ -120,7 +120,7 @@ const LivestockMap = () => {
                           unit === u ? "bg-background shadow text-foreground" : "text-muted-foreground"
                         }`}
                       >
-                        {u === "inch" ? "ইঞ্চি" : "সে.মি."}
+                        {u === "inch" ? "Inch" : "cm"}
                       </button>
                     ))}
                   </div>
@@ -129,14 +129,14 @@ const LivestockMap = () => {
                 <div className="space-y-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="bere" className="text-xs font-semibold flex items-center gap-1.5">
-                      বেড় (Girth) <span className="text-muted-foreground font-normal">— বুকের চারপাশের মাপ</span>
+                      Girth (Heart Girth) <span className="text-muted-foreground font-normal">— Chest circumference</span>
                     </Label>
                     <div className="relative">
                       <Input
                         id="bere"
                         type="number"
                         inputMode="decimal"
-                        placeholder={isCow ? "যেমন: ৬০" : "যেমন: ২৮"}
+                        placeholder={isCow ? "e.g., 60" : "e.g., 28"}
                         value={bere}
                         onChange={(e) => setBere(e.target.value)}
                         className="h-12 text-base font-semibold pr-14"
@@ -149,14 +149,14 @@ const LivestockMap = () => {
 
                   <div className="space-y-1.5">
                     <Label htmlFor="length" className="text-xs font-semibold flex items-center gap-1.5">
-                      দৈর্ঘ্য (Length) <span className="text-muted-foreground font-normal">— ঘাড় থেকে লেজের গোড়া পর্যন্ত</span>
+                      Body Length <span className="text-muted-foreground font-normal">— Shoulder to tailhead</span>
                     </Label>
                     <div className="relative">
                       <Input
                         id="length"
                         type="number"
                         inputMode="decimal"
-                        placeholder={isCow ? "যেমন: ৫৫" : "যেমন: ২৫"}
+                        placeholder={isCow ? "e.g., 55" : "e.g., 25"}
                         value={length}
                         onChange={(e) => setLength(e.target.value)}
                         className="h-12 text-base font-semibold pr-14"
@@ -170,7 +170,7 @@ const LivestockMap = () => {
 
                 {(bere || length) && (
                   <Button variant="ghost" size="sm" onClick={reset} className="w-full text-muted-foreground gap-1.5">
-                    <RotateCcw className="h-3.5 w-3.5" /> রিসেট
+                    <RotateCcw className="h-3.5 w-3.5" /> Reset
                   </Button>
                 )}
               </CardContent>
@@ -186,22 +186,22 @@ const LivestockMap = () => {
                       <Scale className="h-4 w-4 text-white" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">ফলাফল</p>
-                      <p className="text-[10px] text-muted-foreground">আনুমানিক ৯৮-৯৯% নির্ভুল</p>
+                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Calculation Results</p>
+                      <p className="text-[10px] text-muted-foreground">Approx. 98–99% accuracy</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-background/70 backdrop-blur rounded-xl p-3 border border-border/40">
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">মোট ওজন</p>
+                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Total Live Weight</p>
                       <p className="text-2xl font-extrabold text-foreground mt-0.5">{result.totalWeight}</p>
-                      <p className="text-[10px] text-muted-foreground">কেজি (~{result.maund} মণ)</p>
+                      <p className="text-[10px] text-muted-foreground">kg (~{result.maund} Maund)</p>
                     </div>
                     <div className="bg-background/70 backdrop-blur rounded-xl p-3 border border-emerald-500/30">
                       <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wide flex items-center gap-1">
-                        <Beef className="h-3 w-3" /> মাংস
+                        <Beef className="h-3 w-3" /> Meat Yield
                       </p>
                       <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-400 mt-0.5">{result.meat}</p>
-                      <p className="text-[10px] text-muted-foreground">কেজি (আনুমানিক)</p>
+                      <p className="text-[10px] text-muted-foreground">kg (approx.)</p>
                     </div>
                   </div>
                 </div>
@@ -209,7 +209,7 @@ const LivestockMap = () => {
             ) : (
               <div className="rounded-2xl border border-dashed border-border p-6 text-center text-muted-foreground">
                 <Scale className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                <p className="text-sm">বেড় ও দৈর্ঘ্য দিন — ফলাফল এখানে দেখাবে</p>
+                <p className="text-sm">Enter girth and length to see results here</p>
               </div>
             )}
 
@@ -221,27 +221,27 @@ const LivestockMap = () => {
                     <BadgeDollarSign className="h-4 w-4 text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold">মাংসের দাম হিসাব করুন</p>
-                    <p className="text-[11px] text-muted-foreground">প্রতি কেজির দাম দিন</p>
+                    <p className="text-sm font-semibold">Calculate Value / Price</p>
+                    <p className="text-[11px] text-muted-foreground">Enter price per kg</p>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="price" className="text-xs font-semibold">
-                    প্রতি কেজি দাম (৳)
+                    Price per kg (৳)
                   </Label>
                   <div className="relative">
                     <Input
                       id="price"
                       type="number"
                       inputMode="decimal"
-                      placeholder="যেমন: ৮০০"
+                      placeholder="e.g., 800"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
                       className="h-12 text-base font-semibold pr-14"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">
-                      ৳/কেজি
+                      ৳/kg
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 pt-1">
@@ -266,26 +266,26 @@ const LivestockMap = () => {
                   <div className="grid grid-cols-2 gap-3 animate-fade-in">
                     <div className="rounded-xl p-3 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/30">
                       <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wide">
-                        মোট ওজনে দাম
+                        Total Live Value
                       </p>
                       <p className="text-xl font-extrabold text-foreground mt-1">৳{fmt(totalWeightPrice)}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {result!.totalWeight} কেজি × ৳{priceNum}
+                        {result!.totalWeight} kg × ৳{priceNum}
                       </p>
                     </div>
                     <div className="rounded-xl p-3 bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/30">
                       <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wide">
-                        মাংসের দাম
+                        Meat Value
                       </p>
                       <p className="text-xl font-extrabold text-foreground mt-1">৳{fmt(meatPrice)}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {result!.meat} কেজি × ৳{priceNum}
+                        {result!.meat} kg × ৳{priceNum}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
-                    {result ? "প্রতি কেজির দাম দিন — দুই ধরনের হিসাব দেখাবে" : "প্রথমে বেড় ও দৈর্ঘ্য দিন"}
+                    {result ? "Enter price per kg to calculate total and meat values" : "Please enter girth and length first"}
                   </p>
                 )}
               </CardContent>
@@ -296,23 +296,20 @@ const LivestockMap = () => {
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Ruler className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold">কিভাবে মাপ নিবেন</p>
+                  <p className="text-sm font-semibold">How to Measure</p>
                 </div>
                 <ol className="text-xs text-foreground/90 space-y-2 list-decimal pl-4 marker:text-primary marker:font-bold">
                   <li>
-                    <span className="font-semibold">বেড় (Girth):</span> পশুকে সমতল জায়গায় সোজা করে দাঁড় করান। সামনের দুই
-                    পায়ের ঠিক পেছন দিয়ে বুকের চারপাশ ফিতা দিয়ে মাপুন।
+                    <span className="font-semibold">Heart Girth:</span> Stand the animal square on level ground. Measure around the chest directly behind the front legs.
                   </li>
                   <li>
-                    <span className="font-semibold">দৈর্ঘ্য (Length):</span> কাঁধের উপরের অংশ (ঘাড় শুরুর জায়গা) থেকে
-                    শুরু করে লেজের গোড়া পর্যন্ত সোজাসুজি মাপুন।
+                    <span className="font-semibold">Body Length:</span> Measure in a straight line from the point of the shoulder to the pin bone / tailhead.
                   </li>
                   <li>
-                    <span className="font-semibold">একক:</span> পুরো মাপ একই এককে নিন — হয় ইঞ্চি, নয়তো সে.মি.।
+                    <span className="font-semibold">Units:</span> Keep all measurements in the same unit (either inches or centimeters).
                   </li>
                   <li>
-                    <span className="font-semibold">নির্ভুলতা:</span> পশু শান্ত ও সোজা থাকা অবস্থায় মাপ নিন। ফলাফল
-                    আনুমানিক ৯৮-৯৯% সঠিক হবে।
+                    <span className="font-semibold">Accuracy:</span> Ensure the animal is calm and standing straight for 98–99% accuracy.
                   </li>
                 </ol>
               </CardContent>
@@ -322,9 +319,8 @@ const LivestockMap = () => {
 
         <div className="text-center pt-2 space-y-0.5">
           <p className="text-[11px] text-muted-foreground">
-            Powered by <span className="font-semibold text-foreground">Tech Subx BD</span>
+            Powered by <span className="font-semibold text-foreground">Smart Digital Hub</span>
           </p>
-          <p className="text-[10px] text-muted-foreground">~ Fardin Sagor</p>
         </div>
       </main>
     </div>

@@ -464,13 +464,13 @@ const ProductDetail = () => {
 
         setAppliedCoupon({ code: code.toUpperCase(), discount: discountBDT });
         const discountLabel = match.discount_type === "percentage" ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
-        toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ${discountLabel} ছাড়` });
+        toast({ title: `🎉 Coupon applied successfully! ${discountLabel} off` });
         return;
       }
 
       const wrongOption = candidateCoupons.find((c) => c.product_id === product.id);
       if (wrongOption && wrongOption.option_name) {
-        toast({ title: `এই কুপনটি শুধুমাত্র "${wrongOption.option_name}" প্যাকেজে প্রযোজ্য`, variant: "destructive" });
+        toast({ title: `This coupon is only valid for the "${wrongOption.option_name}" package`, variant: "destructive" });
         setAppliedCoupon(null);
         return;
       }
@@ -488,7 +488,7 @@ const ProductDetail = () => {
         const isPercent = globalCoupon.discount_type === "percentage";
 
         if (globalCoupon.min_order_amount && activePrice < Number(globalCoupon.min_order_amount)) {
-          toast({ title: `এই কুপনের জন্য সর্বনিম্ন ৳${globalCoupon.min_order_amount} টাকার অর্ডার প্রয়োজন`, variant: "destructive" });
+          toast({ title: `Minimum order amount of ৳${globalCoupon.min_order_amount} required for this coupon`, variant: "destructive" });
           setAppliedCoupon(null);
           return;
         }
@@ -503,12 +503,12 @@ const ProductDetail = () => {
 
         setAppliedCoupon({ code: code.toUpperCase(), discount: discountBDT });
         const discountLabel = isPercent ? `${val}% (৳${discountBDT})` : `৳${discountBDT}`;
-        toast({ title: `🎉 কুপন সফলভাবে যুক্ত হয়েছে! ${discountLabel} ছাড়` });
+        toast({ title: `🎉 Coupon applied successfully! ${discountLabel} off` });
       } else {
         if (candidateCoupons.length > 0) {
-          toast({ title: "এই কুপনটি এই প্রোডাক্টে প্রযোজ্য নয়", variant: "destructive" });
+          toast({ title: "This coupon does not apply to this product", variant: "destructive" });
         } else {
-          toast({ title: "কুপন কোডটি সঠিক নয় অথবা মেয়াদ উত্তীর্ণ", variant: "destructive" });
+          toast({ title: "Invalid or expired coupon code", variant: "destructive" });
         }
         setCouponShake(true);
         setTimeout(() => setCouponShake(false), 500);
@@ -705,7 +705,7 @@ const ProductDetail = () => {
               } catch {}
             } else {
               await navigator.clipboard.writeText(productUrl);
-              toast({ title: "লিংক কপি হয়েছে!" });
+              toast({ title: "Link copied to clipboard!" });
             }
           }}
         >

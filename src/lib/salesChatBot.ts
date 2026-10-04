@@ -1,6 +1,6 @@
 /**
  * Smart Digital Hub - Ultra-Intelligent Conversational Sales & Support AI Engine
- * Designed to act naturally like ChatGPT / Claude / Gemini in Bengali & Banglish
+ * Designed to act naturally like ChatGPT / Claude / Gemini in English
  */
 
 export interface ChatBotProduct {
@@ -62,65 +62,65 @@ interface KeywordMapping {
 
 const PRODUCT_DICTIONARY: KeywordMapping[] = [
   // AI Tools
-  { keywords: ["canva", "ক্যানভা", "canva pro"], productSearchTerm: "canva", displayName: "Canva Pro", category: "editing" },
-  { keywords: ["gemini", "জেমিনি", "google gemini", "gemini ai", "gemini advanced"], productSearchTerm: "gemini", displayName: "Gemini AI", category: "ai" },
-  { keywords: ["chatgpt", "chat gpt", "gpt 4", "gpt-4", "gpt4", "openai", "open ai", "চ্যাটজিপিটি", "gpt"], productSearchTerm: "chatgpt", displayName: "ChatGPT Plus", category: "ai" },
-  { keywords: ["claude", "claude ai", "ক্লদ", "claude pro", "sonnet"], productSearchTerm: "claude", displayName: "Claude AI", category: "ai" },
-  { keywords: ["midjourney", "মিডজার্নি", "mid journey"], productSearchTerm: "midjourney", displayName: "Midjourney", category: "ai" },
-  { keywords: ["perplexity", "পারপ্লেক্সিটি", "perplexity ai", "perplexity pro"], productSearchTerm: "perplexity", displayName: "Perplexity AI", category: "ai" },
-  { keywords: ["leonardo", "লিওনার্দো", "leonardo ai"], productSearchTerm: "leonardo", displayName: "Leonardo AI", category: "ai" },
-  { keywords: ["hegen", "হেগেন", "heygen", "hegen ai"], productSearchTerm: "hegen", displayName: "Hegen AI", category: "ai" },
+  { keywords: ["canva", "canva pro"], productSearchTerm: "canva", displayName: "Canva Pro", category: "editing" },
+  { keywords: ["gemini", "google gemini", "gemini ai", "gemini advanced"], productSearchTerm: "gemini", displayName: "Gemini AI", category: "ai" },
+  { keywords: ["chatgpt", "chat gpt", "gpt 4", "gpt-4", "gpt4", "openai", "open ai", "gpt"], productSearchTerm: "chatgpt", displayName: "ChatGPT Plus", category: "ai" },
+  { keywords: ["claude", "claude ai", "claude pro", "sonnet"], productSearchTerm: "claude", displayName: "Claude AI", category: "ai" },
+  { keywords: ["midjourney", "mid journey"], productSearchTerm: "midjourney", displayName: "Midjourney", category: "ai" },
+  { keywords: ["perplexity", "perplexity ai", "perplexity pro"], productSearchTerm: "perplexity", displayName: "Perplexity AI", category: "ai" },
+  { keywords: ["leonardo", "leonardo ai"], productSearchTerm: "leonardo", displayName: "Leonardo AI", category: "ai" },
+  { keywords: ["hegen", "heygen", "hegen ai"], productSearchTerm: "hegen", displayName: "Hegen AI", category: "ai" },
 
   // Video & Design Editing
-  { keywords: ["capcut", "ক্যাপকাট", "capcut pro"], productSearchTerm: "capcut", displayName: "CapCut Pro", category: "editing" },
-  { keywords: ["adobe", "অ্যাডোবি", "photoshop", "creative cloud", "illustrator", "premiere pro"], productSearchTerm: "adobe", displayName: "Adobe Creative Cloud", category: "editing" },
-  { keywords: ["camscanner", "ক্যামস্ক্যানার", "cam scanner"], productSearchTerm: "camscanner", displayName: "CamScanner", category: "editing" },
-  { keywords: ["ilovepdf", "আইলাভপিডিএফ", "i love pdf"], productSearchTerm: "ilovepdf", displayName: "iLovePDF", category: "editing" },
+  { keywords: ["capcut", "capcut pro"], productSearchTerm: "capcut", displayName: "CapCut Pro", category: "editing" },
+  { keywords: ["adobe", "photoshop", "creative cloud", "illustrator", "premiere pro"], productSearchTerm: "adobe", displayName: "Adobe Creative Cloud", category: "editing" },
+  { keywords: ["camscanner", "cam scanner"], productSearchTerm: "camscanner", displayName: "CamScanner", category: "editing" },
+  { keywords: ["ilovepdf", "i love pdf"], productSearchTerm: "ilovepdf", displayName: "iLovePDF", category: "editing" },
 
   // Education & Learning
-  { keywords: ["duolingo", "ডুওলিঙ্গো", "duolingo super", "duolingo max"], productSearchTerm: "duolingo", displayName: "Duolingo Super", category: "education" },
-  { keywords: ["grammarly", "গ্রামারলি", "grammerly"], productSearchTerm: "grammarly", displayName: "Grammarly", category: "education" },
-  { keywords: ["quillbot", "কুইলবট", "quill bot"], productSearchTerm: "quillbot", displayName: "QuillBot", category: "education" },
+  { keywords: ["duolingo", "duolingo super", "duolingo max"], productSearchTerm: "duolingo", displayName: "Duolingo Super", category: "education" },
+  { keywords: ["grammarly", "grammerly"], productSearchTerm: "grammarly", displayName: "Grammarly", category: "education" },
+  { keywords: ["quillbot", "quill bot"], productSearchTerm: "quillbot", displayName: "QuillBot", category: "education" },
 
   // VPNs
-  { keywords: ["express vpn", "expressvpn", "এক্সপ্রেস ভিপিএন"], productSearchTerm: "express", displayName: "Express VPN", category: "vpn" },
-  { keywords: ["hma", "hma vpn", "এইচএমএ ভিপিএন"], productSearchTerm: "hma", displayName: "HMA VPN", category: "vpn" },
-  { keywords: ["norton", "নর্ডন", "নর্টন", "norton vpn"], productSearchTerm: "norton", displayName: "Norton VPN", category: "vpn" },
-  { keywords: ["proton", "প্রোটন", "proton vpn", "protonvpn"], productSearchTerm: "proton", displayName: "Proton VPN", category: "vpn" },
-  { keywords: ["ipvanish", "আইপিভ্যানিশ", "ip vanish"], productSearchTerm: "ipvanish", displayName: "IPVanish", category: "vpn" },
-  { keywords: ["mysterium", "মিস্টেরিয়াম", "mysterium vpn"], productSearchTerm: "mysterium", displayName: "Mysterium VPN", category: "vpn" },
+  { keywords: ["express vpn", "expressvpn"], productSearchTerm: "express", displayName: "Express VPN", category: "vpn" },
+  { keywords: ["hma", "hma vpn"], productSearchTerm: "hma", displayName: "HMA VPN", category: "vpn" },
+  { keywords: ["norton", "norton vpn"], productSearchTerm: "norton", displayName: "Norton VPN", category: "vpn" },
+  { keywords: ["proton", "proton vpn", "protonvpn"], productSearchTerm: "proton", displayName: "Proton VPN", category: "vpn" },
+  { keywords: ["ipvanish", "ip vanish"], productSearchTerm: "ipvanish", displayName: "IPVanish", category: "vpn" },
+  { keywords: ["mysterium", "mysterium vpn"], productSearchTerm: "mysterium", displayName: "Mysterium VPN", category: "vpn" },
 
   // Entertainment & OTT
-  { keywords: ["youtube", "ইউটিউব", "yt", "yt premium", "youtube premium"], productSearchTerm: "youtube", displayName: "YouTube Premium", category: "entertainment" },
-  { keywords: ["prime", "prime video", "প্রাইম", "প্রাইম ভিডিও", "amazon prime"], productSearchTerm: "prime", displayName: "Amazon Prime Video", category: "entertainment" },
-  { keywords: ["crunchyroll", "ক্রাঞ্চিরোল", "anime", "এনিমে"], productSearchTerm: "cruchyroll", displayName: "Crunchyroll", category: "entertainment" },
-  { keywords: ["sonyliv", "সনি লিভ", "sony liv"], productSearchTerm: "sonyliv", displayName: "SonyLiv", category: "entertainment" },
-  { keywords: ["hbomax", "hbo max", "hbo", "এইচবিও", "max"], productSearchTerm: "hbo", displayName: "HBO Max", category: "entertainment" },
-  { keywords: ["nitro", "discord nitro", "ডিসকর্ড নাইট্রো", "discord"], productSearchTerm: "nitro", displayName: "Discord Nitro", category: "entertainment" },
+  { keywords: ["youtube", "yt", "yt premium", "youtube premium"], productSearchTerm: "youtube", displayName: "YouTube Premium", category: "entertainment" },
+  { keywords: ["prime", "prime video", "amazon prime"], productSearchTerm: "prime", displayName: "Amazon Prime Video", category: "entertainment" },
+  { keywords: ["crunchyroll", "anime"], productSearchTerm: "cruchyroll", displayName: "Crunchyroll", category: "entertainment" },
+  { keywords: ["sonyliv", "sony liv"], productSearchTerm: "sonyliv", displayName: "SonyLiv", category: "entertainment" },
+  { keywords: ["hbomax", "hbo max", "hbo", "max"], productSearchTerm: "hbo", displayName: "HBO Max", category: "entertainment" },
+  { keywords: ["nitro", "discord nitro", "discord"], productSearchTerm: "nitro", displayName: "Discord Nitro", category: "entertainment" },
 
   // Office & Developer Tools
-  { keywords: ["microsoft", "office", "office 365", "copilot", "অফিস", "ms office"], productSearchTerm: "microsoft", displayName: "Microsoft 365 & Copilot", category: "developer" },
-  { keywords: ["replit", "রেপ্লিট", "replit core"], productSearchTerm: "replit", displayName: "Replit", category: "developer" },
+  { keywords: ["microsoft", "office", "office 365", "copilot", "ms office"], productSearchTerm: "microsoft", displayName: "Microsoft 365 & Copilot", category: "developer" },
+  { keywords: ["replit", "replit core"], productSearchTerm: "replit", displayName: "Replit", category: "developer" },
 
   // Recognized Digital Services Currently NOT in Store
-  { keywords: ["netflix", "net flix", "নেটফ্লিক্স", "নেট ফ্লিক্স"], productSearchTerm: "netflix", displayName: "Netflix", category: "entertainment" },
-  { keywords: ["spotify", "স্পটিফাই"], productSearchTerm: "spotify", displayName: "Spotify", category: "entertainment" },
-  { keywords: ["linkedin", "লিংকডইন"], productSearchTerm: "linkedin", displayName: "LinkedIn Premium", category: "developer" },
-  { keywords: ["freepik", "ফ্রি পিক"], productSearchTerm: "freepik", displayName: "Freepik", category: "editing" },
-  { keywords: ["surfshark", "সার্ফশার্ক"], productSearchTerm: "surfshark", displayName: "Surfshark VPN", category: "vpn" },
-  { keywords: ["nordvpn", "nord vpn", "নর্ড ভিপিএন"], productSearchTerm: "nordvpn", displayName: "NordVPN", category: "vpn" },
-  { keywords: ["coursera", "কোর্সসেরা"], productSearchTerm: "coursera", displayName: "Coursera", category: "education" },
-  { keywords: ["skillshare", "স্কিলশেয়ার"], productSearchTerm: "skillshare", displayName: "Skillshare", category: "education" },
-  { keywords: ["apple music", "apple tv", "অ্যাপল মিউজিক"], productSearchTerm: "apple", displayName: "Apple Music", category: "entertainment" },
-  { keywords: ["turnitin", "টার্নিটিন"], productSearchTerm: "turnitin", displayName: "Turnitin", category: "education" },
-  { keywords: ["disney", "disney+", "ডিজনি প্লাস"], productSearchTerm: "disney", displayName: "Disney+", category: "entertainment" },
-  { keywords: ["deezer", "ডিজার"], productSearchTerm: "deezer", displayName: "Deezer", category: "entertainment" },
-  { keywords: ["truecaller", "ট্রুকলার"], productSearchTerm: "truecaller", displayName: "Truecaller", category: "other" },
-  { keywords: ["envato", "elements", "এনভাতো"], productSearchTerm: "envato", displayName: "Envato Elements", category: "editing" },
-  { keywords: ["vps", "ভিপিএস", "rdp", "হোস্টিং", "hosting"], productSearchTerm: "vps", displayName: "VPS / RDP", category: "developer" },
-  { keywords: ["github copilot", "github", "গিটহাব"], productSearchTerm: "github", displayName: "GitHub Copilot", category: "developer" },
-  { keywords: ["jetbrains", "জেটব্রেনস"], productSearchTerm: "jetbrains", displayName: "JetBrains", category: "developer" },
-  { keywords: ["shutterstock", "শাটারস্টক"], productSearchTerm: "shutterstock", displayName: "Shutterstock", category: "editing" },
+  { keywords: ["netflix", "net flix"], productSearchTerm: "netflix", displayName: "Netflix", category: "entertainment" },
+  { keywords: ["spotify"], productSearchTerm: "spotify", displayName: "Spotify", category: "entertainment" },
+  { keywords: ["linkedin"], productSearchTerm: "linkedin", displayName: "LinkedIn Premium", category: "developer" },
+  { keywords: ["freepik"], productSearchTerm: "freepik", displayName: "Freepik", category: "editing" },
+  { keywords: ["surfshark"], productSearchTerm: "surfshark", displayName: "Surfshark VPN", category: "vpn" },
+  { keywords: ["nordvpn", "nord vpn"], productSearchTerm: "nordvpn", displayName: "NordVPN", category: "vpn" },
+  { keywords: ["coursera"], productSearchTerm: "coursera", displayName: "Coursera", category: "education" },
+  { keywords: ["skillshare"], productSearchTerm: "skillshare", displayName: "Skillshare", category: "education" },
+  { keywords: ["apple music", "apple tv"], productSearchTerm: "apple", displayName: "Apple Music", category: "entertainment" },
+  { keywords: ["turnitin"], productSearchTerm: "turnitin", displayName: "Turnitin", category: "education" },
+  { keywords: ["disney", "disney+"], productSearchTerm: "disney", displayName: "Disney+", category: "entertainment" },
+  { keywords: ["deezer"], productSearchTerm: "deezer", displayName: "Deezer", category: "entertainment" },
+  { keywords: ["truecaller"], productSearchTerm: "truecaller", displayName: "Truecaller", category: "other" },
+  { keywords: ["envato", "elements"], productSearchTerm: "envato", displayName: "Envato Elements", category: "editing" },
+  { keywords: ["vps", "rdp", "hosting"], productSearchTerm: "vps", displayName: "VPS / RDP", category: "developer" },
+  { keywords: ["github copilot", "github"], productSearchTerm: "github", displayName: "GitHub Copilot", category: "developer" },
+  { keywords: ["jetbrains"], productSearchTerm: "jetbrains", displayName: "JetBrains", category: "developer" },
+  { keywords: ["shutterstock"], productSearchTerm: "shutterstock", displayName: "Shutterstock", category: "editing" },
 ];
 
 /**
@@ -135,61 +135,42 @@ export const getSalesBotResponse = (
   const catalog = liveProducts && liveProducts.length > 0 ? liveProducts : DEFAULT_CATALOG;
 
   if (!query) {
-    return "আসসালামু আলাইকুম! Smart Digital Hub-এ আপনাকে স্বাগতম। ✨ আপনার কী প্রয়োজন বা কোন প্রিমিয়াম সাবস্ক্রিপশনটি খুঁজছেন বলুন, আমি সাথে সাথে সাহায্য করছি!";
+    return "Hello and welcome to Smart Digital Hub! ✨ How can I assist you today? Tell me which premium subscription or tool you're looking for, and I'll help you instantly!";
   }
 
   // ==========================================
   // 1. HUMOR, WITTY & CASUAL / EMOTIONAL INTENTS
   // ==========================================
-
-  // "টাকা নাই" / "গরীব" / "taka nai" / "gorib"
   if (
     query.includes("taka nai") ||
-    query.includes("টাকা নাই") ||
-    query.includes("টাকা নেই") ||
-    query.includes("টাকা নাই ভাই") ||
+    query.includes("no money") ||
+    query.includes("broke") ||
     query.includes("gorib") ||
-    query.includes("গরিব") ||
-    query.includes("গরীব") ||
+    query.includes("poor") ||
     query.includes("fokir") ||
-    query.includes("পকেট ফাকা") ||
-    query.includes("পকেট ফাঁকা") ||
     query.includes("pocket faka")
   ) {
-    return "আরে ভাইয়া! পকেটে টান তো আমাদের সবারই কম-বেশি থাকে! 😅 কোনো চিন্তা করবেন না। অফার যখনই আসুক বা বাজেট একটু ফ্রি হলেই তখন আমাদের থেকে সাবস্ক্রিপশনটি নিয়েন।\n\nআমরা তো সবসময় এখানেই আছি আপনার জন্য! ❤️ এছাড়া আমাদের ওয়েবসাইটে মাঝে মাঝেই দারুণ অফার ও কুপন ডিসকাউন্ট আসে, সাইটে নিয়মিত চোখ রাখতে পারেন!";
+    return "No worries at all! 😅 We all have tight budget moments. Keep an eye on our website for special flash discounts and coupon codes, or grab a subscription whenever you're ready.\n\nWe're always here to support you! ❤️";
   }
 
-  // "ফ্রিতে দিবা?" / "free te pawa jabe?" / "free diben"
+  // Free requests
   if (
-    query.includes("free te") ||
-    query.includes("ফ্রিতে") ||
-    query.includes("ফ্রি তে") ||
-    query.includes("free diben") ||
-    query.includes("ফ্রি দিবা") ||
-    query.includes("free pabo") ||
-    query.includes("free te pawa")
+    query.includes("free") ||
+    query.includes("give me free") ||
+    query.includes("free te")
   ) {
-    return "ইশ ভাইয়া, সত্যি বলতে ফ্রিতে দিতে পারলে সবচেয়ে বেশি খুশি আমিই হতাম! 😄\n\nযেহেতু এগুলো ১০০% অফিশিয়াল ও পেইড প্রিমিয়াম সাবস্ক্রিপশন, তাই আমাদেরও অফিশিয়ালি পারচেজ করতে হয়। তবে আমরা চেষ্টা করি বাংলাদেশের সবচেয়ে কম মূল্যে এবং সেরা সার্ভিসের নিশ্চয়তা দিতে যাতে সবার সাধ্যের মধ্যে থাকে। 🤝 আপনার পছন্দের কোনো সাবস্ক্রিপশন লাগলে বলুন, সেরা প্রাইসটা জানিয়ে দিচ্ছি!";
+    return "We wish we could give everything away for free! 😄\n\nBecause all our subscriptions are 100% genuine and officially sourced, we provide them at the lowest possible prices in Bangladesh with full warranty. Let us know which tool you need, and we'll offer you the best deal!";
   }
 
-  // Romantic / Funny / Bot Identity questions ("bhalobasa diba", "tumi koto shundor", "manush naki bot")
+  // Bot Identity / Casual questions
   if (
-    query.includes("valobasha") ||
-    query.includes("ভালবাসা") ||
-    query.includes("ভালোবাসা") ||
-    query.includes("prem") ||
-    query.includes("প্রেম") ||
-    query.includes("biye") ||
-    query.includes("বিয়ে") ||
-    query.includes("shundor") ||
-    query.includes("সুন্দর") ||
-    query.includes("manush naki") ||
+    query.includes("who are you") ||
+    query.includes("are you a robot") ||
+    query.includes("are you bot") ||
     query.includes("manush naki bot") ||
-    query.includes("tumi ke") ||
-    query.includes("তুমি কে") ||
-    query.includes("রোবট")
+    query.includes("tumi ke")
   ) {
-    return "আমি Smart Digital Hub-এর এআই সেলস ও সাপোর্ট অ্যাসিস্ট্যান্ট! 🤖✨\n\nরোবট হলেও মনটা কিন্তু খাঁটি মানুষের মতোই আন্তরিক আর ফ্রেন্ডলি! ❤️\nআপনার পড়াশোনা, বিনোদন বা ফ্রিল্যান্সিং কাজের জন্য কোন প্রিমিয়াম সাবস্ক্রিপশন লাগবে বলুন, চমৎকার সাপোর্ট দিয়ে মন জয় করে নেব ইনশাআল্লাহ!";
+    return "I am the Smart Digital Hub AI Sales & Support Assistant! 🤖✨\n\nI'm here 24/7 to help you discover tools, check live prices and stock availability, and guide your purchases. What subscription are you looking for today?";
   }
 
   // ==========================================
@@ -198,22 +179,15 @@ export const getSalesBotResponse = (
   if (
     query.includes("after sales") ||
     query.includes("after-sales") ||
-    query.includes("আফটার সেলস") ||
-    query.includes("service kemon") ||
-    query.includes("সার্ভিস কেমন") ||
-    query.includes("kno apnader") ||
-    query.includes("kno kinbo") ||
-    query.includes("কেন কিনব") ||
-    query.includes("কেন তোমাদের") ||
+    query.includes("service") ||
+    query.includes("why buy from you") ||
     query.includes("scam") ||
-    query.includes("স্ক্যাম") ||
     query.includes("trust") ||
-    query.includes("বিশ্বাস") ||
     query.includes("trusted") ||
-    query.includes("বিশ্বস্ত") ||
-    query.includes("প্রতারণা")
+    query.includes("warranty") ||
+    query.includes("guarantee")
   ) {
-    return "Smart Digital Hub-এর আফটার সেলস সার্ভিস নিয়ে আপনি একদম ১০০% নিশ্চিন্ত থাকতে পারেন! কারণ:\n\n🛡️ **ফুল মেয়াদের গ্যারান্টিযুক্ত ওয়ারেন্টি:** সাবস্ক্রিপশন চলাকালীন যেকোনো সময় কোনো সমস্যা হলে আমরা সাথে সাথে ফিক্স অথবা ইনস্ট্যান্ট রিপ্লেসমেন্ট প্রদান করি।\n⚡ **সুপার ফাস্ট ডেলিভারি:** অর্ডার কনফার্মেশনের ৫ থেকে ৩০ মিনিটের মধ্যে আপনার ইমেইল ও ড্যাশবোর্ডে ডেলিভারি পৌঁছে যায়।\n🔐 **১০০% জেনুইন ও প্রাইভেট সার্ভিস:** সম্পূর্ণ লিগ্যাল ও নিজস্ব অ্যাকাউন্ট সুবিধা—কোনো হ্যাক বা ক্র্যাক অ্যাকাউন্ট দেওয়া হয় না।\n📞 **ডেডিকেটেড ২৪/৭ সাপোর্ট:** আমাদের লাইভ চ্যাট ছাড়াও যেকোনো প্রয়োজনে সরাসরি হোয়াটসঅ্যাপে (01516524644) রিয়েল হিউম্যান সাপোর্ট পাবেন।\n\nকাস্টমারের সন্তুষ্টিই আমাদের সবচেয়ে বড় অর্জন! একবার সার্ভিস নিয়ে দেখুন, নিরাশ হবেন না ইনশাআল্লাহ। ✨";
+    return "You can be 100% confident with Smart Digital Hub! Here's why:\n\n🛡️ **Full-Term Replacement Warranty:** If you face any issues during your subscription duration, we provide immediate fixes or instant replacements.\n⚡ **Super-Fast Delivery:** Delivered to your dashboard & email within 5 to 30 minutes after payment verification.\n🔐 **100% Genuine & Private:** Fully official accounts and activation methods.\n📞 **Dedicated 24/7 Support:** Real assistance available via Live Chat and WhatsApp (+8801516524644).\n\nCustomer satisfaction is our highest priority! ✨";
   }
 
   // ==========================================
@@ -223,12 +197,11 @@ export const getSalesBotResponse = (
   // VPN category check
   const isVpnCategoryQuery = 
     query.includes("vpn") ||
-    query.includes("ভিপিএন") ||
     query.includes("v p n");
 
   if (
     isVpnCategoryQuery && 
-    (query.includes("ki ki") || query.includes("কী কী") || query.includes("available") || query.includes("list") || query.includes("ভিতরে") || query.includes("আসে") || query.includes("আছে") || query.includes("options") || query.includes("সকল"))
+    (query.includes("what") || query.includes("available") || query.includes("list") || query.includes("all") || query.includes("options") || query.includes("have"))
   ) {
     const vpnProducts = catalog.filter(p => {
       const name = p.name.toLowerCase();
@@ -238,18 +211,18 @@ export const getSalesBotResponse = (
     const inStock = vpnProducts.filter(p => p.stock_status === "in_stock");
     const outStock = vpnProducts.filter(p => p.stock_status !== "in_stock");
 
-    let text = "🛡️ **আমাদের VPN কালেকশন:**\n\n";
+    let text = "🛡️ **Our VPN Collection:**\n\n";
 
     if (inStock.length > 0) {
-      text += "🟢 **বর্তমানে ইন-স্টকে যা যা এভেইলেবল আছে:**\n";
-      text += inStock.map(p => `• **${p.name.trim()}** — মাত্র ৳${p.price} ⚡`).join("\n");
-      text += "\n\n(আপনি এখনই ওয়েবসাইট থেকে সরাসরি 'Buy Now' বাটনে ক্লিক করে বিকাশ, নগদ বা রকেটে অর্ডার করতে পারেন)\n\n";
+      text += "🟢 **Currently In-Stock:**\n";
+      text += inStock.map(p => `• **${p.name.trim()}** — Only ৳${p.price} ⚡`).join("\n");
+      text += "\n\n(Click 'Buy Now' on our website to order instantly via bKash, Nagad, or Rocket)\n\n";
     }
 
     if (outStock.length > 0) {
-      text += "⏳ **সাময়িকভাবে স্টক আউট (শীঘ্রই রিস্টক হবে):**\n";
+      text += "⏳ **Temporarily Out of Stock (Restocking Soon):**\n";
       text += outStock.map(p => `• ${p.name.trim()}`).join("\n");
-      text += "\n\nস্টক আউট কোনো ভিপিএন লাগলে আমাদের হোয়াটসঅ্যাপে (01516524644) জানিয়ে রাখতে পারেন, স্টক আসা মাত্রই আপনাকে নোটিফাই করা হবে! 😊";
+      text += "\n\nFeel free to message our WhatsApp (+8801516524644) to get notified upon restock! 😊";
     }
 
     return text.trim();
@@ -259,13 +232,11 @@ export const getSalesBotResponse = (
   const isAiCategoryQuery =
     query.includes("ai tool") ||
     query.includes("ai tools") ||
-    query.includes("এআই") ||
-    query.includes("ai") ||
     query.includes("artificial intelligence");
 
   if (
     isAiCategoryQuery &&
-    (query.includes("ki ki") || query.includes("কী কী") || query.includes("available") || query.includes("list") || query.includes("ভিতরে") || query.includes("আছে") || query.includes("সকল") || query.includes("এভেইলেবল"))
+    (query.includes("what") || query.includes("available") || query.includes("list") || query.includes("all") || query.includes("options") || query.includes("have"))
   ) {
     const aiProducts = catalog.filter(p => {
       const name = p.name.toLowerCase();
@@ -275,18 +246,18 @@ export const getSalesBotResponse = (
     const inStock = aiProducts.filter(p => p.stock_status === "in_stock");
     const outStock = aiProducts.filter(p => p.stock_status !== "in_stock");
 
-    let text = "🤖 **আমাদের AI Tools কালেকশন:**\n\n";
+    let text = "🤖 **Our AI Tools Collection:**\n\n";
 
     if (inStock.length > 0) {
-      text += "🟢 **বর্তমানে ইন-স্টকে আছে:**\n";
-      text += inStock.map(p => `• **${p.name.trim()}** — মাত্র ৳${p.price} ⚡`).join("\n");
-      text += "\n\n(ওয়েবসাইটে 'Buy Now' ক্লিক করে সরাসরি অর্ডার করতে পারেন)\n\n";
+      text += "🟢 **Currently In-Stock:**\n";
+      text += inStock.map(p => `• **${p.name.trim()}** — Only ৳${p.price} ⚡`).join("\n");
+      text += "\n\n(Click 'Buy Now' to order directly)\n\n";
     }
 
     if (outStock.length > 0) {
-      text += "⏳ **স্টক আউট / আপকামিং এআই টুলস:**\n";
+      text += "⏳ **Upcoming / Out of Stock AI Tools:**\n";
       text += outStock.map(p => `• ${p.name.trim()} (৳${p.price})`).join("\n");
-      text += "\n\nএগুলোর নতুন স্টক আসার সাথে সাথে ওয়েবসাইটে আপডেট পাবেন বা হোয়াটসঅ্যাপে জানিয়ে রাখতে পারেন!";
+      text += "\n\nUpdates are posted on our website once new stock arrives!";
     }
 
     return text.trim();
@@ -294,8 +265,8 @@ export const getSalesBotResponse = (
 
   // Education / Learning Tools check
   if (
-    (query.includes("education") || query.includes("লার্নিং") || query.includes("study") || query.includes("পড়াশোনা") || query.includes("student")) &&
-    (query.includes("ki ki") || query.includes("কী কী") || query.includes("available") || query.includes("আছে"))
+    (query.includes("education") || query.includes("learning") || query.includes("study") || query.includes("student")) &&
+    (query.includes("what") || query.includes("available") || query.includes("list") || query.includes("have"))
   ) {
     const eduProducts = catalog.filter(p => {
       const name = p.name.toLowerCase();
@@ -305,14 +276,14 @@ export const getSalesBotResponse = (
     const inStock = eduProducts.filter(p => p.stock_status === "in_stock");
     const outStock = eduProducts.filter(p => p.stock_status !== "in_stock");
 
-    let text = "📚 **এডুকেশন ও স্টাডি টুলস কালেকশন:**\n\n";
+    let text = "📚 **Education & Study Tools Collection:**\n\n";
     if (inStock.length > 0) {
-      text += "🟢 **ইন-স্টক:**\n";
+      text += "🟢 **In-Stock:**\n";
       text += inStock.map(p => `• **${p.name.trim()}** — ৳${p.price}`).join("\n");
       text += "\n\n";
     }
     if (outStock.length > 0) {
-      text += "⏳ **স্টক আউট:**\n";
+      text += "⏳ **Out of Stock:**\n";
       text += outStock.map(p => `• ${p.name.trim()}`).join("\n");
     }
     return text.trim();
@@ -320,8 +291,8 @@ export const getSalesBotResponse = (
 
   // Video / Photo Editing Tools check
   if (
-    (query.includes("editing") || query.includes("design") || query.includes("এডিটিং") || query.includes("ডিজাইন")) &&
-    (query.includes("ki ki") || query.includes("কী কী") || query.includes("available") || query.includes("আছে"))
+    (query.includes("editing") || query.includes("design") || query.includes("video") || query.includes("photo")) &&
+    (query.includes("what") || query.includes("available") || query.includes("list") || query.includes("have"))
   ) {
     const editProducts = catalog.filter(p => {
       const name = p.name.toLowerCase();
@@ -331,14 +302,14 @@ export const getSalesBotResponse = (
     const inStock = editProducts.filter(p => p.stock_status === "in_stock");
     const outStock = editProducts.filter(p => p.stock_status !== "in_stock");
 
-    let text = "🎨 **ডিজাইন ও ভিডিও এডিটিং টুলস কালেকশন:**\n\n";
+    let text = "🎨 **Design & Video Editing Tools:**\n\n";
     if (inStock.length > 0) {
-      text += "🟢 **ইন-স্টক:**\n";
-      text += inStock.map(p => `• **${p.name.trim()}** — মাত্র ৳${p.price}`).join("\n");
+      text += "🟢 **In-Stock:**\n";
+      text += inStock.map(p => `• **${p.name.trim()}** — Only ৳${p.price}`).join("\n");
       text += "\n\n";
     }
     if (outStock.length > 0) {
-      text += "⏳ **আপকামিং / স্টক আউট:**\n";
+      text += "⏳ **Out of Stock / Upcoming:**\n";
       text += outStock.map(p => `• ${p.name.trim()}`).join("\n");
     }
     return text.trim();
@@ -346,8 +317,8 @@ export const getSalesBotResponse = (
 
   // Entertainment / OTT check
   if (
-    (query.includes("ott") || query.includes("entertainment") || query.includes("movie") || query.includes("গান") || query.includes("নাটক") || query.includes("সিনেমা")) &&
-    (query.includes("ki ki") || query.includes("কী কী") || query.includes("available") || query.includes("আছে"))
+    (query.includes("ott") || query.includes("entertainment") || query.includes("movie") || query.includes("streaming")) &&
+    (query.includes("what") || query.includes("available") || query.includes("list") || query.includes("have"))
   ) {
     const entProducts = catalog.filter(p => {
       const name = p.name.toLowerCase();
@@ -357,14 +328,14 @@ export const getSalesBotResponse = (
     const inStock = entProducts.filter(p => p.stock_status === "in_stock");
     const outStock = entProducts.filter(p => p.stock_status !== "in_stock");
 
-    let text = "🍿 **বিনোদন ও ওটিটি (OTT) সাবস্ক্রিপশন:**\n\n";
+    let text = "🍿 **Entertainment & OTT Subscriptions:**\n\n";
     if (inStock.length > 0) {
-      text += "🟢 **ইন-স্টক:**\n";
-      text += inStock.map(p => `• **${p.name.trim()}** — মাত্র ৳${p.price}`).join("\n");
+      text += "🟢 **In-Stock:**\n";
+      text += inStock.map(p => `• **${p.name.trim()}** — Only ৳${p.price}`).join("\n");
       text += "\n\n";
     }
     if (outStock.length > 0) {
-      text += "⏳ **স্টক আউট:**\n";
+      text += "⏳ **Out of Stock:**\n";
       text += outStock.map(p => `• ${p.name.trim()}`).join("\n");
     }
     return text.trim();
@@ -387,13 +358,13 @@ export const getSalesBotResponse = (
         const price = `৳${matched.price}`;
 
         if (isInStock) {
-          return `হ্যাঁ ভাইয়া! 😊 আমাদের **${matched.name.trim()}** বর্তমানে স্টকে সম্পূর্ণ এভেইলেবল আছে।\n\n💰 মূল্য: মাত্র ${price}\n⚡ ডেলিভারি: ৫-৩০ মিনিট (ইনস্ট্যান্ট)\n🛡️ সুবিধা: ফুল মেয়াদের রিপ্লেসমেন্ট ওয়ারেন্টি\n\nআপনি খুব সহজেই আমাদের ওয়েবসাইট থেকে সরাসরি 'Buy Now' বাটনে ক্লিক করে বিকাশ, নগদ বা রকেটে অর্ডার সম্পন্ন করতে পারেন। কোনো প্রশ্ন থাকলে আমাকে জানাতে পারেন!`;
+          return `Yes! 😊 Our **${matched.name.trim()}** is currently in stock.\n\n💰 Price: Only ${price}\n⚡ Delivery: 5–30 Minutes (Instant)\n🛡️ Warranty: Full-term replacement warranty\n\nYou can easily order directly by clicking 'Buy Now' on the website and paying via bKash, Nagad, or Rocket. Let me know if you have any questions!`;
         } else {
-          return `না ভাইয়া, দুঃখিত! 😔 আমাদের **${matched.name.trim()}** প্রোডাক্টটি বর্তমানে সাময়িকভাবে **স্টক আউট** আছে।\n\nআমাদের টিম দ্রুত নতুন স্টক আনার জন্য কাজ করছে। নতুন স্টক আসামাত্রই ওয়েবসাইটে দেখতে পাবেন অথবা আমাদের হোয়াটসঅ্যাপে (01516524644) একটু জানিয়ে রাখুন, রিস্টক হওয়ার সাথে সাথে আপনাকে মেসেজ দিয়ে জানিয়ে দেওয়া হবে।`;
+          return `Sorry! 😔 **${matched.name.trim()}** is currently **out of stock**.\n\nOur team is working on restocking soon. You can check back shortly or reach out to our WhatsApp (+8801516524644) for restocking alerts.`;
         }
       } else {
-        // Product recognized (e.g. Netflix, Spotify, Surfshark) but NOT sold on our website
-        return `না ভাইয়া, আন্তরিকভাবে দুঃখিত! 😔 এই মুহূর্তে আমাদের ওয়েবসাইটে **${item.displayName}** সার্ভিসটি নেই।\n\nপরবর্তীতে যদি এটি আমাদের ওয়েবসাইটে বা পেজে এভেইলেবল করা হয়, তবে অবশ্যই ওয়েবসাইটের মাধ্যমে জানতে পারবেন। আমাদের ওয়েবসাইটে থাকা অন্যান্য জনপ্রিয় টুলগুলো দেখতে পারেন!`;
+        // Product recognized but NOT sold on our website
+        return `Sorry! 😔 We do not currently offer **${item.displayName}** on our website.\n\nFeel free to explore our other popular subscriptions and software in our catalog!`;
       }
     }
   }
@@ -406,15 +377,15 @@ export const getSalesBotResponse = (
       const price = `৳${prod.price}`;
 
       if (isInStock) {
-        return `হ্যাঁ ভাইয়া! 😊 আমাদের **${prod.name.trim()}** বর্তমানে স্টকে সম্পূর্ণ এভেইলেবল আছে।\n\n💰 মূল্য: মাত্র ${price}\n⚡ ডেলিভারি: ৫-৩০ মিনিট\n🛡️ ওয়ারেন্টি: ফুল রিপ্লেসমেন্ট সাপোর্ট\n\nওয়েবসাইটে 'Buy Now' ক্লিক করে বিকাশ, নগদ বা রকেটে সাথে সাথেই নিয়ে নিতে পারেন!`;
+        return `Yes! 😊 Our **${prod.name.trim()}** is available in stock.\n\n💰 Price: Only ${price}\n⚡ Delivery: 5–30 Minutes\n🛡️ Warranty: Full replacement support\n\nClick 'Buy Now' to complete your order instantly!`;
       } else {
-        return `না ভাইয়া, দুঃখিত! 😔 আমাদের **${prod.name.trim()}** প্রোডাক্টটি বর্তমানে সাময়িকভাবে **স্টক আউট** আছে। খুব শীঘ্রই আবার রিস্টক করা হবে।`;
+        return `Sorry! 😔 **${prod.name.trim()}** is temporarily **out of stock**. It will be restocked soon.`;
       }
     }
   }
 
   // ==========================================
-  // 5. GREETINGS & SALAM
+  // 5. GREETINGS
   // ==========================================
   if (
     query === "hi" ||
@@ -422,39 +393,25 @@ export const getSalesBotResponse = (
     query === "hey" ||
     query === "salam" ||
     query === "assalamu alaikum" ||
-    query.includes("সালাম") ||
-    query.includes("হাই") ||
-    query.includes("হ্যালো") ||
-    query.includes("kemon achen") ||
-    query.includes("কেমন আছেন") ||
-    query.includes("valo achen") ||
-    query.includes("bhai") ||
-    query.includes("vai") ||
-    query.includes("ভাই") ||
-    query.includes("boss") ||
-    query.includes("বস")
+    query.includes("how are you") ||
+    query.includes("kemon achen")
   ) {
-    return "ওয়ালাইকুম আসসালাম! Smart Digital Hub-এ আপনাকে স্বাগতম। 🌟\n\nআলহামদুলিল্লাহ আমরা ভালো আছি। আপনার জন্য কী করতে পারি বলুন? কোন সাবস্ক্রিপশন বা সার্ভিসের দাম ও স্টক স্ট্যাটাস জানতে চান? নাম লিখলেই আমি বিস্তারিত জানিয়ে দিচ্ছি! 😊";
+    return "Hello! Welcome to Smart Digital Hub. 🌟\n\nWe are doing great, thank you! How can we help you today? Inquire about any subscription, check live pricing, or ask any question, and I'll be glad to help! 😊";
   }
 
   // ==========================================
-  // 6. GENERAL STOCK OVERVIEW (কী কী আছে / স্টক কি কি?)
+  // 6. GENERAL STOCK OVERVIEW
   // ==========================================
   if (
     query.includes("stock") ||
-    query.includes("স্টক") ||
     query.includes("available") ||
-    query.includes("এভেইলেবল") ||
-    query.includes("কি কি আছে") ||
-    query.includes("কী কী আছে") ||
-    query.includes("ki ki ache") ||
-    query.includes("all product") ||
-    query.includes("সব প্রোডাক্ট")
+    query.includes("all products") ||
+    query.includes("catalog")
   ) {
     const inStock = catalog.filter(p => p.stock_status === "in_stock");
     const inStockList = inStock.slice(0, 8).map(p => `• **${p.name.trim()}** — ৳${p.price}`).join("\n");
 
-    return `আমাদের ওয়েবসাইটে বর্তমানে এই জনপ্রিয় প্রোডাক্টগুলো **ইন-স্টক** এভেইলেবল আছে:\n\n${inStockList}\n\n👉 এছাড়া ওয়েবসাইট স্ক্রল করে সম্পূর্ণ তালিকা দেখতে পারেন। আপনার যেটি পছন্দ, সরাসরি 'Buy Now' বাটনে ক্লিক করে মুহূর্তেই অর্ডার করে নিতে পারেন!`;
+    return `Here are some of our popular products currently **In-Stock**:\n\n${inStockList}\n\n👉 Browse our full catalog on the website and click 'Buy Now' to order instantly!`;
   }
 
   // ==========================================
@@ -462,17 +419,12 @@ export const getSalesBotResponse = (
   // ==========================================
   if (
     query.includes("order") ||
-    query.includes("kinbo") ||
-    query.includes("কিনব") ||
-    query.includes("অর্ডার") ||
+    query.includes("buy") ||
     query.includes("how to buy") ||
-    query.includes("process") ||
-    query.includes("kivabe") ||
-    query.includes("কিভাবে") ||
-    query.includes("নিয়ম") ||
-    query.includes("পদ্ধতি")
+    query.includes("purchase") ||
+    query.includes("process")
   ) {
-    return "অর্ডার করার নিয়ম একদম সহজ ও দ্রুত:\n\n১️⃣ ওয়েবসাইট থেকে আপনার পছন্দের প্রোডাক্টটির **'Buy Now'** বাটনে ক্লিক করুন।\n২️⃣ আপনার নাম, ফোন নম্বর ও ডেলিভারি ইমেইল দিন।\n৩️⃣ বিকাশ, নগদ বা রকেটের মাধ্যমে পেমেন্ট সম্পন্ন করে TrxID দিন।\n\n⚡ পেমেন্ট সম্পন্ন হওয়ার ৫-৩০ মিনিটের মধ্যে আপনার ইমেইল ও 'My Orders' ড্যাশবোর্ডে অ্যাকাউন্টের অ্যাক্সেস পেয়ে যাবেন। কোনো সমস্যা হলে আমাদের হোয়াটসঅ্যাপেও নক দিতে পারেন!";
+    return "Ordering is fast and simple:\n\n1️⃣ Click **'Buy Now'** on your desired product.\n2️⃣ Enter your name, phone number, and delivery email.\n3️⃣ Send payment via bKash, Nagad, or Rocket and enter your Transaction ID (TrxID).\n\n⚡ Within 5–30 minutes, your account login credentials will appear in your 'My Orders' dashboard and email. Contact our WhatsApp if you need any assistance!";
   }
 
   // ==========================================
@@ -483,14 +435,9 @@ export const getSalesBotResponse = (
     query.includes("nagad") ||
     query.includes("rocket") ||
     query.includes("payment") ||
-    query.includes("বিকাশ") ||
-    query.includes("নগদ") ||
-    query.includes("রকেট") ||
-    query.includes("পেমেন্ট") ||
-    query.includes("টাকা পাঠাব") ||
-    query.includes("পেমেন্ট মেথড")
+    query.includes("pay")
   ) {
-    return "💳 **পেমেন্ট মাধ্যমসমূহ:**\n\nআমরা বাংলাদেশে **বিকাশ (bKash)**, **নগদ (Nagad)** এবং **রকেট (Rocket)** পেমেন্ট সাপোর্ট করি।\n\nচেকআউট পেজে পার্সোনাল/মার্চেন্ট নম্বর পেয়ে যাবেন এবং সহজেই পেমেন্ট করে ট্রানজেকশন আইডি (TrxID) দিয়ে অর্ডার কমপ্লিট করতে পারবেন।";
+    return "💳 **Payment Methods:**\n\nWe accept **bKash**, **Nagad**, and **Rocket** in Bangladesh.\n\nOn the checkout page, you will find the account numbers to transfer and enter your Transaction ID (TrxID) to confirm your order.";
   }
 
   // ==========================================
@@ -498,95 +445,62 @@ export const getSalesBotResponse = (
   // ==========================================
   if (
     query.includes("delivery") ||
-    query.includes("ডেলিভারি") ||
-    query.includes("koto somoy") ||
-    query.includes("koto khon") ||
-    query.includes("কতক্ষণ") ||
-    query.includes("কখন পাব") ||
-    query.includes("kokhon pabo")
+    query.includes("time") ||
+    query.includes("how long") ||
+    query.includes("speed")
   ) {
-    return "⚡ **সুপার ফাস্ট ডেলিভারি:**\n\nঅর্ডার ও পেমেন্ট কনফার্ম হওয়ার পর সাধারণত **৫ থেকে ৩০ মিনিটের মধ্যে** আপনার ইমেইল এবং আমাদের ওয়েবসাইটের 'My Orders' পেজে লগইন অ্যাক্সেস / সাবস্ক্রিপশন ডেলিভারি হয়ে যায়!";
+    return "⚡ **Super Fast Delivery:**\n\nOnce your payment is verified, your subscription credentials are delivered within **5 to 30 minutes** to your email and the 'My Orders' dashboard on our website!";
   }
 
   // ==========================================
-  // 10. WARRANTY, REPLACEMENT & GUARANTEE
-  // ==========================================
-  if (
-    query.includes("warranty") ||
-    query.includes("guarantee") ||
-    query.includes("ওয়ারেন্টি") ||
-    query.includes("গ্যারান্টি") ||
-    query.includes("সমস্যা হলে") ||
-    query.includes("নষ্ট হলে") ||
-    query.includes("replace") ||
-    query.includes("রিপ্লেস")
-  ) {
-    return "🛡️ **ফুল মেয়াদ রিপ্লেসমেন্ট ওয়ারেন্টি:**\n\nSmart Digital Hub-এর প্রতিটি সাবস্ক্রিপশনের সাথে সম্পূর্ণ মেয়াদের অফিশিয়াল রিপ্লেসমেন্ট ওয়ারেন্টি থাকে। যদি মেয়াদের মধ্যে কখনো কোনো টেকনিক্যাল সমস্যা দেখা দেয়, আমাদের হোয়াটসঅ্যাপে (01516524644) জানালেই তাৎক্ষণিক সমাধান বা ফুল রিপ্লেসমেন্ট দেওয়া হয়!";
-  }
-
-  // ==========================================
-  // 11. DISCOUNTS, COUPONS & SALAMI
+  // 10. DISCOUNTS, COUPONS
   // ==========================================
   if (
     query.includes("discount") ||
-    query.includes("ডিসকাউন্ট") ||
     query.includes("coupon") ||
-    query.includes("কুপন") ||
-    query.includes("salami") ||
-    query.includes("সালামি") ||
-    query.includes("ছাড়") ||
-    query.includes("কম রাখা যাবে")
+    query.includes("promo") ||
+    query.includes("offer")
   ) {
-    return "🎁 **স্পেশাল অফার ও কুপন:**\n\nআমাদের ওয়েবসাইটে সবসময়ই সবচেয়ে সাশ্রয়ী মূল্য নির্ধারণ করা থাকে। এছাড়া বিশেষ অফার বা কুপন কোড থাকলে চেকআউট পেজে 'Apply Coupon' বক্সে কোড বসিয়ে সাথে সাথেই অতিরিক্ত ছাড় উপভোগ করতে পারবেন! এছাড়া আমাদের সালামি সেকশন থেকেও লাকি ডিসকাউন্ট নিতে পারেন!";
+    return "🎁 **Special Offers & Coupons:**\n\nAll our prices are already discounted to the best rates. If you have an active promo code, enter it in the 'Apply Coupon' field during checkout to receive an instant extra discount!";
   }
 
   // ==========================================
-  // 12. HUMAN / ADMIN / WHATSAPP CONTACT
+  // 11. HUMAN / ADMIN / WHATSAPP CONTACT
   // ==========================================
   if (
     query.includes("admin") ||
-    query.includes("এডমিন") ||
     query.includes("agent") ||
     query.includes("human") ||
-    query.includes("manush") ||
-    query.includes("মানুষের সাথে") ||
-    query.includes("কথা বলব") ||
     query.includes("whatsapp") ||
-    query.includes("হোয়াটসঅ্যাপ") ||
+    query.includes("call") ||
     query.includes("number") ||
-    query.includes("নম্বর") ||
-    query.includes("help") ||
-    query.includes("যোগাযোগ")
+    query.includes("contact")
   ) {
-    return "📞 **সরাসরি আমাদের টিমের সাথে কথা বলতে:**\n\n• **WhatsApp:** [01516524644](https://wa.me/8801516524644)\n• **মোবাইল কল:** 01516524644\n• **সাপোর্ট টাইম:** সকাল ১০টা থেকে রাত ১২টা (যেকোনো প্রয়োজনে মেসেজ দিয়ে রাখুন)";
+    return "📞 **Direct Contact with our Team:**\n\n• **WhatsApp:** [01516524644](https://wa.me/8801516524644)\n• **Direct Call:** 01516524644\n• **Support Hours:** 10:00 AM – 12:00 AM (Feel free to leave a message anytime)";
   }
 
   // ==========================================
-  // 13. THANKS & FAREWELL
+  // 12. THANKS & FAREWELL
   // ==========================================
   if (
     query.includes("thanks") ||
     query.includes("thank you") ||
-    query.includes("dhonnobad") ||
-    query.includes("ধন্যবাদ") ||
-    query.includes("shukriya") ||
-    query.includes("থ্যাংকস")
+    query.includes("appreciate")
   ) {
-    return "অনেক অনেক ধন্যবাদ ভাইয়া! ❤️ আপনার যেকোনো প্রয়োজনে Smart Digital Hub সবসময় পাশে আছে। দিনটি আপনার খুব সুন্দর ও ফলপ্রসূ কাটুক! 🌟";
+    return "You're very welcome! ❤️ Smart Digital Hub is always here for you. Have a wonderful day ahead! 🌟";
   }
 
   if (
     query.includes("bye") ||
-    query.includes("allah hafez") ||
-    query.includes("আল্লাহ হাফেজ") ||
-    query.includes("বিদায়") ||
-    query.includes("pore kotha hobe")
+    query.includes("goodbye") ||
+    query.includes("see you")
   ) {
-    return "আল্লাহ হাফেজ ভাইয়া! ভালো থাকবেন। ভবিষ্যতে যেকোনো সাবস্ক্রিপশন বা সাপোর্টের জন্য আবার চলে আসবেন Smart Digital Hub-এ! 👋✨";
+    return "Goodbye! Have a great day, and feel free to return whenever you need subscriptions or support at Smart Digital Hub! 👋✨";
   }
 
   // ==========================================
-  // 14. POLITE, CONVERSATIONAL DEFAULT FALLBACK
+  // 13. POLITE, CONVERSATIONAL DEFAULT FALLBACK
   // ==========================================
-  return "ধন্যবাদ আপনার বার্তার জন্য! 😊\n\nআপনি যে ডিজিটাল সাবস্ক্রিপশনটি নিতে চান সেটির নাম বা বিভাগ (যেমন: Canva, YouTube, Duolingo, VPN, AI Tools ইত্যাদি) লিখে মেসেজ দিন। আমি সাথে সাথে দাম ও স্টক স্ট্যাটাস জানিয়ে অর্ডার করতে সাহায্য করব!";
+  return "Thank you for reaching out! 😊\n\nPlease let me know the name or category of the digital subscription you are looking for (such as Canva, YouTube, Duolingo, VPNs, AI Tools, etc.), and I'll immediately assist you with prices and stock availability!";
 };
+

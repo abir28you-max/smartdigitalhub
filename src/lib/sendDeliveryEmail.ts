@@ -93,7 +93,7 @@ export const generateDeliveryHtml = (params: DeliveryEmailParams): string => {
           n.video_url
             ? `<div style="margin-top: 8px;">
                 <a href="${n.video_url}" target="_blank" style="display: inline-block; background-color: #e11d48; color: #ffffff; text-decoration: none; padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 13px;">
-                  🎬 রিডিম গাইড ভিডিও টিউটোরিয়াল দেখুন &rarr;
+                  🎬 Watch Redemption Guide Video Tutorial &rarr;
                 </a>
                </div>`
             : ""
@@ -123,12 +123,12 @@ export const generateDeliveryHtml = (params: DeliveryEmailParams): string => {
           <!-- Main Body -->
           <div style="padding: 28px 24px;">
             <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
-              <span style="color: #065f46; font-weight: 700; font-size: 15px;">🎉 অর্ডার সফলভাবে ডেলিভারি করা হয়েছে!</span>
+              <span style="color: #065f46; font-weight: 700; font-size: 15px;">🎉 Your Order Has Been Successfully Delivered!</span>
             </div>
 
             <p style="font-size: 15px; color: #334155; margin-top: 0; line-height: 1.6;">
-              প্রিয় <strong>${params.customerName}</strong>,<br/>
-              আপনার <strong>Smart Digital Hub</strong> অর্ডারটি প্রস্তুত ও ডেলিভারি করা হয়েছে। নিচে আপনার প্রোডাক্টের অ্যাক্সেস বা লগইন তথ্য দেওয়া হলো:
+              Dear <strong>${params.customerName}</strong>,<br/>
+              Your <strong>Smart Digital Hub</strong> order is ready. Below are your product access credentials and details:
             </p>
 
             <!-- Delivery Credentials Box -->
@@ -157,16 +157,16 @@ export const generateDeliveryHtml = (params: DeliveryEmailParams): string => {
 
             <!-- Important Instructions -->
             <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 14px; margin-top: 24px;">
-              <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: #92400e;">⚠️ গুরুত্বপূর্ণ নির্দেশনা:</h4>
+              <h4 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: #92400e;">⚠️ Important Guidelines:</h4>
               <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #78350f; line-height: 1.5;">
-                <li>পাসওয়ার্ড বা ইমেইল পরিবর্তন করবেন না যদি তা শেয়ার্ড বা প্রোভাইডেড অ্যাকাউন্ট হয়।</li>
-                <li>যেকোনো সমস্যায় আমাদের হোয়াটসঅ্যাপ সাপোর্টে দ্রুত যোগাযোগ করুন।</li>
+                <li>Do not change passwords or email settings if this is a shared or managed account.</li>
+                <li>For any issues or warranty assistance, contact our WhatsApp support right away.</li>
               </ul>
             </div>
 
             <!-- Support Helpline -->
             <div style="margin-top: 28px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
-              <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">কোনো প্রশ্ন বা সহায়তার প্রয়োজন হলে আমাদের সাথে যোগাযোগ করুন:</p>
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">If you have any questions or need assistance, feel free to contact us:</p>
               <a href="https://wa.me/8801516524644" target="_blank" style="display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px;">
                 💬 WhatsApp Support (+8801516524644)
               </a>

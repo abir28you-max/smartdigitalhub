@@ -768,7 +768,7 @@ const AdminProducts = () => {
                           AI SEO Content Generator
                         </h3>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          প্রোডাক্ট ইনফো অনুযায়ী স্বয়ংক্রিয়ভাবে টাইটেল, মেটা ডেসক্রিপশন ও কি-ওয়ার্ড তৈরি করুন
+                          Automatically generate title, meta description, and keywords based on product info
                         </p>
                       </div>
                     </div>
@@ -813,14 +813,14 @@ const AdminProducts = () => {
 
               <TabsContent value="coupon" className="space-y-3 mt-3">
                 <div className="flex items-center justify-between">
-                  <Label>Product Coupons (একাধিক কুপন যোগ করা যাবে)</Label>
+                  <Label>Product Coupons (Multiple coupons can be added)</Label>
                   <Button type="button" size="sm" variant="outline" onClick={addCoupon}>
                     <Plus className="h-3.5 w-3.5 mr-1" /> Add Coupon
                   </Button>
                 </div>
 
                 {couponList.length === 0 && (
-                  <p className="text-xs text-muted-foreground">এখনো কোনো কুপন নেই। "Add Coupon" চাপুন।</p>
+                  <p className="text-xs text-muted-foreground">No coupons added yet. Click "Add Coupon".</p>
                 )}
 
                 {couponList.map((c, idx) => (
@@ -834,7 +834,7 @@ const AdminProducts = () => {
                           className={`h-7 text-xs px-2.5 font-medium ${c.discount_type === "percentage" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
                           onClick={() => updateCoupon(idx, "discount_type", "percentage")}
                         >
-                          % পার্সেন্টেজ
+                          % Percentage
                         </Button>
                         <Button
                           type="button"
@@ -843,7 +843,7 @@ const AdminProducts = () => {
                           className={`h-7 text-xs px-2.5 font-medium ${c.discount_type === "fixed" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
                           onClick={() => updateCoupon(idx, "discount_type", "fixed")}
                         >
-                          ৳ নির্দিষ্ট টাকা
+                          ৳ Fixed Amount
                         </Button>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -864,7 +864,7 @@ const AdminProducts = () => {
 
                     <div className="flex gap-2">
                       <div className="flex-1">
-                        <Label className="text-[11px] text-muted-foreground mb-1 block">কুপন কোড (Coupon Code)</Label>
+                        <Label className="text-[11px] text-muted-foreground mb-1 block">Coupon Code</Label>
                         <Input
                           placeholder="e.g. SUPER10"
                           value={c.code}
@@ -873,14 +873,14 @@ const AdminProducts = () => {
                       </div>
                       <div className="w-36">
                         <Label className="text-[11px] text-muted-foreground mb-1 block">
-                          {c.discount_type === "percentage" ? "ছাড় (%)" : "ছাড় (৳ টাকা)"}
+                          {c.discount_type === "percentage" ? "Discount (%)" : "Discount (৳ BDT)"}
                         </Label>
                         <Input
                           type="number"
                           step={c.discount_type === "percentage" ? "0.1" : "1"}
                           min="1"
                           max={c.discount_type === "percentage" ? "100" : "100000"}
-                          placeholder={c.discount_type === "percentage" ? "যেমন: 10" : "যেমন: 50"}
+                          placeholder={c.discount_type === "percentage" ? "e.g. 10" : "e.g. 50"}
                           value={c.discount_amount || ""}
                           onChange={(e) => updateCoupon(idx, "discount_amount", parseFloat(e.target.value) || 0)}
                         />
@@ -889,14 +889,14 @@ const AdminProducts = () => {
 
                     {optionsList.filter(o => o.name.trim()).length > 1 && (
                       <div>
-                        <Label className="text-xs">কোন প্যাকেজে কুপন কাজ করবে?</Label>
+                        <Label className="text-xs">Which package does this coupon apply to?</Label>
                         <Select
                           value={c.option_name || "__all__"}
                           onValueChange={(v) => updateCoupon(idx, "option_name", v === "__all__" ? null : v)}
                         >
-                          <SelectTrigger className="mt-1"><SelectValue placeholder="সব প্যাকেজে প্রযোজ্য" /></SelectTrigger>
+                          <SelectTrigger className="mt-1"><SelectValue placeholder="Applies to all packages" /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="__all__">সব প্যাকেজে প্রযোজ্য</SelectItem>
+                            <SelectItem value="__all__">Applies to all packages</SelectItem>
                             {optionsList.filter(o => o.name.trim()).map((opt, i) => (
                               <SelectItem key={i} value={opt.name}>{opt.name}{opt.price > 0 ? ` - ৳${opt.price}` : ""}</SelectItem>
                             ))}
@@ -906,7 +906,7 @@ const AdminProducts = () => {
                     )}
                   </div>
                 ))}
-                <p className="text-xs text-muted-foreground">কুপনগুলো শুধু এই নির্দিষ্ট প্রোডাক্টেই কাজ করবে।</p>
+                <p className="text-xs text-muted-foreground">These coupons will only apply to this specific product.</p>
               </TabsContent>
             </Tabs>
             <Button type="submit" className="w-full" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>

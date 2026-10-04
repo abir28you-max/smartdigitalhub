@@ -107,11 +107,11 @@ const ChatInput = ({ onSendText, onSendImage, onSendVoice, disabled }: ChatInput
         <div className="flex items-center gap-2 flex-1">
           <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
           <span className="text-sm font-medium text-destructive">{formatTime(recordingTime)}</span>
-          <span className="text-xs text-muted-foreground">রেকর্ডিং...</span>
+          <span className="text-xs text-muted-foreground">Recording...</span>
         </div>
         <Button size="sm" variant="destructive" onClick={stopRecording} className="gap-1.5">
           <MicOff className="h-3.5 w-3.5" />
-          পাঠান
+          Send
         </Button>
       </div>
     );
@@ -145,7 +145,7 @@ const ChatInput = ({ onSendText, onSendImage, onSendVoice, disabled }: ChatInput
       <div className="flex-1 relative">
         <input
           type="text"
-          placeholder="মেসেজ লিখুন..."
+          placeholder="Type a message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSendText()}

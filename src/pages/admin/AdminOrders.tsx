@@ -65,7 +65,7 @@ const AdminOrders = () => {
   };
 
   const handleDeleteOrder = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this order? / আপনি কি এই অর্ডারটি স্থায়ীভাবে ডিলিট করতে চান?")) return;
+    if (!window.confirm("Are you sure you want to permanently delete this order?")) return;
     const { error } = await supabase.from("orders").delete().eq("id", id);
     if (error) {
       toast({ title: "Error deleting order", description: error.message, variant: "destructive" });
@@ -195,7 +195,7 @@ const AdminOrders = () => {
               {o.status === "rejected" && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Button size="sm" variant="destructive" onClick={() => handleDeleteOrder(o.id)}>
-                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete Order (ডিলিট)
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete Order
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => updateStatus(o.id, "pending")}>
                     Move to Pending
@@ -294,7 +294,7 @@ const AdminOrders = () => {
                         className="text-xs font-mono"
                       />
                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                        💡 কাস্টমারকে কীভাবে প্রোডাক্ট রিডিম করতে হবে তা দেখানোর জন্য YouTube Shorts, YouTube, Loom বা MP4 ভিডিও লিঙ্ক দিন
+                        💡 Provide a YouTube Shorts, YouTube, Loom, or direct MP4 video link showing the customer how to redeem/activate the product
                       </p>
                     </div>
                   </div>

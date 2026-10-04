@@ -104,9 +104,9 @@ const AdminCoupons = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-sm">{c.code}</p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                  <span>ছাড়:</span>
+                  <span>Discount:</span>
                   <span className="font-bold text-primary">
-                    {isPercent ? `${c.discount_amount}% ছাড়` : `৳${c.discount_amount} টাকা ছাড়`}
+                    {isPercent ? `${c.discount_amount}% Off` : `৳${c.discount_amount} Off`}
                   </span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted font-medium text-muted-foreground">
                     {isPercent ? "Percentage" : "Fixed Taka"}
@@ -141,7 +141,7 @@ const AdminCoupons = () => {
             </div>
 
             <div>
-              <Label>ডিসকাউন্টের ধরন (Discount Type)</Label>
+              <Label>Discount Type</Label>
               <div className="grid grid-cols-2 gap-2 mt-1.5">
                 <button
                   type="button"
@@ -152,7 +152,7 @@ const AdminCoupons = () => {
                       : "bg-muted/50 border-border text-foreground hover:bg-muted"
                   }`}
                 >
-                  <Percent className="h-3.5 w-3.5" /> % পার্সেন্টেজ
+                  <Percent className="h-3.5 w-3.5" /> % Percentage
                 </button>
                 <button
                   type="button"
@@ -163,13 +163,13 @@ const AdminCoupons = () => {
                       : "bg-muted/50 border-border text-foreground hover:bg-muted"
                   }`}
                 >
-                  <Banknote className="h-3.5 w-3.5" /> ৳ টাকার হিসাব
+                  <Banknote className="h-3.5 w-3.5" /> ৳ Fixed Amount
                 </button>
               </div>
             </div>
 
             <div>
-              <Label>{form.discount_type === "percentage" ? "ডিসকাউন্ট পার্সেন্টেজ (%)" : "ডিসকাউন্টের পরিমাণ (৳ BDT)"}</Label>
+              <Label>{form.discount_type === "percentage" ? "Discount Percentage (%)" : "Discount Amount (৳ BDT)"}</Label>
               <Input
                 type="number"
                 step={form.discount_type === "percentage" ? "0.1" : "1"}
@@ -182,8 +182,8 @@ const AdminCoupons = () => {
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {form.discount_type === "percentage" 
-                  ? "প্রোডাক্টের দামের ওপর কত % ছাড় দিতে চান তা লিখুন (যেমন: 10, 20)" 
-                  : "নির্দিষ্ট কত টাকা ছাড় দিতে চান তা লিখুন (যেমন: 50, 100)"}
+                  ? "Enter the percentage discount to deduct from product price (e.g. 10, 20)" 
+                  : "Enter the fixed discount amount to deduct (e.g. 50, 100)"}
               </p>
             </div>
 

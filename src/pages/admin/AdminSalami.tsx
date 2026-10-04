@@ -56,12 +56,12 @@ const AdminSalami = () => {
         <h1 className="text-xl font-bold flex items-center gap-2"><Gift className="h-5 w-5 text-primary" /> Eid Salami</h1>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span className="text-green-600 font-medium">{completedCount} done</span>
-          <span>{data.length} জন</span>
+          <span>{data.length} total</span>
         </div>
       </div>
 
       {data.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">কোনো সাবমিশন নেই</div>
+        <div className="text-center py-12 text-muted-foreground">No submissions found</div>
       ) : (
         <div className="space-y-2">
           {data.map((s, i) => (
@@ -82,7 +82,7 @@ const AdminSalami = () => {
                 </button>
                 {s.note && <p className="text-xs text-muted-foreground">{s.note}</p>}
                 <p className="text-[10px] text-muted-foreground">
-                  {new Date(s.created_at).toLocaleString("bn-BD")}
+                  {new Date(s.created_at).toLocaleString("en-GB")}
                 </p>
               </div>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(s.id)}>

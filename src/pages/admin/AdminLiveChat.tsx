@@ -270,15 +270,15 @@ const AdminLiveChat = () => {
 
       {sessionEnded ? (
         <div className="p-3 border-t border-border text-center flex-shrink-0">
-          <p className="text-xs text-muted-foreground">চ্যাট শেষ হয়েছে</p>
+          <p className="text-xs text-muted-foreground">Chat session ended</p>
         </div>
       ) : recording ? (
         <div className="p-3 border-t border-border flex items-center gap-3 flex-shrink-0 bg-destructive/5">
           <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
           <span className="text-sm font-medium text-destructive">{formatTime(recordingTime)}</span>
-          <span className="text-xs text-muted-foreground flex-1">রেকর্ডিং...</span>
+          <span className="text-xs text-muted-foreground flex-1">Recording...</span>
           <Button size="sm" variant="destructive" onClick={stopRecording} className="gap-1.5">
-            <MicOff className="h-3.5 w-3.5" /> পাঠান
+            <MicOff className="h-3.5 w-3.5" /> Send
           </Button>
         </div>
       ) : (

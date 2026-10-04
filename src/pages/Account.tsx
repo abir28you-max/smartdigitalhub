@@ -164,10 +164,10 @@ const Account = () => {
               </div>
               <div>
                 <h3 className="font-bold text-foreground text-sm sm:text-base">
-                  Admin Control Panel (ফুল অ্যাডমিন ড্যাশবোর্ড)
+                  Admin Control Panel
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  প্রোডাক্ট, ক্যাটাগরি, কুপন, পেমেন্ট, ব্যানার ও সকল অর্ডার পরিচালনা করুন
+                  Manage products, categories, coupons, payments, banners, and all customer orders
                 </p>
               </div>
             </div>
@@ -328,7 +328,7 @@ const Account = () => {
                             Account & Subscription Details <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                           </p>
                           <p className="text-[11px] text-indigo-800/80 dark:text-indigo-300">
-                            আপনার ডেলিভারি তথ্য নিচে দেওয়া হলো
+                            Your delivery credentials are provided below
                           </p>
                         </div>
                       </div>
@@ -427,7 +427,7 @@ const Account = () => {
                     ) : null}
 
                     <div className="text-[11px] text-muted-foreground flex items-center justify-between pt-1 border-t border-border/40">
-                      <span>যেকোনো প্রয়োজনে আমাদের হোয়াটসঅ্যাপে মেসেজ দিন</span>
+                      <span>Need help? Message us directly on WhatsApp</span>
                       <a
                         href="https://wa.me/8801516524644"
                         target="_blank"

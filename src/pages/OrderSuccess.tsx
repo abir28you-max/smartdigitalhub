@@ -33,14 +33,14 @@ const OrderSuccess = () => {
           Order Placed Successfully! 🎉
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base max-w-md mb-6 leading-relaxed">
-          আপনার অর্ডারটি সফলভাবে গৃহীত হয়েছে। আমাদের টিম পেমেন্ট ভেরিফাই করে দ্রুত ডেলিভারি প্রদান করবে।
+          Your order has been placed successfully. Our team will verify your payment and complete your delivery promptly.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md justify-center">
           <Button asChild size="lg" className="w-full rounded-xl gap-2 font-bold shadow-md hover:scale-[1.02] active:scale-95 transition-all">
             <Link to="/orders">
               <Search className="h-4 w-4" />
-              My Orders Dashboard (ড্যাশবোর্ড)
+              My Orders Dashboard
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -56,11 +56,11 @@ const OrderSuccess = () => {
                 <Clock className="h-5 w-5" />
               </div>
               <h3 className="font-display font-bold text-base text-foreground text-left">
-                পেমেন্ট ভেরিফিকেশন ও ডেলিভারি
+                Payment Verification & Delivery
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed text-left">
-              আপনার পেমেন্ট ভেরিফাই করতে <span className="font-bold text-foreground">৫–১০ মিনিট</span> সময় লাগবে। উপরের <strong>My Orders Dashboard</strong> এ গেলে আপনি লাইভ স্ট্যাটাস দেখতে পাবেন এবং ভেরিফাই হওয়ার সাথে সাথে সেখানেই আপনার অ্যাকাউন্ট চলে আসবে।
+              Payment verification typically takes <span className="font-bold text-foreground">5–10 minutes</span>. You can track live updates in your <strong>My Orders Dashboard</strong>, where your credentials will automatically appear upon completion.
             </p>
           </CardContent>
         </Card>

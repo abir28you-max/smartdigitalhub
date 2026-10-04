@@ -16,12 +16,12 @@ interface Message {
 }
 
 const QUICK_SUGGESTIONS = [
-  { label: "🛍️ কীভাবে কিনব?", text: "কীভাবে অর্ডার করব এবং কিনব?" },
-  { label: "🛡️ আফটার সেলস কেমন?", text: "আপনাদের আফটার সেলস সার্ভিস কেমন এবং কেন সেরা?" },
-  { label: "🤖 AI টুলস কি কি আছে?", text: "এআই টুলস কি কি আছে আপনাদের কাছে?" },
-  { label: "🔒 VPN কালেকশন", text: "ভিপিএনের ভিতরে কি কি এভেলেবল আছে?" },
-  { label: "⚡ ডেলিভারি সময়", text: "অর্ডার করার পর ডেলিভারি কতক্ষণ লাগবে?" },
-  { label: "💬 WhatsApp সাপোর্ট", text: "এডমিনের সাথে হোয়াটসঅ্যাপে কথা বলতে চাই" },
+  { label: "🛍️ How to buy?", text: "How do I place an order and purchase?" },
+  { label: "🛡️ After-Sales Support", text: "How is your after-sales support and warranty?" },
+  { label: "🤖 AI Tools Available", text: "What AI subscription tools do you have available?" },
+  { label: "🔒 VPN Collection", text: "What VPN services are currently available?" },
+  { label: "⚡ Delivery Time", text: "How long does delivery take after ordering?" },
+  { label: "💬 WhatsApp Support", text: "I want to chat with an admin directly on WhatsApp" },
 ];
 
 const getSessionId = () => {
@@ -134,11 +134,11 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
   const handleStartChat = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nameInput.trim()) {
-      setFormError("অনুগ্রহ করে আপনার নাম লিখুন");
+      setFormError("Please enter your name");
       return;
     }
     if (!phoneInput.trim() || phoneInput.trim().length < 6) {
-      setFormError("অনুগ্রহ করে একটি সঠিক ফোন নম্বর লিখুন");
+      setFormError("Please enter a valid phone number");
       return;
     }
 
@@ -260,7 +260,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
             </div>
             <div className="min-w-0">
               <p className="font-bold text-base leading-tight truncate">Live Support</p>
-              <p className="text-[12px] text-primary-foreground/90 mt-0.5">সাধারণত কয়েক মিনিটে রিপ্লাই</p>
+              <p className="text-[12px] text-primary-foreground/90 mt-0.5">Typically replies in minutes</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -291,10 +291,10 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
           <div className="flex-1 flex flex-col justify-center px-6 py-6 bg-background overflow-y-auto">
             <div className="text-center mb-6">
               <h3 className="text-xl font-bold text-foreground flex items-center justify-center gap-2">
-                আমাদের সাথে চ্যাট করুন <span className="text-2xl">💬</span>
+                Chat with Us <span className="text-2xl">💬</span>
               </h3>
               <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
-                আপনার তথ্য দিন, আমরা সাহায্য করতে প্রস্তুত!
+                Provide your details to get instant assistance!
               </p>
             </div>
 
@@ -308,7 +308,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
               <div>
                 <input
                   type="text"
-                  placeholder="আপনার নাম"
+                  placeholder="Your Name"
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all"
@@ -319,7 +319,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
               <div>
                 <input
                   type="tel"
-                  placeholder="ফোন নম্বর"
+                  placeholder="Phone Number"
                   value={phoneInput}
                   onChange={(e) => setPhoneInput(e.target.value)}
                   className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all"
@@ -331,7 +331,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
                 type="submit"
                 className="w-full h-12 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-xl text-base shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>চ্যাট শুরু করুন</span>
+                <span>Start Chat</span>
               </button>
             </form>
 
@@ -391,15 +391,15 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
                   AI
                 </div>
                 <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none text-xs text-foreground leading-relaxed shadow-xs">
-                  স্বাগতম {customerName}! <strong>Smart Digital Hub</strong> এআই সেলস ও সাপোর্টে আপনাকে স্বাগতম। ✨<br />
-                  যেকোনো সাবস্ক্রিপশনের দাম, স্টক স্ট্যাটাস বা অর্ডার সংক্রান্ত যেকোনো তথ্য জানতে নিচে লিখুন বা বাটন চাপুন।
+                  Welcome {customerName}! Welcome to <strong>Smart Digital Hub</strong> AI Sales & Support. ✨<br />
+                  Ask any questions regarding subscriptions, prices, stock status, or your orders below!
                 </div>
               </div>
 
               {/* Quick Suggestions Chips */}
               {messages.length < 3 && (
                 <div className="pt-1 pb-1">
-                  <p className="text-[11px] text-muted-foreground mb-1.5 font-medium px-1">দ্রুত জানতে ট্যাপ করুন:</p>
+                  <p className="text-[11px] text-muted-foreground mb-1.5 font-medium px-1">Quick Questions:</p>
                   <div className="flex flex-wrap gap-1.5">
                     {QUICK_SUGGESTIONS.map((chip, idx) => (
                       <button
@@ -426,7 +426,7 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
                     <Bot className="h-3.5 w-3.5 animate-bounce" />
                   </div>
                   <div className="bg-muted px-3 py-2 rounded-2xl rounded-tl-none text-xs text-muted-foreground flex items-center gap-1">
-                    <span>Smart AI টাইপ করছে</span>
+                    <span>Smart AI is typing</span>
                     <span className="inline-flex gap-1 items-center ml-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
                       <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
@@ -442,9 +442,9 @@ const LiveChatWidget = ({ onClose }: { onClose: () => void }) => {
             {/* Footer / Input */}
             {chatEnded ? (
               <div className="p-3 border-t border-border flex flex-col items-center gap-2 flex-shrink-0 bg-muted/40">
-                <p className="text-xs text-muted-foreground">এই চ্যাট সেশনটি শেষ হয়েছে</p>
+                <p className="text-xs text-muted-foreground">This chat session has ended</p>
                 <Button size="sm" variant="default" onClick={handleNewChat} className="rounded-xl">
-                  নতুন চ্যাট শুরু করুন
+                  Start New Chat
                 </Button>
               </div>
             ) : (

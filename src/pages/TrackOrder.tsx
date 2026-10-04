@@ -137,13 +137,13 @@ const TrackOrder = () => {
             const updated = payload.new as Order;
             if (updated.status === "delivered") {
               toast({
-                title: "🎉 অর্ডার ডেলিভারি হয়েছে!",
-                description: "আপনার সাবস্ক্রিপশন অ্যাকাউন্ট ডিটেইলস নিচে চলে এসেছে।",
+                title: "🎉 Order Delivered!",
+                description: "Your subscription account details are ready below.",
               });
             } else if (updated.status === "verified") {
               toast({
-                title: "✅ পেমেন্ট অ্যাপ্রুভ হয়েছে!",
-                description: "আপনার অর্ডারটি এখন ডেলিভারির জন্য তৈরি হচ্ছে।",
+                title: "✅ Payment Approved!",
+                description: "Your order is now being processed for delivery.",
               });
             }
           }
@@ -244,7 +244,7 @@ const TrackOrder = () => {
                 My Orders & Subscriptions
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                আপনার অর্ডারের লাইভ স্ট্যাটাস এবং সাবস্ক্রিপশন অ্যাকাউন্ট ডিটেইলস
+                Live status of your orders and subscription access details
               </p>
             </div>
 
@@ -315,10 +315,10 @@ const TrackOrder = () => {
             </div>
             <div className="space-y-1">
               <h3 className="font-bold text-lg text-foreground">
-                আপনার কোনো অর্ডার পাওয়া যায়নি
+                No orders found
               </h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                আমাদের বিভিন্ন ডিজিটাল প্রোডাক্ট ও প্রিমিয়াম সাবস্ক্রিপশন ব্রাউজ করে অর্ডার করুন।
+                Browse our digital products and premium subscriptions to place your first order.
               </p>
             </div>
             <div className="pt-2">
@@ -419,7 +419,7 @@ const TrackOrder = () => {
                   </div>
                 </div>
 
-                {/* ⏳ PENDING / VERIFICATION WAIT CARD (৫–১০ মিনিট অপেক্ষা মেসেজ) */}
+                {/* ⏳ PENDING / VERIFICATION WAIT CARD */}
                 {isPending && (
                   <div className="bg-amber-500/10 dark:bg-amber-950/30 border-t border-amber-200 dark:border-amber-800/60 p-4 sm:p-5 space-y-3">
                     <div className="flex items-start gap-3">
@@ -428,10 +428,10 @@ const TrackOrder = () => {
                       </div>
                       <div className="space-y-1">
                         <h4 className="font-bold text-amber-950 dark:text-amber-200 text-sm sm:text-base flex items-center gap-2">
-                          পেমেন্ট ভেরিফিকেশন ও অ্যাকাউন্ট প্রস্তুত হচ্ছে...
+                          Payment verification & account setup in progress...
                         </h4>
                         <p className="text-xs sm:text-sm text-amber-900/90 dark:text-amber-300/90 leading-relaxed">
-                          সাধারণত <strong className="text-amber-950 dark:text-amber-100 font-bold">৫ থেকে ১০ মিনিটের</strong> মধ্যে আমাদের টিম আপনার পেমেন্ট ভেরিফাই করে সাবস্ক্রিপশন ডেলিভারি প্রদান করে।
+                          Our team usually verifies your payment and delivers your subscription within <strong className="text-amber-950 dark:text-amber-100 font-bold">5 to 10 minutes</strong>.
                         </p>
                       </div>
                     </div>
@@ -440,23 +440,23 @@ const TrackOrder = () => {
                     <div className="grid grid-cols-3 gap-2 pt-2 border-t border-amber-200/60 dark:border-amber-800/40 text-center">
                       <div className="bg-background/80 rounded-lg p-2 border border-amber-200/80 dark:border-amber-900/50">
                         <CheckCircle2 className="h-4 w-4 text-green-600 mx-auto mb-1" />
-                        <span className="text-[11px] font-bold text-foreground block">১. অর্ডার রিসিভড</span>
-                        <span className="text-[10px] text-muted-foreground">সফল হয়েছে</span>
+                        <span className="text-[11px] font-bold text-foreground block">1. Order Placed</span>
+                        <span className="text-[10px] text-muted-foreground">Received</span>
                       </div>
                       <div className="bg-amber-500/15 rounded-lg p-2 border border-amber-300 dark:border-amber-700">
                         <Loader2 className="h-4 w-4 text-amber-600 animate-spin mx-auto mb-1" />
-                        <span className="text-[11px] font-bold text-amber-900 dark:text-amber-200 block">২. ভেরিফিকেশন</span>
-                        <span className="text-[10px] text-amber-700 dark:text-amber-300 font-medium">চলছে... (৫-১০ মি.)</span>
+                        <span className="text-[11px] font-bold text-amber-900 dark:text-amber-200 block">2. Verification</span>
+                        <span className="text-[10px] text-amber-700 dark:text-amber-300 font-medium">In Progress (5-10m)</span>
                       </div>
                       <div className="bg-background/60 rounded-lg p-2 border border-border/70 opacity-70">
                         <Gift className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
-                        <span className="text-[11px] font-bold text-muted-foreground block">৩. ডেলিভারি</span>
-                        <span className="text-[10px] text-muted-foreground">অ্যাকাউন্ট প্রদান</span>
+                        <span className="text-[11px] font-bold text-muted-foreground block">3. Delivery</span>
+                        <span className="text-[10px] text-muted-foreground">Access Provided</span>
                       </div>
                     </div>
 
                     <p className="text-[11px] text-amber-800/80 dark:text-amber-400 text-center pt-1">
-                      💡 পেজ রিলোড দেওয়ার প্রয়োজন নেই — ভেরিফাই ও ডেলিভারি হওয়ার সাথে সাথে লাইভ এই স্ক্রিনেই আপনার আইডি-পাসওয়ার্ড শো করবে!
+                      💡 No need to refresh — your credentials and access details will appear live right here!
                     </p>
                   </div>
                 )}
@@ -474,7 +474,7 @@ const TrackOrder = () => {
                             🎉 Your Subscription is Ready!
                           </h4>
                           <p className="text-xs text-indigo-800/80 dark:text-indigo-300">
-                            আপনার সাবস্ক্রিপশন অ্যাকাউন্ট তথ্য নিচে দেওয়া হলো
+                            Your subscription credentials and access details are provided below
                           </p>
                         </div>
                       </div>
