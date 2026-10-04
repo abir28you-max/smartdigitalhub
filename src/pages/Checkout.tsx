@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Copy, CheckCircle } from "lucide-react";
+import { Copy, CheckCircle, ShieldCheck, Zap, Lock, Check, HelpCircle, ArrowRight, Sparkles, MessageCircle, ClipboardCheck } from "lucide-react";
 import { PaymentLogo } from "@/components/PaymentLogo";
 
 interface PaymentMethod {
@@ -53,7 +53,14 @@ const Checkout = () => {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [couponShake, setCouponShake] = useState(false);
   const [ddProducts, setDdProducts] = useState<string[]>([]);
-  const [ddForm, setDdForm] = useState<Record<string, { name: string; pin: string; email: string }>>({});
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    toast({ title: `📋 ${fieldName} Copied!` });
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   // Support both cart checkout and direct "Buy Now" checkout
   const buyNowItem = (location.state as any)?.buyNowItem as CheckoutItem | undefined;
@@ -541,10 +548,17 @@ const Checkout = () => {
         </div>
 
         {/* Payment */}
-        <div className="bg-card rounded-xl border border-border p-4 sm:p-5 space-y-3">
-          <h2 className="font-display font-bold text-base sm:text-lg">Payment Details</h2>
-          <p className="text-xs text-muted-foreground">Select your preferred payment method</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 mb-3">
+        <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 space-y-4 shadow-xs">
+          <div>
+            <h2 className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" /> Payment Method / পেমেন্ট মাধ্যম
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              পেমেন্ট করার জন্য নিচের যেকোনো একটি মেথড সিলেক্ট করুন
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
             {paymentMethods.map((pm) => {
               const isSelected = selectedPM?.id === pm.id;
               return (
@@ -552,15 +566,15 @@ const Checkout = () => {
                   key={pm.id}
                   type="button"
                   onClick={() => setSelectedPM(pm)}
-                  className={`p-2.5 rounded-xl border-2 flex items-center gap-2.5 transition-all text-left active:scale-95 ${
+                  className={`p-3 rounded-2xl border-2 flex items-center gap-3 transition-all text-left active:scale-95 ${
                     isSelected
-                      ? "border-primary bg-primary/10 shadow-md ring-2 ring-primary/40 scale-[1.02] animate-selection-pop"
-                      : "border-border hover:border-primary/40 bg-card hover:shadow-xs"
+                      ? "border-primary bg-primary/10 shadow-md ring-2 ring-primary/30 scale-[1.02] animate-selection-pop"
+                      : "border-border/80 hover:border-primary/40 bg-card hover:shadow-xs"
                   }`}
                 >
                   <PaymentLogo name={pm.name} logoUrl={pm.logo_url} size="md" />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-bold truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
+                    <p className={`text-xs sm:text-sm font-bold truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
                       {pm.name}
                     </p>
                     <span className="text-[10px] text-muted-foreground block font-medium">
@@ -574,115 +588,295 @@ const Checkout = () => {
 
           {selectedPM && (
             <div className="pt-4 border-t border-border space-y-4 animate-fade-in-up">
-              <div className="flex items-center gap-2.5 bg-muted/30 p-2.5 rounded-xl border border-border">
-                <PaymentLogo name={selectedPM.name} logoUrl={selectedPM.logo_url} size="sm" />
-                <div>
-                  <p className="text-xs font-bold text-foreground">{selectedPM.name}</p>
-                  <p className="text-[11px] text-muted-foreground">নিচের নাম্বারে টাকা পাঠিয়ে TrxID লিখুন</p>
+              {/* Payment Method Header Banner */}
+              <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-3.5 rounded-2xl border border-primary/20">
+                <div className="flex items-center gap-2.5">
+                  <PaymentLogo name={selectedPM.name} logoUrl={selectedPM.logo_url} size="sm" />
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+                      {selectedPM.name} Payment Instructions
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground">
+                      নিচের নাম্বারে <strong>Send Money</strong> করে ট্রানজেকশন আইডি (TrxID) দিন
+                    </p>
+                  </div>
+                </div>
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-1 rounded-full">
+                  <CheckCircle className="h-3.5 w-3.5" /> 0% Extra Fee
+                </span>
+              </div>
+
+              {/* Number & Amount Copy Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Account Number Box */}
+                {account?.account_number && (() => {
+                  const isBank = selectedPM.name.toLowerCase().includes("bank");
+                  const isBinance = selectedPM.name.toLowerCase().includes("binance") || selectedPM.name.toLowerCase().includes("binnace");
+                  const label = isBank ? "Bank Account Number" : isBinance ? "Binance Pay ID" : `${selectedPM.name} Personal Number`;
+                  const isCopied = copiedField === "number";
+
+                  return (
+                    <div className="bg-background rounded-2xl p-4 border border-border shadow-2xs space-y-2 relative">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-muted-foreground">{label}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2.5 text-xs font-bold text-primary hover:bg-primary/10 gap-1 rounded-lg"
+                          onClick={() => copyToClipboard(account.account_number || "", "number")}
+                        >
+                          {isCopied ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 text-green-600" /> Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5" /> Copy Number
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="font-mono font-extrabold text-lg sm:text-xl text-foreground tracking-wider select-all">
+                        {account.account_number}
+                      </p>
+                      {isBank && account.holder_name && (
+                        <div className="flex justify-between text-xs border-t border-border/80 pt-2 text-muted-foreground">
+                          <span>Account Holder:</span>
+                          <span className="font-semibold text-foreground">{account.holder_name}</span>
+                        </div>
+                      )}
+                      {isBank && account.branch && (
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>Branch:</span>
+                          <span className="font-semibold text-foreground">{account.branch}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Amount to Send Box */}
+                <div className="bg-background rounded-2xl p-4 border border-border shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground">Exact Amount to Send</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs font-bold text-primary hover:bg-primary/10 gap-1 rounded-lg"
+                      onClick={() => copyToClipboard(finalPrice.toString(), "amount")}
+                    >
+                      {copiedField === "amount" ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-green-600" /> Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" /> Copy Amount
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <p className="font-extrabold text-xl sm:text-2xl text-primary font-display">
+                      {formatPrice(finalPrice)}
+                    </p>
+                    <span className="text-[11px] text-muted-foreground">
+                      (কোনো অতিরিক্ত খরচ নেই)
+                    </span>
+                  </div>
                 </div>
               </div>
-              {account?.account_number && (() => {
-                const isBank = selectedPM.name.toLowerCase().includes("bank");
-                const isBinance = selectedPM.name.toLowerCase().includes("binance") || selectedPM.name.toLowerCase().includes("binnace");
-                const label = isBank ? "Account Number" : isBinance ? "Binance ID" : `${selectedPM.name} Number`;
-                return (
-                  <div className="space-y-2 bg-muted/50 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{label}</span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary flex items-center gap-1 font-semibold hover:underline"
-                        onClick={() => {
-                          navigator.clipboard.writeText(account.account_number || "");
-                          toast({ title: "Copied!" });
-                        }}
-                      >
-                        <Copy className="h-3 w-3" /> Copy
-                      </button>
-                    </div>
-                    <p className="font-mono font-bold text-base tracking-wide">{account.account_number}</p>
-                    {isBank && account.holder_name && (
-                      <div className="flex justify-between text-sm border-t border-border pt-2 mt-1">
-                        <span className="text-muted-foreground">Holder Name</span>
-                        <span className="font-medium">{account.holder_name}</span>
-                      </div>
-                    )}
-                    {isBank && account.branch && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Branch</span>
-                        <span className="font-medium">{account.branch}</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-              <div className="space-y-3 text-sm">
+
+              {/* Step by Step Visual Payment Guide */}
+              <div className="bg-muted/40 rounded-2xl p-4 border border-border/70 space-y-2.5 text-xs sm:text-sm">
+                <p className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" /> ধাপে ধাপে পেমেন্ট করার নিয়ম:
+                </p>
+
                 {(() => {
                   const name = selectedPM.name;
                   const isBank = name.toLowerCase().includes("bank");
                   const isBinance = name.toLowerCase().includes("binance") || name.toLowerCase().includes("binnace");
-                  
+
                   if (isBinance) {
                     const usdtAmount = (finalPrice / 130).toFixed(2);
                     return (
-                      <>
-                        <p>1. Open <strong>Binance</strong> app → tap <strong>Pay</strong> (top of home).</p>
-                        <p>2. Select <strong>"Send to Binance User"</strong> → tap <strong>Binance ID</strong> tab.</p>
-                        <p>3. Paste the <strong>Binance ID</strong> shown above and tap <strong>Continue</strong>.</p>
-                        <p>4. Enter <strong>${usdtAmount} USDT</strong> as the amount and confirm payment.</p>
-                        <p>5. Copy the <strong>Transaction ID (TxID)</strong> and paste it below.</p>
-                      </>
+                      <ol className="space-y-2 text-muted-foreground">
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <span><strong>Binance</strong> অ্যাপ ওপেন করে <strong>Pay</strong> আইকনে ট্যাপ করুন।</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <span><strong>Send to Binance User</strong> সিলেক্ট করে <strong>Binance ID</strong> দিন।</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <span>অ্যামাউন্টে <strong>${usdtAmount} USDT</strong> দিয়ে পেমেন্ট কনফার্ম করুন।</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">4</span>
+                          <span>পেমেন্ট সফল হলে <strong>TxID</strong> কপি করে নিচের বক্সে পেস্ট করুন।</span>
+                        </li>
+                      </ol>
                     );
                   }
-                  
+
                   if (isBank) {
                     return (
-                      <>
-                        <p>1. আপনার ব্যাংকিং অ্যাপ ওপেন করুন এবং <strong>Fund Transfer</strong> অপশনে যান।</p>
-                        <p>2. <strong>NPSB</strong> সিলেক্ট করুন।</p>
-                        <p>3. <strong>Select Bank Name</strong> থেকে <strong>Pubali Bank</strong> সিলেক্ট করুন।</p>
-                        <p>4. <strong>Receiver A/C No.</strong> তে নিচের অ্যাকাউন্ট নম্বরটি পেস্ট করুন।</p>
-                        <p>5. Amount এ <strong>৳{finalPrice.toFixed(2)}</strong> লিখুন এবং পেমেন্ট সম্পন্ন করুন।</p>
-                        <p>6. পেমেন্ট সফল হলে <strong>Transaction ID</strong> কপি করে নিচের বক্সে পেস্ট করুন।</p>
-                      </>
+                      <ol className="space-y-2 text-muted-foreground">
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <span>ব্যাংকিং অ্যাপে গিয়ে <strong>Fund Transfer (NPSB/BEFTN)</strong> সিলেক্ট করুন।</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <span>অ্যাকাউন্ট নম্বর এবং অ্যামাউন্টে <strong>{formatPrice(finalPrice)}</strong> লিখে ট্রান্সফার করুন।</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <span>ট্রান্সফারের <strong>Transaction / Reference No.</strong> নিচের বক্সে পেস্ট করুন।</span>
+                        </li>
+                      </ol>
                     );
                   }
-                  
+
                   return (
-                    <>
-                      <p>1. Copy the <strong>{name} Number</strong>.</p>
-                      <p>2. In your <strong>{name}</strong> app, use the <strong>Send Money</strong> option.</p>
-                      <p>3. Enter <strong>৳{finalPrice.toFixed(2)}</strong> as the amount and complete the payment.</p>
-                      <p>4. After the payment is successful, copy the <strong>Transaction ID</strong>.</p>
-                      <p>5. Paste the <strong>Transaction ID</strong> into the box below to complete your order.</p>
-                    </>
+                    <ol className="space-y-2 text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                        <span>আপনার <strong>{name}</strong> অ্যাপ ওপেন করে <strong>Send Money (সেন্ড মানি)</strong> অপশনে যান।</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                        <span>উপরে দেওয়া <strong>{name} নাম্বারটি</strong> পেস্ট করুন এবং অ্যামাউন্টে <strong>{formatPrice(finalPrice)}</strong> লিখুন।</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                        <span>পেমেন্ট সফল হওয়ার পর স্ক্রিন থেকে <strong>Transaction ID (TrxID)</strong> কপি করুন।</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">4</span>
+                        <span>কপি করা <strong>TrxID টি</strong> নিচের ইনপুট বক্সে পেস্ট করে অর্ডার সম্পন্ন করুন।</span>
+                      </li>
+                    </ol>
                   );
                 })()}
               </div>
-              <div>
-                <Label className="text-xs">Transaction ID</Label>
-                <Input
-                  placeholder="Enter the Transaction ID"
-                  required
-                  value={form.transactionId}
-                  onChange={(e) => setForm({ ...form, transactionId: e.target.value })}
-                  className="rounded-lg font-mono font-medium"
-                />
+
+              {/* Transaction ID Input with Helper & Live Validation */}
+              <div className="bg-background rounded-2xl p-4 border border-border space-y-2.5 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <ClipboardCheck className="h-4 w-4 text-primary" /> Transaction ID (TrxID)
+                  </Label>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                          setForm((prev) => ({ ...prev, transactionId: text.trim().toUpperCase() }));
+                          toast({ title: "Pasted from clipboard! 📋" });
+                        }
+                      } catch {
+                        toast({ title: "Please paste manually", variant: "destructive" });
+                      }
+                    }}
+                    className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"
+                  >
+                    Paste TrxID
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <Input
+                    placeholder={
+                      selectedPM.name.toLowerCase().includes("bkash")
+                        ? "e.g. BKL87DF29X (10 digits/letters)"
+                        : selectedPM.name.toLowerCase().includes("nagad")
+                        ? "e.g. 71A89D2F (8 digits/letters)"
+                        : "Enter Transaction ID"
+                    }
+                    required
+                    value={form.transactionId}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        transactionId: e.target.value.replace(/\s+/g, "").toUpperCase(),
+                      })
+                    }
+                    className="rounded-xl font-mono text-sm sm:text-base font-bold tracking-wider h-11 pr-10 border-2 focus-visible:ring-primary/20"
+                  />
+                  {form.transactionId.trim().length >= 6 && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-green-400">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                  )}
+                </div>
+
+                {form.transactionId.trim().length >= 6 ? (
+                  <p className="text-[11px] text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
+                    <Check className="h-3.5 w-3.5" /> Valid Transaction ID format entered
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 সঠিক TrxID দিলে সাধারণত ৫-১০ মিনিটের মধ্যে একাউন্ট এক্সেস ডেলিভারি পেয়ে যাবেন।
+                  </p>
+                )}
               </div>
             </div>
           )}
         </div>
 
-        {/* Agreement */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} />
-            <span className="text-sm">I agree to the <a href="/terms" className="text-primary font-medium">Terms and Conditions</a></span>
+        {/* Trust & Guarantee Banner */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+          <div className="bg-card border border-border/70 rounded-xl p-3 text-center space-y-1">
+            <Zap className="h-4 w-4 text-amber-500 mx-auto" />
+            <p className="text-xs font-bold text-foreground">৫-১০ মি. ডেলিভারি</p>
+            <p className="text-[10px] text-muted-foreground">অটোমেটিক ভেরিফিকেশন</p>
+          </div>
+          <div className="bg-card border border-border/70 rounded-xl p-3 text-center space-y-1">
+            <ShieldCheck className="h-4 w-4 text-emerald-500 mx-auto" />
+            <p className="text-xs font-bold text-foreground">১০০% ওয়ারেন্টি</p>
+            <p className="text-[10px] text-muted-foreground">ফুল মেয়াদ রিপ্লেসমেন্ট</p>
+          </div>
+          <div className="bg-card border border-border/70 rounded-xl p-3 text-center space-y-1">
+            <Lock className="h-4 w-4 text-indigo-500 mx-auto" />
+            <p className="text-xs font-bold text-foreground">নিরাপদ পেমেন্ট</p>
+            <p className="text-[10px] text-muted-foreground">SSL সিকিউরড সিস্টেম</p>
+          </div>
+          <div className="bg-card border border-border/70 rounded-xl p-3 text-center space-y-1">
+            <MessageCircle className="h-4 w-4 text-green-500 mx-auto" />
+            <p className="text-xs font-bold text-foreground">২৪/৭ লাইভ সাপোর্ট</p>
+            <p className="text-[10px] text-muted-foreground">+8801516524644</p>
           </div>
         </div>
 
-        <Button type="submit" className="w-full h-12 rounded-xl font-bold text-base btn-shine shadow-md hover:shadow-lg active:scale-95 transition-all" disabled={loading || !agreed}>
-          {loading ? "Placing Order..." : "Place Order"}
+        {/* Agreement */}
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center gap-2">
+            <Checkbox id="terms-agree" checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} />
+            <label htmlFor="terms-agree" className="text-xs sm:text-sm text-foreground cursor-pointer select-none">
+              I agree to the <a href="/terms" target="_blank" className="text-primary font-semibold underline">Terms & Conditions</a> and <a href="/refund" target="_blank" className="text-primary font-semibold underline">Refund Policy</a>
+            </label>
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full h-12 sm:h-14 rounded-2xl font-extrabold text-base sm:text-lg btn-shine shadow-lg hover:shadow-xl active:scale-95 transition-all gap-2"
+          disabled={loading || !agreed}
+        >
+          {loading ? (
+            "Placing Order..."
+          ) : (
+            <>
+              Confirm & Place Order <ArrowRight className="h-5 w-5" />
+            </>
+          )}
         </Button>
       </form>
       <BottomNav />
