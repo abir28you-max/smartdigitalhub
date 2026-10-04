@@ -142,12 +142,12 @@ const TrackOrder = () => {
             const updated = payload.new as Order;
             if (updated.status === "delivered") {
               toast({
-                title: "🎉 Order Delivered!",
+                title: "Order Delivered!",
                 description: "Your subscription credentials are ready below.",
               });
             } else if (updated.status === "verified") {
               toast({
-                title: "✅ Payment Verified!",
+                title: "Payment Verified!",
                 description: "Your payment has been approved. Preparing delivery.",
               });
             }
@@ -521,18 +521,13 @@ const TrackOrder = () => {
                 {/* ── STAGE 3: DELIVERED (Access & Credentials Box) ── */}
                 {isDelivered && hasDeliveryInfo && (
                   <div className="bg-indigo-50/70 dark:bg-indigo-950/40 rounded-3xl border-2 border-indigo-300 dark:border-indigo-800/60 p-5 sm:p-6 space-y-4 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-                        <Gift className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-base sm:text-lg">
-                          🎉 Your Subscription is Ready!
-                        </h4>
-                        <p className="text-xs sm:text-sm text-indigo-800/80 dark:text-indigo-300">
-                          Your subscription credentials and access details are provided below
-                        </p>
-                      </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-base sm:text-lg">
+                        Your Subscription is Ready!
+                      </h4>
+                      <p className="text-xs sm:text-sm text-indigo-800/80 dark:text-indigo-300">
+                        Your subscription credentials and access details are provided below
+                      </p>
                     </div>
 
                     {/* Delivery Notes */}
