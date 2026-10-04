@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useRef, useEffect, useCallback } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Headset, Phone, Mail, X, MessagesSquare } from "lucide-react";
 
@@ -14,104 +14,11 @@ const WhatsAppIcon = ({ className = "h-7 w-7 text-[#25D366]" }: { className?: st
 const NeedHelpButton = () => {
   const [open, setOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  
-  const buttonContainerRef = useRef<HTMLDivElement>(null);
-  const dragInfoRef = useRef<{
-    startX: number;
-    startY: number;
-    startPosX: number;
-    startPosY: number;
-    hasMoved: boolean;
-    active: boolean;
-  }>({
-    startX: 0,
-    startY: 0,
-    startPosX: 0,
-    startPosY: 0,
-    hasMoved: false,
-    active: false,
-  });
-
   const location = useLocation();
 
   // Hide on admin, orders dashboard, account, and specific routes
   const hiddenRoutes = ["/orders", "/my-orders", "/track-order", "/order-success", "/account", "/salami", "/2fa", "/map"];
   if (location.pathname.startsWith("/admin") || hiddenRoutes.includes(location.pathname)) return null;
-
-  // Handle pointer down (Mouse or Touch)
-  const handlePointerDown = (e: React.PointerEvent) => {
-    // Only left click or touch
-    if (e.button !== 0 && e.pointerType === "mouse") return;
-
-    const el = buttonContainerRef.current;
-    if (!el) return;
-
-    const rect = el.getBoundingClientRect();
-    dragInfoRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startPosX: rect.left,
-      startPosY: rect.top,
-      hasMoved: false,
-      active: true,
-    };
-
-    setIsDragging(false);
-
-    const onPointerMove = (moveEvent: PointerEvent) => {
-      if (!dragInfoRef.current.active) return;
-      const dx = moveEvent.clientX - dragInfoRef.current.startX;
-      const dy = moveEvent.clientY - dragInfoRef.current.startY;
-
-      // Threshold check to distinguish tap vs drag
-      if (!dragInfoRef.current.hasMoved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-        dragInfoRef.current.hasMoved = true;
-        setIsDragging(true);
-      }
-
-      if (dragInfoRef.current.hasMoved) {
-        const rawX = dragInfoRef.current.startPosX + dx;
-        const rawY = dragInfoRef.current.startPosY + dy;
-
-        const btnWidth = el.offsetWidth || 56;
-        const btnHeight = el.offsetHeight || 56;
-
-        // Boundaries: 10px from edges
-        const maxX = window.innerWidth - btnWidth - 10;
-        const maxY = window.innerHeight - btnHeight - 20;
-
-        const clampedX = Math.max(10, Math.min(maxX, rawX));
-        const clampedY = Math.max(10, Math.min(maxY, rawY));
-
-        setPosition({ x: clampedX, y: clampedY });
-      }
-    };
-
-    const onPointerUp = () => {
-      dragInfoRef.current.active = false;
-      setTimeout(() => {
-        setIsDragging(false);
-      }, 50);
-
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      window.removeEventListener("pointercancel", onPointerUp);
-    };
-
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("pointerup", onPointerUp);
-    window.addEventListener("pointercancel", onPointerUp);
-  };
-
-  const handleMainButtonClick = () => {
-    if (dragInfoRef.current.hasMoved) return;
-    setOpen((prev) => !prev);
-  };
-
-  // Determine if popup items should show above or below the button based on vertical position
-  const isNearTop = position !== null && position.y < 280;
 
   return (
     <>
@@ -121,47 +28,22 @@ const NeedHelpButton = () => {
         </Suspense>
       )}
 
-      <div
-        ref={buttonContainerRef}
-        onPointerDown={handlePointerDown}
-        style={
-          position
-            ? {
-                left: `${position.x}px`,
-                top: `${position.y}px`,
-                right: "auto",
-                bottom: "auto",
-                touchAction: "none",
-              }
-            : {
-                touchAction: "none",
-              }
-        }
-        className={`fixed z-[55] flex flex-col items-center gap-3 select-none ${
-          !position ? "bottom-20 right-4" : ""
-        } ${isNearTop ? "flex-col-reverse" : "flex-col"}`}
-      >
-        {/* Support Options Popup */}
+      <div className="fixed bottom-20 right-4 z-[55] flex flex-col items-center gap-4">
         {open && (
-          <div className={`flex flex-col items-center gap-3 ${isNearTop ? "pt-2" : "pb-1"}`}>
+          <>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setChatOpen(true);
-                setOpen(false);
-              }}
+              onClick={() => { setChatOpen(true); setOpen(false); }}
               aria-label="Open live chat"
-              className="h-13 w-13 sm:h-14 sm:w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform animate-fade-in"
-              style={{ animationDelay: "0.15s", animationFillMode: "both" }}
+              className="h-14 w-14 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-transform animate-fade-in"
+              style={{ animationDelay: "0.2s", animationFillMode: "both" }}
             >
               <MessagesSquare className="h-6 w-6 text-primary" />
             </button>
             <a
               href="tel:01516524644"
-              onClick={(e) => e.stopPropagation()}
               aria-label="Call us"
-              className="h-13 w-13 sm:h-14 sm:w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform animate-fade-in"
-              style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+              className="h-14 w-14 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-transform animate-fade-in"
+              style={{ animationDelay: "0.15s", animationFillMode: "both" }}
             >
               <Phone className="h-6 w-6 text-primary" />
             </a>
@@ -169,27 +51,24 @@ const NeedHelpButton = () => {
               href="https://wa.me/8801516524644?text=subscriptions%20%E0%A6%AC%E0%A6%BF%E0%A6%B7%E0%A6%AF%E0%A6%BC%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%BE%E0%A6%B0%20%E0%A6%9B%E0%A6%BF%E0%A6%B2"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               aria-label="WhatsApp chat"
-              className="h-13 w-13 sm:h-14 sm:w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform animate-fade-in"
-              style={{ animationDelay: "0.05s", animationFillMode: "both" }}
+              className="h-14 w-14 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-transform animate-fade-in"
+              style={{ animationDelay: "0.08s", animationFillMode: "both" }}
             >
               <WhatsAppIcon className="h-7 w-7 text-[#25D366]" />
             </a>
             <a
               href="mailto:abir28you@gmail.com"
-              onClick={(e) => e.stopPropagation()}
               aria-label="Send email"
-              className="h-13 w-13 sm:h-14 sm:w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform animate-fade-in"
+              className="h-14 w-14 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:scale-110 transition-transform animate-fade-in"
               style={{ animationDelay: "0s", animationFillMode: "both" }}
             >
               <Mail className="h-6 w-6 text-destructive" />
             </a>
-          </div>
+          </>
         )}
 
-        {/* Main Floating Trigger Button */}
-        <div className="relative flex flex-col items-center justify-center cursor-grab active:cursor-grabbing">
+        <div className="relative flex items-center justify-center">
           {!open && (
             <>
               {/* Expanding Radar Ripple Rings */}
@@ -199,23 +78,20 @@ const NeedHelpButton = () => {
           )}
 
           <button
-            onClick={handleMainButtonClick}
+            onClick={() => setOpen(!open)}
             aria-label={open ? "Close help menu" : "Need help? Open support options"}
-            className={`relative z-10 bg-primary text-primary-foreground rounded-full h-14 w-14 flex items-center justify-center shadow-2xl transition-all duration-300 ${
-              open
-                ? "rotate-90 bg-secondary text-foreground hover:bg-secondary/80"
-                : "hover:scale-110 active:scale-95 hover:shadow-primary/40"
+            className={`relative z-10 bg-primary text-primary-foreground rounded-full h-14 w-14 flex items-center justify-center shadow-xl transition-all duration-300 ${
+              open ? "rotate-90 bg-secondary text-foreground hover:bg-secondary/80" : "hover:scale-110 active:scale-95 hover:shadow-primary/40"
             }`}
           >
             {open ? <X className="h-6 w-6 animate-scale-in" /> : <Headset className="h-6 w-6 animate-pulse" />}
           </button>
-
-          {!open && (
-            <span className="text-[11px] font-bold text-foreground mt-1.5 bg-background/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-border/70 shadow-sm pointer-events-none whitespace-nowrap">
-              Need Help?
-            </span>
-          )}
         </div>
+        {!open && (
+          <span className="text-xs font-bold text-foreground -mt-2 bg-background/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-border/70 shadow-sm">
+            Need Help?
+          </span>
+        )}
       </div>
     </>
   );
