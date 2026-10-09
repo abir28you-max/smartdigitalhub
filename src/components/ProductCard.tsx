@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/image";
 
@@ -41,24 +40,28 @@ const ProductCard = ({ id, name, description, price, image_url, stock_status, sl
   };
 
   return (
-    <div className="product-card-hover group bg-card rounded-xl border border-border/80 overflow-hidden shadow-xs hover:border-primary/40 h-full flex flex-col">
-      <Link to={productUrl} className="relative block" onMouseEnter={prefetchProduct} onTouchStart={prefetchProduct}>
-        <div className="aspect-[4/3] bg-muted/60 flex items-center justify-center p-3.5 md:p-6 overflow-hidden">
-          {image_url ? (
-            <img
-              src={cardImage}
-              alt={name}
-              width="200"
-              height="150"
-              className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-108"
-              loading={priority ? "eager" : "lazy"}
-              fetchPriority={priority ? "high" : "auto"}
-              decoding="async"
-            />
-          ) : (
-            <div className="w-16 h-16 bg-muted-foreground/20 rounded-full" />
-          )}
-        </div>
+    <Link
+      to={productUrl}
+      onMouseEnter={prefetchProduct}
+      onTouchStart={prefetchProduct}
+      className="product-card-hover group bg-card rounded-xl border border-border/80 overflow-hidden shadow-xs hover:border-primary/40 h-full flex flex-col cursor-pointer transition-all duration-300 select-none"
+    >
+      <div className="relative aspect-[4/3] bg-muted/60 flex items-center justify-center p-3.5 md:p-6 overflow-hidden">
+        {image_url ? (
+          <img
+            src={cardImage}
+            alt={name}
+            width="200"
+            height="150"
+            className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-108"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding="async"
+          />
+        ) : (
+          <div className="w-16 h-16 bg-muted-foreground/20 rounded-full" />
+        )}
+
         {stock_status === "in_stock" ? (
           <span className="absolute top-2.5 left-2.5 bg-emerald-500/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
             In Stock
@@ -68,21 +71,29 @@ const ProductCard = ({ id, name, description, price, image_url, stock_status, sl
             Stock Out
           </span>
         )}
-      </Link>
+      </div>
+
       <div className="p-3.5 md:p-4 flex flex-col flex-1">
-        <h3 className="font-display font-semibold text-sm md:text-base truncate group-hover:text-primary transition-colors duration-200">{name}</h3>
-        {description && <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{description.replace(/<[^>]+>/g, "")}</p>}
-        <p className="text-primary font-bold mt-2 text-base md:text-lg">{formatPrice(price)}</p>
+        <h3 className="font-display font-semibold text-sm md:text-base truncate group-hover:text-primary transition-colors duration-200">
+          {name}
+        </h3>
+        {description && (
+          <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+            {description.replace(/<[^>]+>/g, "")}
+          </p>
+        )}
+        <p className="text-primary font-bold mt-2 text-base md:text-lg">
+          {formatPrice(price)}
+        </p>
+
         <div className="mt-auto pt-3 md:pt-4">
-          <Button size="sm" variant="outline" className="w-full text-xs font-semibold border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all duration-150 rounded-lg shadow-xs" asChild>
-            <Link to={productUrl}>
-              <ExternalLink className="h-3 w-3 mr-1" />
-              View Details
-            </Link>
-          </Button>
+          <div className="w-full h-8 px-3 text-xs font-semibold border border-primary/60 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex items-center justify-center rounded-lg shadow-xs transition-all duration-200">
+            <ExternalLink className="h-3 w-3 mr-1" />
+            View Details
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

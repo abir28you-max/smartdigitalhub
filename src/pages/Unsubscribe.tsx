@@ -57,7 +57,7 @@ const Unsubscribe = () => {
             <MailX className="mx-auto h-10 w-10 text-primary" />
             <h1 className="mt-4 text-xl font-bold">Unsubscribe from emails</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              {email ? <>You will stop receiving emails at <span className="font-medium text-foreground">{email}</span>.</> : "You will stop receiving emails from Tech Subx BD."}
+              {email ? <>You will stop receiving emails at <span className="font-medium text-foreground">{email}</span>.</> : "You will stop receiving emails from Smart Digital Hub."}
             </p>
             <Button className="mt-6 w-full" onClick={confirm} disabled={submitting}>
               {submitting ? "Processing..." : "Confirm Unsubscribe"}
@@ -91,7 +91,7 @@ const Unsubscribe = () => {
           </>
         )}
 
-        <a href="/" className="mt-6 inline-block text-sm text-primary underline">Back to Tech Subx BD</a>
+        <a href="/" className="mt-6 inline-block text-sm text-primary underline">Back to Smart Digital Hub</a>
       </div>
     </div>
   );

@@ -37,7 +37,7 @@ const Reviews = () => {
       <main className="container py-8 max-w-lg mx-auto space-y-8">
         <div className="text-center space-y-2">
           <h1 className="font-display text-3xl font-black text-foreground">Your Opinion Matters</h1>
-          <p className="text-muted-foreground">Share your experience with Tech Subx Bd.</p>
+          <p className="text-muted-foreground">Share your experience with Smart Digital Hub.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-6 space-y-5">

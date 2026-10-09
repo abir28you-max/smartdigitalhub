@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Copy, CheckCircle } from "lucide-react";
 import { PaymentLogo } from "@/components/PaymentLogo";
+import { sendTelegramOrderAlert } from "@/lib/telegramNotify";
 
 interface PaymentMethod {
   id: string;
@@ -377,34 +378,41 @@ const Checkout = () => {
         }).then(() => {});
       }
 
-      // Fire-and-forget Telegram notification (never blocks or breaks checkout)
+      // Instant Telegram notification with direct fallback
+      const orderNotificationData = {
+        order_id: inserted?.id,
+        name: form.name,
+        phone: form.phone,
+        email: form.email || "-",
+        product: items
+          .map((i) => `${i.name}${i.selectedOption ? ` (${i.selectedOption})` : ""} × ${i.quantity}`)
+          .join(", "),
+        payment_method: selectedPM.name,
+        transaction_id: form.transactionId,
+        total: finalPrice,
+        delivery_details: deliveryDetails.length
+          ? deliveryDetails
+              .map(
+                (d) =>
+                  `${d.product_name} → Name: ${d.name}, PIN: ${d.profile_pin}${d.email ? `, Email: ${d.email}` : ""}`
+              )
+              .join(" | ")
+          : undefined,
+      };
+
+      sendTelegramOrderAlert(orderNotificationData).catch((err) =>
+        console.error("Direct Telegram order alert error:", err)
+      );
+
+      // Also invoke Edge function if deployed
       supabase.functions
         .invoke("telegram-notify", {
           body: {
             type: "order",
-            data: {
-              order_id: inserted?.id,
-              name: form.name,
-              phone: form.phone,
-              email: form.email || "-",
-              product: items
-                .map((i) => `${i.name}${i.selectedOption ? ` (${i.selectedOption})` : ""} × ${i.quantity}`)
-                .join(", "),
-              payment_method: selectedPM.name,
-              transaction_id: form.transactionId,
-              total: finalPrice,
-              delivery_details: deliveryDetails.length
-                ? deliveryDetails
-                    .map(
-                      (d) =>
-                        `${d.product_name} → Name: ${d.name}, PIN: ${d.profile_pin}${d.email ? `, Email: ${d.email}` : ""}`
-                    )
-                    .join(" | ")
-                : undefined,
-            },
+            data: orderNotificationData,
           },
         })
-        .catch((err) => console.error("Telegram order notification failed:", err));
+        .catch(() => {});
       if (!isBuyNow) clearCart();
       toast({ title: "Order placed successfully!", description: "We will verify your payment soon." });
       navigate("/order-success");

@@ -18,7 +18,7 @@ export const useSEO = ({ title, description }: SEOProps) => {
     meta.setAttribute("content", description);
 
     return () => {
-      document.title = "Digital Products Store - Tech Subx Bd";
+      document.title = "Smart Digital Hub - Bangladesh's #1 Digital Subscriptions Store";
     };
   }, [title, description]);
 };

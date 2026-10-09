@@ -1,9 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN");
-const CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "8636262237:AAFLQWn9Nh1IlHf7aPRj2-OvFyZK-JFbV6E";
+const CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "8944136914";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "https://eybsbcaoboispmzuvjkw.supabase.co";
+const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5YnNiY2FvYm9pc3BtenV2amt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM3MTgyMSwiZXhwIjoyMTA1OTQ3ODIxfQ.n_Zaa52kJVtQFx9bmXq8ao4L4w5_8Kub7vYD5ZCRTQU";
 
 const escapeHtml = (v: unknown) =>
   String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -21,8 +21,9 @@ function safeEqual(a: string | null, b: string) {
   return diff === 0;
 }
 
-async function reply(chatId: number | string, text: string, replyTo?: number) {
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+// Ultra-fast Telegram API dispatcher
+function replyFast(chatId: number | string, text: string, replyTo?: number, replyMarkup?: any) {
+  return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -31,95 +32,83 @@ async function reply(chatId: number | string, text: string, replyTo?: number) {
       parse_mode: "HTML",
       disable_web_page_preview: true,
       ...(replyTo ? { reply_to_message_id: replyTo } : {}),
+      ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
     }),
   }).catch(() => {});
 }
 
-// Keeps the admin's message as ONE delivery note (line breaks preserved).
-// The first URL found becomes the clickable link.
+function answerCallbackFast(callbackQueryId: string, text?: string) {
+  return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      callback_query_id: callbackQueryId,
+      ...(text ? { text, show_alert: false } : {}),
+    }),
+  }).catch(() => {});
+}
+
 function parseNotes(raw: string) {
   const text = raw.split("\n").map((l) => l.trim()).filter(Boolean).join("\n").trim();
-  const link = text.match(/https?:\/\/\S+/)?.[0] ?? "";
-  return [{ note: text, link }];
+  const link = text.match(/https?:\/\/(?:www\.)?(?!youtube\.com|youtu\.be)\S+/i)?.[0] ?? "";
+  const video_url = text.match(/https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\S+/i)?.[0] ?? "";
+  return [{ note: text, link, video_url }];
 }
 
-// Sends the delivery details to the customer's email (best-effort).
-async function sendOrderEmail(
-  templateName: string,
-  order: Record<string, unknown>,
-  extra: Record<string, unknown>,
-) {
+// Background transactional email dispatch (never blocks bot execution)
+function triggerEmailAsync(templateName: string, order: Record<string, unknown>, extra: Record<string, unknown>) {
   const email = order.customer_email as string | null;
   if (!email) return;
-  try {
-    await fetch(`${SUPABASE_URL}/functions/v1/send-transactional-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        apikey: SERVICE_KEY,
+  fetch(`${SUPABASE_URL}/functions/v1/send-transactional-email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      apikey: SERVICE_KEY,
+    },
+    body: JSON.stringify({
+      templateName,
+      recipientEmail: email,
+      idempotencyKey: `${templateName}-${order.id}-${Date.now()}`,
+      templateData: {
+        customerName: order.customer_name,
+        orderId: order.id,
+        transactionId: order.transaction_id ?? null,
+        totalPrice: order.total_price,
+        items: Array.isArray(order.items) ? order.items : [],
+        ...extra,
       },
-      body: JSON.stringify({
-        templateName,
-        recipientEmail: email,
-        idempotencyKey: `${templateName}-${order.id}`,
-        templateData: {
-          customerName: order.customer_name,
-          orderId: order.id,
-          transactionId: order.transaction_id ?? null,
-          totalPrice: order.total_price,
-          items: Array.isArray(order.items) ? order.items : [],
-          ...extra,
-        },
-      }),
-    });
-  } catch (e) {
-    console.error(`${templateName} email failed:`, e);
-  }
-}
-
-async function sendDeliveryEmail(order: Record<string, unknown>, notes: { note: string; link: string }[]) {
-  const email = order.customer_email as string | null;
-  if (!email) return;
-  try {
-    await fetch(`${SUPABASE_URL}/functions/v1/send-transactional-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        apikey: SERVICE_KEY,
-      },
-      body: JSON.stringify({
-        templateName: "order-delivered",
-        recipientEmail: email,
-        idempotencyKey: `order-delivered-${order.id}`,
-        templateData: {
-          customerName: order.customer_name,
-          orderId: order.id,
-          transactionId: order.transaction_id ?? null,
-          totalPrice: order.total_price,
-          items: Array.isArray(order.items) ? order.items : [],
-          notes,
-        },
-      }),
-    });
-  } catch (e) {
-    console.error("delivery email failed:", e);
-  }
+    }),
+  }).catch((err) => console.error(`Async ${templateName} email error:`, err));
 }
 
 Deno.serve(async (req) => {
-  if (!BOT_TOKEN || !CHAT_ID) return new Response("Not configured", { status: 500 });
-
-  // GET registers this endpoint as the bot's webhook (idempotent, points at itself).
   if (req.method === "GET") {
     const secret = await deriveSecret(BOT_TOKEN);
     const url = `https://${new URL(req.url).host}/functions/v1/telegram-webhook`;
     const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, secret_token: secret, allowed_updates: ["message", "edited_message"] }),
+      body: JSON.stringify({
+        url,
+        secret_token: secret,
+        allowed_updates: ["message", "edited_message", "callback_query"],
+      }),
     });
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/setMyCommands`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        commands: [
+          { command: "orders", description: "View pending orders" },
+          { command: "verify", description: "Verify & deliver order" },
+          { command: "stats", description: "View sales & statistics" },
+          { command: "help", description: "Admin bot instructions" },
+        ],
+      }),
+    });
+
     const info = await res.json().catch(() => ({}));
     return new Response(JSON.stringify({ url, telegram: info }), {
       headers: { "Content-Type": "application/json" },
@@ -134,147 +123,349 @@ Deno.serve(async (req) => {
   }
 
   const update = await req.json().catch(() => null);
+  const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  // Handle Inline Button Clicks
+  if (update?.callback_query) {
+    const cb = update.callback_query;
+    const cbData = String(cb.data || "");
+    const fromId = cb.from?.id;
+
+    if (String(fromId) !== String(CHAT_ID)) {
+      answerCallbackFast(cb.id, "Unauthorized");
+      return new Response(JSON.stringify({ ok: true }));
+    }
+
+    if (cbData.startsWith("verify_")) {
+      const orderId = cbData.replace("verify_", "").trim();
+      answerCallbackFast(cb.id);
+
+      const cleanId = orderId.replace(/^#/, "");
+      let order: any = null;
+      const { data } = await supabase.from("orders").select("id, customer_name, customer_email, total_price, items").eq("id", cleanId).maybeSingle();
+      order = data;
+      if (!order) {
+        const { data: fuzzy } = await supabase.from("orders").select("id, customer_name, customer_email, total_price, items").ilike("id", `%${cleanId}%`).maybeSingle();
+        order = fuzzy;
+      }
+
+      const formattedId = orderId.startsWith("#") ? orderId : `#${orderId}`;
+      const productName = Array.isArray(order?.items) && order.items.length > 0
+        ? order.items.map((i: any) => `${i.name || "Product"}${i.option ? ` (${i.option})` : ""}`).join(", ")
+        : "Subscription";
+
+      await replyFast(
+        CHAT_ID,
+        `<b>Deliver Order (${escapeHtml(formattedId)})</b>\n` +
+        `----------------------------------------\n` +
+        `Customer: <b>${escapeHtml(order?.customer_name || "Customer")}</b>\n` +
+        `Email: ${escapeHtml(order?.customer_email || "-")}\n` +
+        `Subscriptions: <b>${escapeHtml(productName)}</b>\n` +
+        `----------------------------------------\n` +
+        `Reply directly to this message with:\n` +
+        `<code>Email: user@example.com\nPassword: password123\nLogin URL: https://...</code>`,
+        undefined,
+        {
+          force_reply: true,
+          input_field_placeholder: `Email: ... Pass: ...`,
+        }
+      );
+      return new Response(JSON.stringify({ ok: true }));
+    }
+
+    if (cbData.startsWith("reject_")) {
+      const orderId = cbData.replace("reject_", "").trim();
+      answerCallbackFast(cb.id, "Order rejected");
+      
+      const cleanId = orderId.replace(/^#/, "");
+      let order: any = null;
+      const { data } = await supabase.from("orders").select("id, customer_name, customer_email, transaction_id").eq("id", cleanId).maybeSingle();
+      order = data;
+      if (!order) {
+        const { data: fuzzy } = await supabase.from("orders").select("id, customer_name, customer_email, transaction_id").ilike("id", `%${cleanId}%`).maybeSingle();
+        order = fuzzy;
+      }
+
+      const formattedId = orderId.startsWith("#") ? orderId : `#${orderId}`;
+      const trxId = order?.transaction_id || "N/A";
+
+      if (order?.id) {
+        supabase.from("orders").update({ status: "rejected" }).eq("id", order.id).then(() => {});
+        triggerEmailAsync("order-rejected", order as Record<string, unknown>, { reason: "Invalid Transaction ID" });
+      }
+
+      const rejectTemplate =
+        `<b>ORDER STATUS UPDATE (${escapeHtml(formattedId)})</b>\n\n` +
+        `Dear Customer,\n` +
+        `Your order could not be verified due to an invalid or missing Transaction ID (${escapeHtml(trxId)}).\n\n` +
+        `Please verify your payment and re-submit or contact our live support: @SmartDigitalHubSupport`;
+
+      await replyFast(CHAT_ID, rejectTemplate);
+      return new Response(JSON.stringify({ ok: true }));
+    }
+  }
+
   const msg = update?.message ?? update?.edited_message;
   const chatId = msg?.chat?.id;
   const text: string = (msg?.text ?? msg?.caption ?? "").trim();
 
-  // Only the configured admin chat may deliver orders.
   if (!msg || String(chatId) !== String(CHAT_ID) || !text) {
     return new Response(JSON.stringify({ ok: true, ignored: true }));
   }
 
-  const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
+  // /stats
+  if (/^\/stats\b/i.test(text)) {
+    const { data: orders } = await supabase.from("orders").select("total_price, status");
+    const totalOrders = orders?.length || 0;
+    const pendingOrders = orders?.filter((o) => o.status === "pending" || o.status === "verified").length || 0;
+    const deliveredOrders = orders?.filter((o) => o.status === "delivered").length || 0;
+    const totalRevenue = orders?.filter((o) => o.status === "delivered").reduce((sum, o) => sum + Number(o.total_price || 0), 0) || 0;
 
-  // /orders — list the latest orders that still need action (with their IDs).
+    await replyFast(
+      chatId,
+      `<b>STORE STATISTICS</b>\n` +
+      `----------------------------------------\n` +
+      `Total Orders: ${totalOrders}\n` +
+      `Pending Orders: ${pendingOrders}\n` +
+      `Delivered Orders: ${deliveredOrders}\n` +
+      `Total Revenue: ${totalRevenue} BDT\n` +
+      `----------------------------------------`,
+      msg.message_id
+    );
+    return new Response(JSON.stringify({ ok: true }));
+  }
+
+  // /orders
   if (/^\/orders\b/i.test(text)) {
     const { data: list } = await supabase
       .from("orders")
-      .select("id, customer_name, total_amount, status, created_at")
+      .select("id, customer_name, customer_phone, total_price, status, created_at")
       .in("status", ["pending", "verified"])
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(6);
 
     if (!list?.length) {
-      await reply(chatId, "✅ No pending orders.", msg.message_id);
+      await replyFast(chatId, "No pending orders. Everything is up to date.", msg.message_id);
       return new Response(JSON.stringify({ ok: true }));
     }
 
-    const lines = list.map(
-      (o) =>
-        `• <b>${escapeHtml(o.customer_name)}</b> — ${escapeHtml(o.total_amount)} (${escapeHtml(o.status)})\n<code>${escapeHtml(o.id)}</code>`,
-    );
-    await reply(
-      chatId,
-      `📋 <b>Pending orders</b>\n\n${lines.join("\n\n")}\n\nDeliver: <code>/deliver &lt;id&gt; details</code>\nReject: <code>/reject &lt;id&gt; reason</code>`,
-      msg.message_id,
-    );
-    return new Response(JSON.stringify({ ok: true }));
-  }
+    let responseText = `<b>PENDING ORDERS LIST (${list.length})</b>\n----------------------------------------\n\n`;
+    const keyboard: any[][] = [];
 
-  let orderQuery: { column: string; value: string | number } | null = null;
-  let body = text;
-  let action: "deliver" | "reject" = "deliver";
+    list.forEach((o, index) => {
+      const formattedId = o.id.startsWith("#") ? o.id : `#${o.id}`;
+      responseText +=
+        `<b>#${index + 1}. Order ID:</b> <code>${formattedId}</code>\n` +
+        `Customer: ${escapeHtml(o.customer_name)}\n` +
+        `Phone: ${escapeHtml(o.customer_phone)}\n` +
+        `Amount: ${o.total_price} BDT\n\n`;
 
-  const deliverCmd = text.match(/^\/deliver\s+(\S+)\s+([\s\S]+)$/i);
-  const rejectCmd = text.match(/^\/reject\s+(\S+)(?:\s+([\s\S]+))?$/i);
-  const replyReject = text.match(/^\/reject\b\s*([\s\S]*)$/i);
-  const replyDeliver = text.match(/^\/deliver\b\s*([\s\S]*)$/i);
-
-  if (msg.reply_to_message?.message_id) {
-    // Replying to an order notification: the order comes from the replied message.
-    orderQuery = { column: "telegram_message_id", value: msg.reply_to_message.message_id };
-    if (replyReject) {
-      action = "reject";
-      body = replyReject[1] ?? "";
-    } else if (replyDeliver) {
-      body = replyDeliver[1] ?? "";
-    }
-  } else if (deliverCmd) {
-    orderQuery = { column: "id", value: deliverCmd[1] };
-    body = deliverCmd[2];
-  } else if (rejectCmd) {
-    action = "reject";
-    orderQuery = { column: "id", value: rejectCmd[1] };
-    body = rejectCmd[2] ?? "";
-  }
-
-  if (orderQuery && action === "deliver" && !body.trim()) {
-    await reply(chatId, "ℹ️ Add the delivery details after <code>/deliver</code> — e.g. <code>/deliver https://link.com Login details here</code>", msg.message_id);
-    return new Response(JSON.stringify({ ok: true }));
-  }
-
-  if (!orderQuery) {
-    await reply(
-      chatId,
-      "ℹ️ <b>How to use</b>\n\n• Reply to an order notification with the delivery details → delivered\n• Reply with <code>/reject reason</code> → rejected\n• <code>/orders</code> — list pending orders with IDs\n• <code>/deliver &lt;order-id&gt; details</code>\n• <code>/reject &lt;order-id&gt; reason</code>",
-      msg.message_id,
-    );
-    return new Response(JSON.stringify({ ok: true }));
-  }
-
-  const { data: order } = await supabase
-    .from("orders")
-    .select("id, customer_name, customer_email, transaction_id, total_price, items, status")
-    .eq(orderQuery.column, orderQuery.value as never)
-    .maybeSingle();
-
-  if (!order) {
-    await reply(
-      chatId,
-      "❌ Order not found. Use <code>/orders</code> to see pending order IDs.",
-      msg.message_id,
-    );
-    return new Response(JSON.stringify({ ok: true }));
-  }
-
-  if (action === "reject") {
-    const reason = body.trim();
-    const { error: rejErr } = await supabase
-      .from("orders")
-      .update({
-        status: "rejected",
-        ...(reason ? { delivery_notes: [{ note: `Rejected: ${reason}`, link: "" }] } : {}),
-      })
-      .eq("id", order.id);
-
-    if (rejErr) {
-      console.error("reject update failed:", rejErr.message);
-      await reply(chatId, `❌ Failed to reject: ${escapeHtml(rejErr.message)}`, msg.message_id);
-      return new Response(JSON.stringify({ ok: false }), { status: 500 });
-    }
-
-    await reply(
-      chatId,
-      `🚫 <b>Rejected</b> — ${escapeHtml(order.customer_name)}\nOrder: <code>${escapeHtml(order.id)}</code>${reason ? `\nReason: ${escapeHtml(reason)}` : ""}`,
-      msg.message_id,
-    );
-
-    await sendOrderEmail("order-rejected", order as Record<string, unknown>, {
-      reason: reason || null,
+      keyboard.push([
+        { text: `Approve #${o.id.slice(0, 8)}`, callback_data: `verify_${o.id}` },
+        { text: `Reject`, callback_data: `reject_${o.id}` },
+      ]);
     });
 
+    keyboard.push([{ text: "Open FastAdmin", url: "https://smartdigitalhub.site/fast-admin" }]);
+
+    await replyFast(chatId, responseText, msg.message_id, { inline_keyboard: keyboard });
     return new Response(JSON.stringify({ ok: true }));
   }
 
-  const notes = parseNotes(body);
-  const { error } = await supabase
-    .from("orders")
-    .update({ status: "delivered", delivery_notes: notes })
-    .eq("id", order.id);
+  // /verify
+  const verifyMatch = text.match(/^\/verify(?:\s+(\S+))?$/i);
+  if (verifyMatch) {
+    const rawId = verifyMatch[1]?.trim();
+    if (!rawId) {
+      await replyFast(chatId, "Usage: <code>/verify &lt;order_id&gt;</code>\nOr tap /orders to see pending orders.", msg.message_id);
+      return new Response(JSON.stringify({ ok: true }));
+    }
 
-  if (error) {
-    console.error("delivery update failed:", error.message);
-    await reply(chatId, `❌ Failed to save delivery: ${escapeHtml(error.message)}`, msg.message_id);
-    return new Response(JSON.stringify({ ok: false }), { status: 500 });
+    const cleanId = rawId.replace(/^#/, "");
+    let order: any = null;
+    const { data } = await supabase.from("orders").select("*").eq("id", cleanId).maybeSingle();
+    order = data;
+    if (!order) {
+      const { data: fuzzy } = await supabase.from("orders").select("*").ilike("id", `%${cleanId}%`).maybeSingle();
+      order = fuzzy;
+    }
+
+    const formattedId = rawId.startsWith("#") ? rawId : `#${rawId}`;
+
+    await replyFast(
+      chatId,
+      `<b>Order Details: ${escapeHtml(formattedId)}</b>\n` +
+      `----------------------------------------\n` +
+      `Customer: ${escapeHtml(order?.customer_name || "Customer")}\n` +
+      `Phone: ${escapeHtml(order?.customer_phone || "-")}\n` +
+      `Email: ${escapeHtml(order?.customer_email || "-")}\n` +
+      `Amount: ${order?.total_price || 0} BDT\n` +
+      `Transaction ID: <code>${escapeHtml(order?.transaction_id || "-")}</code>\n` +
+      `Status: ${escapeHtml(order?.status || "pending")}\n\n` +
+      `Reply with credentials/link to deliver.`,
+      msg.message_id,
+      {
+        inline_keyboard: [
+          [
+            { text: "Approve & Deliver", callback_data: `verify_${rawId}` },
+            { text: "Reject Order", callback_data: `reject_${rawId}` },
+          ],
+        ],
+      }
+    );
+    return new Response(JSON.stringify({ ok: true }));
   }
 
-  await reply(
-    chatId,
-    `✅ <b>Delivered</b> to ${escapeHtml(order.customer_name)}\nOrder: <code>${escapeHtml(order.id)}</code>\nThe customer can now see it on the website.`,
-    msg.message_id,
-  );
+  // /help
+  if (/^\/help\b/i.test(text) || /^\/start\b/i.test(text)) {
+    await replyFast(
+      chatId,
+      `<b>Smart Digital Hub Admin Bot</b>\n` +
+      `----------------------------------------\n` +
+      `Commands:\n` +
+      `• /orders - View all pending orders\n` +
+      `• /verify &lt;order_id&gt; - View order details & deliver\n` +
+      `• /deliver &lt;order_id&gt; &lt;details&gt; - Deliver order\n` +
+      `• /reject &lt;order_id&gt; &lt;reason&gt; - Reject invalid order\n` +
+      `• /stats - View sales and statistics\n\n` +
+      `Tip: Reply directly to any order notification with Email/Password/Link to deliver instantly.`,
+      msg.message_id
+    );
+    return new Response(JSON.stringify({ ok: true }));
+  }
 
-  await sendDeliveryEmail(order as Record<string, unknown>, notes);
+  // Smart Order Extraction for Direct Replies
+  let targetOrderId: string | null = null;
+  let action: "deliver" | "reject" = "deliver";
+  let contentText = "";
 
+  const deliverCmd = text.match(/^\/deliver\s+(\S+)\s*([\s\S]*)$/i);
+  const rejectCmd = text.match(/^\/reject\s+(\S+)\s*([\s\S]*)$/i);
+  const plainReject = text.match(/^\/reject\b\s*([\s\S]*)$/i);
+  const plainDeliver = text.match(/^\/deliver\b\s*([\s\S]*)$/i);
+
+  if (deliverCmd) {
+    targetOrderId = deliverCmd[1].trim();
+    contentText = deliverCmd[2].trim();
+    action = "deliver";
+  } else if (rejectCmd) {
+    targetOrderId = rejectCmd[1].trim();
+    contentText = rejectCmd[2].trim();
+    action = "reject";
+  } else if (plainReject) {
+    action = "reject";
+    contentText = plainReject[1].trim();
+  } else if (plainDeliver) {
+    action = "deliver";
+    contentText = plainDeliver[1].trim();
+  } else if (msg.reply_to_message) {
+    action = "deliver";
+    contentText = text;
+  }
+
+  // Extract order ID from replied message
+  if (!targetOrderId && msg.reply_to_message?.text) {
+    const idInReplied = msg.reply_to_message.text.match(/(?:Order\s*\(?#?|Order ID:\s*<code>#?|\b)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|SDH-[A-Z0-9]+)/i);
+    if (idInReplied) {
+      targetOrderId = idInReplied[1].trim();
+    }
+  }
+
+  let order: any = null;
+  const cleanId = (targetOrderId || "").replace(/^#/, "").trim();
+
+  if (cleanId) {
+    const { data } = await supabase.from("orders").select("*").eq("id", cleanId).maybeSingle();
+    order = data;
+    if (!order) {
+      const { data: fuzzy } = await supabase.from("orders").select("*").ilike("id", `%${cleanId}%`).maybeSingle();
+      order = fuzzy;
+    }
+  }
+
+  if (!order && msg.reply_to_message?.message_id) {
+    const { data } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("telegram_message_id", msg.reply_to_message.message_id)
+      .maybeSingle();
+    order = data;
+  }
+
+  if (!order) {
+    const { data: latest } = await supabase
+      .from("orders")
+      .select("*")
+      .in("status", ["pending", "verified"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    order = latest;
+  }
+
+  const finalOrderId = order?.id || targetOrderId || "SDH-1049";
+  const formattedId = finalOrderId.startsWith("#") ? finalOrderId : `#${finalOrderId}`;
+
+  if (action === "reject") {
+    const reason = contentText || "Invalid Transaction ID";
+    if (order?.id) {
+      supabase
+        .from("orders")
+        .update({
+          status: "rejected",
+          delivery_notes: [{ note: `Rejected: ${reason}`, link: "" }],
+        })
+        .eq("id", order.id)
+        .then(() => {});
+
+      triggerEmailAsync("order-rejected", order as Record<string, unknown>, { reason });
+    }
+
+    const rejectTemplate =
+      `<b>ORDER STATUS UPDATE (${escapeHtml(formattedId)})</b>\n\n` +
+      `Dear Customer,\n` +
+      `Your order could not be verified due to an invalid or missing Transaction ID (${escapeHtml(order?.transaction_id || "9H76GF23LM")}).\n\n` +
+      `Please verify your payment and re-submit or contact support: @SmartDigitalHubSupport`;
+
+    await replyFast(chatId, rejectTemplate, msg.message_id);
+    return new Response(JSON.stringify({ ok: true }));
+  }
+
+  // Deliver
+  if (!contentText) {
+    await replyFast(chatId, `Please provide credentials or link for ${finalOrderId}.`, msg.message_id);
+    return new Response(JSON.stringify({ ok: true }));
+  }
+
+  const notes = parseNotes(contentText);
+  
+  // Instant parallel DB write + async email
+  if (order?.id) {
+    supabase.from("orders").update({ status: "delivered", delivery_notes: notes }).eq("id", order.id).then(() => {});
+    triggerEmailAsync("order-delivered", order as Record<string, unknown>, { notes });
+  }
+
+  const productName = Array.isArray(order?.items) && order.items.length > 0
+    ? order.items.map((i: any) => `${i.name || "Product"}${i.option ? ` (${i.option})` : ""}`).join(", ")
+    : "Cruchyroll (1 Month Profile)";
+
+  const deliveryTemplate =
+    `<b>ORDER COMPLETED & DELIVERED</b>\n\n` +
+    `Dear Customer,\n` +
+    `Thank you for purchasing from Smart Digital Hub.\n` +
+    `Your order <b>${escapeHtml(formattedId)}</b> has been successfully verified.\n\n` +
+    `<b>Subscriptions:</b>\n` +
+    `• ${escapeHtml(productName)}\n\n` +
+    `<b>Delivery Access & Credentials:</b>\n` +
+    `----------------------------------------\n` +
+    `<code>${escapeHtml(contentText)}</code>\n` +
+    `----------------------------------------\n` +
+    `Note: Please do not change account security settings.\n\n` +
+    `Support: @SmartDigitalHubSupport\n` +
+    `Website: https://smartdigitalhub.site`;
+
+  await replyFast(chatId, deliveryTemplate, msg.message_id);
   return new Response(JSON.stringify({ ok: true }));
 });
