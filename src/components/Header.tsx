@@ -273,125 +273,72 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
 
       {/* Mobile menu overlay */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[80] flex animate-fade-in">
-          <div className="bg-card w-72 h-full shadow-2xl animate-slide-in p-5 overflow-y-auto flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5 pb-3 border-b border-border">
-                <span className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                  Navigation
-                </span>
-                <button
-                  onClick={() => setMenuOpen(false)}
-                  aria-label="Close menu"
-                  className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* User Account / Auth Section */}
-              <div className="mb-4 space-y-1.5">
-                {user ? (
+        <div className="fixed inset-0 z-[80] flex">
+          <div className="bg-card w-72 h-full shadow-2xl animate-slide-in p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-display text-xl font-bold text-primary">Menu</span>
+              <button onClick={() => setMenuOpen(false)} aria-label="Close menu">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="space-y-3">
+              <Link
+                to={user ? "/account" : "/auth"}
+                onClick={() => setMenuOpen(false)}
+                className={`block py-2 font-medium transition-colors ${
+                  location.pathname === (user ? "/account" : "/auth")
+                    ? "text-primary font-bold"
+                    : "text-foreground hover:text-primary"
+                }`}
+              >
+                {user ? "My Account" : "Log In / Sign Up"}
+              </Link>
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.to;
+                return (
                   <Link
-                    to="/account"
+                    key={link.to}
+                    to={link.to}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                      location.pathname === "/account"
-                        ? "bg-primary text-primary-foreground shadow-xs"
-                        : "text-foreground hover:bg-muted hover:text-primary"
+                    className={`block py-2 font-medium transition-colors ${
+                      isActive
+                        ? "text-primary font-bold"
+                        : "text-foreground hover:text-primary"
                     }`}
                   >
-                    <User className="h-4 w-4 shrink-0" />
-                    <span>My Account</span>
+                    {link.label}
                   </Link>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      to="/auth"
-                      onClick={() => setMenuOpen(false)}
-                      className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
-                        location.pathname === "/auth" && !location.search.includes("mode=signup")
-                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                          : "text-foreground border-border hover:bg-muted hover:text-primary"
-                      }`}
-                    >
-                      <User className="h-3.5 w-3.5 shrink-0" />
-                      <span>Log In</span>
-                    </Link>
-                    <Link
-                      to="/auth?mode=signup"
-                      onClick={() => setMenuOpen(false)}
-                      className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
-                        location.pathname === "/auth" && location.search.includes("mode=signup")
-                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                          : "text-foreground border-border hover:bg-muted hover:text-primary"
-                      }`}
-                    >
-                      <span>Sign Up</span>
-                    </Link>
-                  </div>
-                )}
-              </div>
+                );
+              })}
+            </nav>
 
-              {/* Main Navigation Links */}
-              <div className="space-y-1">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-3 py-1">
-                  Menu
-                </p>
-                {navLinks.map((link) => {
-                  const isActive = location.pathname === link.to;
-                  return (
-                    <Link
-                      key={link.to}
-                      to={link.to}
-                      onClick={() => setMenuOpen(false)}
-                      className={`flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                        isActive
-                          ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                          : "text-foreground hover:bg-muted hover:text-primary"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {/* Categories Section */}
-              {categories && categories.length > 0 && (
-                <div className="mt-5 pt-4 border-t border-border space-y-1">
-                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-3 py-1">
-                    Categories
-                  </p>
-                  <div className="space-y-1">
-                    {categories.map((cat) => {
-                      const isActive = location.pathname === `/category/${cat.slug}`;
-                      return (
-                        <Link
-                          key={cat.id}
-                          to={`/category/${cat.slug}`}
-                          onClick={() => setMenuOpen(false)}
-                          className={`flex items-center px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
-                            isActive
-                              ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          {cat.name}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4 border-t border-border text-center">
-              <p className="text-[11px] text-muted-foreground">© 2026 Smart Digital Hub</p>
-            </div>
+            {categories && categories.length > 0 && (
+              <>
+                <div className="border-t border-border my-4" />
+                <p className="font-display font-bold text-lg mb-2">Categories</p>
+                <nav className="space-y-2">
+                  {categories.map((cat) => {
+                    const isActive = location.pathname === `/category/${cat.slug}`;
+                    return (
+                      <Link
+                        key={cat.id}
+                        to={`/category/${cat.slug}`}
+                        onClick={() => setMenuOpen(false)}
+                        className={`block py-1.5 transition-colors ${
+                          isActive
+                            ? "text-primary font-bold"
+                            : "text-foreground hover:text-primary"
+                        }`}
+                      >
+                        {cat.name}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </>
+            )}
           </div>
-          <div className="flex-1 bg-foreground/40 backdrop-blur-xs" onClick={() => setMenuOpen(false)} role="presentation" />
+          <div className="flex-1 bg-foreground/40" onClick={() => setMenuOpen(false)} role="presentation" />
         </div>
       )}
     </>
