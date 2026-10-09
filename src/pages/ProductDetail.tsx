@@ -280,6 +280,22 @@ const ProductDetail = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [couponShake, setCouponShake] = useState(false);
+  const [viewersCount, setViewersCount] = useState(12);
+
+  useEffect(() => {
+    const base = Math.floor(Math.random() * 7) + 11;
+    setViewersCount(base);
+
+    const timer = setInterval(() => {
+      setViewersCount((prev) => {
+        const delta = Math.random() > 0.5 ? 1 : -1;
+        const next = prev + delta;
+        return next >= 8 && next <= 24 ? next : prev;
+      });
+    }, 12000);
+
+    return () => clearInterval(timer);
+  }, [slug]);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", slug],
@@ -601,6 +617,15 @@ const ProductDetail = () => {
           ) : (
             <p className="text-price text-2xl font-bold mt-3">{formatPrice(activePrice)}</p>
           )}
+
+          {/* Live Viewers Social Proof Badge */}
+          <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold shadow-2xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>{viewersCount} people are viewing this right now</span>
+          </div>
         </div>
 
         {/* Options */}

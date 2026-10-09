@@ -104,7 +104,7 @@ const Cart = () => {
           </div>
         </div>
 
-        <Button className="w-full mt-4" disabled={hasOutOfStock} asChild={!hasOutOfStock}>
+        <Button className="w-full mt-4 btn-shine" disabled={hasOutOfStock} asChild={!hasOutOfStock}>
           {hasOutOfStock ? (
             <span>Proceed to Checkout</span>
           ) : (
