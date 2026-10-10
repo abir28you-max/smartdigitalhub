@@ -8,7 +8,7 @@ const tabs = [
 ];
 
 const BottomNav = () => (
-  <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-lg md:hidden">
+  <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-lg md:hidden gpu-smooth">
     <div className="flex items-center justify-around h-14 px-2">
       {tabs.map((tab) => (
         <NavLink

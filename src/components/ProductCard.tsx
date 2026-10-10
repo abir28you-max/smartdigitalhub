@@ -44,7 +44,7 @@ const ProductCard = ({ id, name, description, price, image_url, stock_status, sl
       to={productUrl}
       onMouseEnter={prefetchProduct}
       onTouchStart={prefetchProduct}
-      className="group bg-card rounded-xl border border-border/80 overflow-hidden shadow-xs hover:border-primary/50 hover:shadow-md hover:-translate-y-1 active:scale-[0.98] h-full flex flex-col cursor-pointer transition-all duration-200 select-none"
+      className="group bg-card rounded-xl border border-border/80 overflow-hidden shadow-xs hover:border-primary/50 hover:shadow-md hover:-translate-y-1 active:scale-[0.98] h-full flex flex-col cursor-pointer transition-[transform,box-shadow,border-color] duration-200 ease-out select-none gpu-smooth"
     >
       <div className="relative aspect-[4/3] bg-muted/60 flex items-center justify-center p-3.5 md:p-6 overflow-hidden">
         {image_url ? (
@@ -53,7 +53,7 @@ const ProductCard = ({ id, name, description, price, image_url, stock_status, sl
             alt={name}
             width="200"
             height="150"
-            className="w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-105"
+            className="w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-105 gpu-smooth"
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
             decoding="async"

@@ -192,7 +192,7 @@ const Header = ({ hideSearch = false }: HeaderProps) => {
 
   return (
     <>
-      <header className="bg-header sticky top-0 z-50 border-b border-border shadow-xs">
+      <header className="bg-header sticky top-0 z-50 border-b border-border shadow-xs gpu-smooth">
         {/* Main Top Header Bar */}
         <div className="container flex items-center justify-between h-14 md:h-20 gap-2">
           {/* Logo */}

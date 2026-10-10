@@ -112,10 +112,16 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Eliminate 300ms mobile touch delay for instant tap feedback */
+  html, body, button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -132,6 +138,19 @@
   }
   .text-header {
     color: hsl(var(--header-foreground));
+  }
+
+  /* Ultra-smooth GPU composited rendering for 60/120 FPS buttery motion */
+  .gpu-smooth {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* Skips off-screen layout/paint workload, eliminating scroll stutter */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 360px;
   }
 }
 
@@ -180,11 +199,14 @@
 }
 
 .product-card-hover {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .product-card-hover:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) translateZ(0);
   box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12), 0 4px 12px -4px rgba(124, 58, 237, 0.12);
 }
 
@@ -222,10 +244,10 @@
   animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Button Shine Sweep Effect */
+/* Button Shine Sweep Effect - GPU composited */
 @keyframes shine-sweep {
-  0% { transform: translateX(-150%) rotate(25deg); }
-  30%, 100% { transform: translateX(250%) rotate(25deg); }
+  0% { transform: translateX(-150%) rotate(25deg) translateZ(0); }
+  30%, 100% { transform: translateX(250%) rotate(25deg) translateZ(0); }
 }
 
 .btn-shine {
@@ -241,9 +263,10 @@
   width: 60%;
   height: 200%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: translateX(-150%) rotate(25deg);
+  transform: translateX(-150%) rotate(25deg) translateZ(0);
   animation: shine-sweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
+  will-change: transform;
 }
 
 /* Invalid Input Shake */

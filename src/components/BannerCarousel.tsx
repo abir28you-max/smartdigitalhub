@@ -85,9 +85,9 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Horizontal Sliding Track */}
+        {/* Horizontal Sliding Track - GPU accelerated */}
         <div
-          className="flex w-full h-full transition-transform duration-700 ease-out will-change-transform"
+          className="flex w-full h-full transition-transform duration-700 ease-out will-change-transform gpu-smooth"
           style={{
             transform: `translateX(-${current * 100}%)`,
             transitionTimingFunction: "cubic-bezier(0.25, 1, 0.5, 1)",
@@ -101,7 +101,7 @@ const BannerCarousel = ({ initialBanners }: { initialBanners?: Banner[] }) => {
                   src={getOptimizedImageUrl(b.image_url, { width: 300, quality: 35 })}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-125 pointer-events-none"
+                  className="absolute inset-0 w-full h-full object-cover blur-lg opacity-35 scale-110 pointer-events-none gpu-smooth"
                 />
                 <img
                   src={getOptimizedImageUrl(b.image_url, { width: 1400, quality: 85 })}

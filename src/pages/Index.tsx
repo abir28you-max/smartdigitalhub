@@ -177,11 +177,11 @@ const Index = () => {
             </div>
           )}
 
-          {categories.map((cat) => {
+          {categories.map((cat, index) => {
             const catProducts = getProductsByCategory(cat.id);
             if (catProducts.length === 0) return null;
             return (
-              <section key={cat.id} className="container mt-8 md:mt-14 animate-fade-in-up">
+              <section key={cat.id} className={`container mt-8 md:mt-14 animate-fade-in-up ${index > 0 ? "content-visibility-auto" : ""}`}>
                 <div className="flex items-center justify-between mb-4 md:mb-6">
                   <h2 className="font-display text-xl md:text-2xl font-bold">{cat.name}</h2>
                   <Link to={`/category/${cat.slug}`} className="text-primary text-sm font-medium flex items-center gap-1 hover:translate-x-0.5 transition-transform">
@@ -190,7 +190,7 @@ const Index = () => {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
                   {catProducts.map((p, i) => (
-                    <ProductCard key={p.id} {...p} priority={i < 2} />
+                    <ProductCard key={p.id} {...p} priority={index === 0 && i < 2} />
                   ))}
                 </div>
               </section>
@@ -208,7 +208,7 @@ const Index = () => {
             </section>
           )}
 
-          <section className="container mt-8 md:mt-16 mb-6 md:mb-12 animate-fade-in-up">
+          <section className="container mt-8 md:mt-16 mb-6 md:mb-12 animate-fade-in-up content-visibility-auto">
             <h2 className="font-display text-xl md:text-3xl font-black text-center mb-4 md:mb-8">Why Choose Us</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-5">
               <div className="bg-card rounded-xl border border-border p-3 md:p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30">
