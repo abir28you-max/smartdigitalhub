@@ -92,17 +92,41 @@ const Auth = () => {
   const handleGoogleAuth = async () => {
     try {
       setBusy(true);
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}${next}`,
+          skipBrowserRedirect: true,
         },
       });
       if (error) throw error;
+
+      if (data?.url) {
+        // Validate if Google provider is enabled on Supabase backend
+        try {
+          const testRes = await fetch(data.url);
+          if (!testRes.ok) {
+            const errJson = await testRes.json().catch(() => null);
+            if (errJson?.msg?.includes("not enabled") || errJson?.error_code === "validation_failed") {
+              toast({
+                title: "Google Provider Not Enabled",
+                description: "Supabase ব্যাকএন্ডে Google Provider অন করা প্রয়োজন। বর্তমানে ইমেইল ও পাসওয়ার্ড দিয়ে একাউন্ট তৈরি বা লগইন করুন।",
+                variant: "destructive",
+              });
+              setBusy(false);
+              return;
+            }
+          }
+        } catch {
+          // In case of CORS or offline, fallback to direct redirect
+        }
+
+        window.location.href = data.url;
+      }
     } catch (err: any) {
       toast({
         title: "Google authentication failed",
-        description: err?.message ?? "Please try again",
+        description: err?.message ?? "Please try again or use email login",
         variant: "destructive",
       });
       setBusy(false);
