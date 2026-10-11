@@ -22,10 +22,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
       setLoading(false);
+
+      if (s?.user) {
+        const u = s.user;
+        const name = u.user_metadata?.full_name || u.user_metadata?.name || "";
+        const email = u.email || "";
+        try {
+          await supabase.from("profiles").upsert({
+            id: u.id,
+            full_name: name,
+            email: email,
+          }, { onConflict: "id" });
+        } catch {
+          // Ignore if profile already exists or schema differs
+        }
+      }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
